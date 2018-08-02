@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+    
+    <head>
+        <meta charset="utf-8" />
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
+
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+        <link rel="stylesheet" type="text/css" href="css/index.css"/>
+
+        <title>Marconi</title>
+    </head>
+
+    <body>
+        <div id="login" class="index collapse login container">
+            <div class="row">
+                <div class="col-sm"></div>
+                <div class="col-sm">
+                    <h1 class="h3 mb-3 font-weight-normal">Accedi</h1>
+
+                    <input id="lInEmail" class="form-control" type="email" placeholder="email">
+                    <input id="lInPwd" class="form-control" type="password" placeholder="password">
+                    
+                    <button class="btn btn-primary btn-lg" id="login_button" type="button">Accedi</button>
+                    
+                    <a class="btn btn-link btn-lg" id="signup_link">Registrati</a>   
+                </div>
+                <div class="col-sm">
+                </div>
+            </div>
+        </div>
+        
+        <div id="signup" class="collapse index login container">
+            <div class="row">
+                <div class="col-sm"></div>
+                <div class="col-sm">
+
+                        <h1 class="h3 mb-3 font-weight-normal">Registrati</h1>
+
+                        <input id="sUpName" class="form-control" type="text" placeholder="nome">
+                        <input id="sUpSurname" class="form-control" type="text" placeholder="cognome">
+                        <input id="sUpEmail"  class="form-control"type="email" placeholder="email">
+                        <input id="sUpPwd" class="form-control" type="password" placeholder="password">
+                        <input id="sUpPwdRep" class="form-control" type="password" placeholder="ripeti password">
+                        
+                        <button class="btn btn-lg btn-primary" id="signup_button" type="button">Registrati</button>
+                        
+                        <a class="btn btn-link btn-lg login_page_btn">Accedi</a>
+
+                </div>
+                <div class="col-sm">
+                </div>
+            </div>
+        </div>
+        
+        <script type='text/javascript' >
+            
+            var INSTITUTE_ID = null;
+            var CURRENT_PAGE = null;
+
+            var date = new Date();
+
+            function showPage(page) {
+                if (CURRENT_PAGE != null) {
+                    CURRENT_PAGE.hide();
+                }
+                CURRENT_PAGE = page;
+                CURRENT_PAGE.show();
+            }
+        </script>
+
+        <script type="text/javascript" src="js/firebaseConfig.js"></script>
+        <script type="text/javascript" src="js/login.js"></script>
+
+        <script src="js/popper.min.js"></script>
+        <script src="js/moment.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/bootstrap-datepicker.min.js"></script>
+    </body>
+</html>
