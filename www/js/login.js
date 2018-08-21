@@ -29,14 +29,6 @@ $(function () {
     logOut();
   });
 
-  $("#new_institute_button").on('click', () => {
-    showPage($("#new_institute"));
-  });
-
-  $("#create_institute_button").on('click', () => {
-    createInstitute();
-  });
-
   $("#log_institute_button").on('click', () => {
     getInstituteList();
     showPage($("#log_institute"));
@@ -161,72 +153,6 @@ $(function () {
         goUserPage();
       }
     });
-  }
-
-  /*
-    create a new institute in the db and set the user as admin
-  */
-  function createInstitute() {
-    /*
-      get institte name from the html text input field
-      retrive database and user reference
-    */
-    const institute_name = $("#nInstInstName")[0].value;
-    const USER = firebase.auth().currentUser;
-    const ref = firebase.database().ref();
-    /*
-      check if the institute name is valid
-    */
-    if (institute_name.length >= 1 ) {
-      /*
-        if it is insert the institute in the db
-        (an unique key is automatically generated)
-      */
-      var inst_ref = ref.child('institute').push({
-        name: institute_name
-      });
-
-      /*
-        get the reference (unique key) to the new institute
-      */
-      var inst_id = inst_ref.key;
-
-      /*
-        add the user to the institute's user list, grant him access and
-        admin privileges
-      */
-      ref.child('institute/' + inst_id + '/user/'+ USER.uid).set({
-        name: USER.displayName,
-        admin: true,
-        confirmed: true
-      });
-
-      /*
-        add the institute to the user's institute list
-      */
-      ref.child('user/'+ USER.uid +'/institute').update({
-        [inst_id] : institute_name
-      });
-
-      /*
-        set the institute as default institute for the user
-      */
-      ref.child('user/'+ USER.uid + '/institute/').update({
-        default_institute : inst_ref.key
-      });
-
-      /*
-        set institute global variables
-      */
-      INSTITUTE_ID = inst_ref.key;
-
-      /*
-        send the user to the institute page
-      */
-      goInstitutePage();
-    } else {
-      alert('Insert institute name');
-    }
   }
 
   /*
