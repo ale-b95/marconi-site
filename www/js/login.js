@@ -29,12 +29,15 @@ $(function () {
     logOut();
   });
 
-  $("#log_institute_button").on('click', () => {
-    getInstituteList();
-    showPage($("#log_institute"));
+  $("#new_institute_button").on('click', () => {
+    showPage($("#new_institute"));
   });
 
-  $("#choose_inst").on('click', () => {
+  $("#create_institute_button").on('click', () => {
+    createInstitute();
+  });
+
+  $("#log_institute_button").on('click', () => {
     logOnInstitute();
   });
 
@@ -45,7 +48,7 @@ $(function () {
     if (firebaseUser) {
       console.log(firebaseUser);
       console.log('logged in');
-      logDefaultInstitute();
+      quickLog();
     } else {
       console.log('not logged in');
       showPage($("#login"));
@@ -56,7 +59,6 @@ $(function () {
     Creates a new user and updates its displayName
 */
   function registerNewUser() {
-    const formSignup = $('#signup_form')[0];
     const txtName = $("#sUpName")[0];
     const txtSurname = $("#sUpSurname")[0];
     const txtEmailSignup = $("#sUpEmail")[0];
@@ -85,7 +87,7 @@ $(function () {
           const USER = firebase.auth().currentUser;
           var dbRef = firebase.database().ref();
 
-          dbRef.child('user/' + USER.uid + '/user_data').set({
+          dbRef.child('user/' + USER.uid).set({
             name: txtName.value,
             surname: txtSurname.value,
             email: USER.email
@@ -123,14 +125,13 @@ $(function () {
     automatically log in the default institute (last logged one)
     if presen
   */
-  function logDefaultInstitute() {
+  function quickLog() {
     const USER = firebase.auth().currentUser;
     /*
       get database and authentication reference to obtain user id and access to
       the "default institute" field of the user
     */
-    const dbRef = firebase.database().ref();
-    const ref = dbRef.child('user/' + USER.uid + '/institute/default_institute');
+    const ref =  firebase.database().ref('user/' + USER.uid+'/confirmed');
 
     /*
       check if the "default institute" field is set
@@ -138,18 +139,10 @@ $(function () {
       if it is automatically log on the institute page
     */
     ref.once('value', snap => {
-      if (snap.val() != null) {
-        INSTITUTE_ID = snap.val();
-        dbRef.child('institute/' + INSTITUTE_ID + '/user/' + USER.uid).once('value',snap => {
-          snap.forEach(childSnap => {
-            if (childSnap.key == 'confirmed' && childSnap.val() == true) {
-                goInstitutePage();
-            } else  {
-                goUserPage();
-            }
-          });
-        });
-      } else {
+      if (snap.val() == "true") {
+        alert("ok");
+        goInstitutePage();
+      } else  {
         goUserPage();
       }
     });
@@ -209,69 +202,26 @@ $(function () {
   access is denied otherwise
 */
   function logOnInstitute() {
-    /*
-      get the selected value from the selection field in the html page
-    */
+   
     const USER = firebase.auth().currentUser;
-    var inst_id = $("#select_institute").val();
-    var inst_name = $("#select_institute").find(':selected').text();
     /*
-      ensure the value is valid
+      get database and authentication reference to obtain user id and access to
+      the "default institute" field of the user
     */
-    if (inst_name != 'Seleziona istituto') {
-      /*
-        if it is get database and user reference
-      */
-      const dbRef = firebase.database().ref();
-
-      /*
-        insert the institute to the user institute list
-      */
-      dbRef.child('user/' + USER.uid + '/institute/').update({
-        [inst_id] : inst_name
-      });
-
-      /*
-        insert the user to the institute user list
-      */
-      dbRef.child('institute/' + inst_id + '/user/' + USER.uid).update({
-        name: USER.displayName
-      });
-
-      /*
-        check if the user is authorized to access to the institute page
-      */
-      dbRef.child('institute/' + inst_id + '/user/' + USER.uid).once('value',snap => {
-        var conf = false;
-        snap.forEach(childSnap => {
-          if (childSnap.key == 'confirmed' && childSnap.val() == true) {
-            conf = true;
-          }
-        });
-
-        /*
-          if the user is confirmed, allow access otherwise notify the
-          "waiting confirmation" status and go to the user page
-        */
-        if (conf) {
-
-          /*
-            set the institute as the default user institute
-          */
-          dbRef.child('user/' + USER.uid + '/institute').update({
-            default_institute : inst_id
-          });
-
-          INSTITUTE_ID = inst_id;
-          goInstitutePage();
-        } else {
-          goUserPage();
-          alert("Non hai i permessi necessari per accedere a questo istituto. Contatta gli amministratori per richiedere l'accesso.");
-        }
-      });
-    } else {
-      alert('Seleziona un istituto');
-    }
+    const ref =  firebase.database().ref('user/' + USER.uid);
+    /*
+      check if the user is authorized to access to the institute page
+      if the user has already been confirmed, allow access otherwise notify the
+      "waiting confirmation" status and go to the user page
+    */
+    ref.once('value', snap => {
+      if (snap.val().access == true) {
+        goInstitutePage();
+      } else  {
+        alert("Non hai i permessi necessari per accedere a questo istituto. Contatta gli amministratori per richiedere l'accesso.");
+        goUserPage();
+      }
+    });
   }
 
 /*
@@ -291,34 +241,18 @@ $(function () {
     /*
       load institute info
     */
-    if (INSTITUTE_ID != null) {
-      const USER = firebase.auth().currentUser;
-      var ref = firebase.database().ref('institute/' + INSTITUTE_ID);
 
-      ref.once('value', snap => {
-        snap.forEach(childSnap => {
-          if (childSnap.key == 'name') {
-            $("#institute_info").text(childSnap.val());
-          }
-        });
-      });
+    $("#institute_info").text("L.S. Marconi Pesaro");
+    const USER = firebase.auth().currentUser;
+    firebase.database().ref('user/' + USER.uid).once('value', snap => {
 
-      ref.child('/user/' + USER.uid).once('value',snap => {
-        var admin = false;
-        snap.forEach(childSnap => {
-          if (childSnap.key == 'admin' && childSnap.val() == true) {
-            admin = true;
-          }
-        });
-
-        if (admin) {
-            showPage($("#institute_page"));
-            $("#admin_btn").show();
-        } else {
-          $("#admin_btn").hide();
+      if (snap.val().admin == true) {
           showPage($("#institute_page"));
-        }
-      });
-    }
+          $("#admin_btn").show();
+      } else {
+        $("#admin_btn").hide();
+        showPage($("#institute_page"));
+      }
+    });
   }
 });

@@ -11,6 +11,7 @@ body {
     text-align: center;
 }
 
+/*
 .login {
     margin-top: 10%;
 }
@@ -22,6 +23,7 @@ body {
 .admin {
     margin-top: 20%;
 }
+*/
 
 .h3 {
     margin-top: 4%;
@@ -37,7 +39,7 @@ input {
 }
 
 .btn {
-    width: 60%;
+    width: 80%;
     margin-bottom: 4%;
 }
 
@@ -129,9 +131,9 @@ td .btn {
 /*DATEPICKER & FORM*/
 
 .form-control {
-    width: 60%;
-    margin-left: 20%;
-    margin-bottom: 1%;
+    width: 80%;
+    margin-left: 10%;
+    margin-bottom: 2%;
 }
 
 .datepicker {

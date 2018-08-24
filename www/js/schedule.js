@@ -1,5 +1,4 @@
 $(function () {
-    
     var sc_date;
     var classroom_name;
     var classroom_id;
