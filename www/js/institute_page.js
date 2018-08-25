@@ -44,7 +44,7 @@ $(function () {
         /*
             get the reference to the database to obtain the list of the classrooms
         */
-        const dbRef = firebase.database().ref('institute/' + INSTITUTE_ID + '/classroom/');
+        const dbRef = firebase.database().ref('classroom/');
         
         var classroomList = dbRef.on('value', snap => {
             
@@ -78,7 +78,7 @@ $(function () {
         /*
             get the reference to the database to obtain the list of classes
         */
-        const dbRef = firebase.database().ref('institute/' + INSTITUTE_ID + '/class/');
+        const dbRef = firebase.database().ref('class/');
         
         /*
             generate the html code for each class found on the database

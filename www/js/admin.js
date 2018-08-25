@@ -55,7 +55,7 @@ $(function () {
             Get database reference and the user reference from firebase
         */
         const USER = firebase.auth().currentUser;
-        const dbRef = firebase.database().ref('institute/' + INSTITUTE_ID + '/user/');
+        const dbRef = firebase.database().ref('user/');
         
         /*
             For each user added to the istitute, retrives the name, the confirmation value
@@ -188,7 +188,7 @@ $(function () {
             /*
                 Create the new classroom based on the values from the forms
             */
-            dbRef.child('institute/'+INSTITUTE_ID+'/classroom').push({
+            dbRef.child('classroom').push({
                 classroom_name : classroomName.value,
                 classroom_capacity : classroomCapacity.value
             }).catch(error => console.log('user not updated ' + error.message)).then(() =>{
@@ -205,7 +205,7 @@ $(function () {
     function loadClassroomList() {
         
         $("#admin_classroom_table_body").empty();
-        const dbRef = firebase.database().ref('institute/' + INSTITUTE_ID + '/classroom/');
+        const dbRef = firebase.database().ref('classroom/');
         var classroomList =  dbRef.once('value', snap => {
             snap.forEach(childSnap => {
                 var key =  childSnap.key;
@@ -240,7 +240,7 @@ $(function () {
         
         if (className && className != '' && nOfStudents) {
             
-            firebase.database().ref('institute/' +INSTITUTE_ID+ '/class/'+className).set({
+            firebase.database().ref('class/'+className).set({
                 number_of_students : nOfStudents
             }).catch(error => console.log(error.message)).then(() =>{
                 $("#class_name").val("");
@@ -257,7 +257,7 @@ $(function () {
     */
     function loadClassList() {
         $("#admin_classes_table_body").empty();
-        const dbRef = firebase.database().ref('institute/' + INSTITUTE_ID + '/class/');
+        const dbRef = firebase.database().ref('class/');
         
         dbRef.once('value', snap => {
             
