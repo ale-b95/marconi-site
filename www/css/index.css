@@ -105,6 +105,11 @@ td .btn {
     margin-top: 2%;
 }
 
+.four-columns-table tbody td, .four-columns-table thead > tr > th {
+    float: left;
+    width: 25%;
+}
+
 .three-columns-table tbody td, .three-columns-table thead > tr > th {
     float: left;
     width: 33%;

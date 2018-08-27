@@ -86,7 +86,7 @@ $(function () {
             name: txtName.value,
             surname: txtSurname.value,
             email: USER.email,
-            priviledges: 1
+            priviledges: "1"
           }).catch(ops => console.log('ERROR '+ops.message));
         goUserPage();
       }).catch(createUser => console.log('error during user creation ' + createUser.message));

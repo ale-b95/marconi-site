@@ -61,108 +61,59 @@ $(function () {
             For each user added to the istitute, retrives the name, the confirmation value
             and the admin value and insert this values in a table row.
         */
-        var user_list = dbRef.on('value', snap => {
-            
+        dbRef.on('value', snap => {
             snap.forEach(childSnap => {
-                var name;
-                var admin = null;
-                var confirmed = null;
-                
-                childSnap.forEach(gcSnap => {
-                    
-                    if (gcSnap.key == 'name') {
-                        name = gcSnap.val();
-                    } else if (gcSnap.key == 'admin'){
-                        admin = gcSnap.val();
-                    } else if (gcSnap.key == 'confirmed'){
-                        confirmed = gcSnap.val();
-                    }
-                });
+                if (USER.uid != childSnap.key) {
+                    var name;
+                    var surname;
+                    var priviledges;
 
-                if (confirmed == null) {
-                    confirmed = 'false';
-                }
+                    name = childSnap.val().name;
+                    surname = childSnap.val().surname;
+                    priviledges = childSnap.val().priviledges;
 
-                if (admin == null) {
-                    admin = 'false';
-                }
-
-                /*
-                    Create in the table row two buttons to allow the user to modify these values.
-                    
-                    The user cannot modify his own values to prevent the possibility of removing all administrators.
-                */
-                $("#user_table_body").append('<tr id="'+childSnap.key+'"><td>'+name+'</td>'+'<td><button class="btn btn-primary btn-sm conf_btn" type="button">'+confirmed+'</button></td>'+ '<td><button class="btn btn-primary btn-sm admin_btn" type="button">'+admin+'</button></td></tr>');
-                
-                /*
-                    Attach to the nearly generated buttons listeners to modifty admin and access privileges.
-                */
-                $("#"+childSnap.key+" .conf_btn").on('click', function() {
-                    
                     /*
-                        Get reference to the user bounded with the pressed button.
+                        Create in the table row two buttons to allow the user to modify these values.
+                        
+                        The user cannot modify his own values to prevent the possibility of removing all administrators.
                     */
-                    institute_user_ref = dbRef.child(childSnap.key);
-                    
+
+                    switch(priviledges) {
+                        case "1" :
+                            $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
+                        '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1" checked></td>'+ 
+                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2"></td>'+
+                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3"></td></form></tr>');
+                        break;
+                        case "2" :
+                            $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
+                        '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td>'+ 
+                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2" checked></td>'+
+                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3"></td></form></tr>');
+                        break;
+                        case "3" :
+                            $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
+                        '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td>'+ 
+                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2"></td>'+
+                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3" checked></td></form></tr>');
+                        break;
+                    }
+
                     /*
-                        Check whether the user whos privileges are going to be modified is the current user and
-                        if not allow the modifications.
+                        Attach listeners to modifty privileges.
                     */
-                    if (USER.uid != childSnap.key) {
-                        
-                        if (confirmed == true) {
-                            
-                            institute_user_ref.update({
-                                confirmed: false,
-                                admin: false
-                            });
-                            
-                            $("#"+childSnap.key+" .conf_btn").text('false');
-                            $("#"+childSnap.key+" .admin_btn").text('false');
-                            
-                        } else {
-                            
-                            institute_user_ref.update({
-                                confirmed: true
-                            });
-                            
-                            $("#"+childSnap.key+" .conf_btn").text('true');
-                        }
-                    } else {
-                        alert('Cannot modify your own privileges')
-                    }
-
-                    loadUsersList();
-                });
-
-                $("#"+childSnap.key+" .admin_btn").on('click', function() {
-                    institute_user_ref = dbRef.child(childSnap.key);
-                    
-                    if (USER .uid != childSnap.key) {
-                        
-                        if (admin == true) {
-                            
-                            institute_user_ref.update({
-                                admin: false
-                            });
-                            
-                            $("#"+childSnap.key+" .admin_btn").text('false');
-                            
-                        } else {
-                            
-                            institute_user_ref.update({
-                                admin: true,
-                                confirmed: true
-                            });
-                            
-                            $("#"+childSnap.key+" .admin_btn").text('true');
-                            $("#"+childSnap.key+" .conf_btn").text('true');
-                        }
-                    } else {
-                        alert('Cannot modify your own privileges');
-                    }
-                    loadUsersList();
-                });
+                    $('.radio-'+childSnap.key).change( function() {
+                        /*
+                            Get reference to the user bounded with the pressed button.
+                        */
+                        user_ref = dbRef.child(childSnap.key);
+                        var accessLevel = this.value;
+                        user_ref.update({
+                            priviledges: accessLevel
+                        });
+                        loadUsersList();
+                    });
+                }
             });
         });
     }
