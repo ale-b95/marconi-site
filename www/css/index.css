@@ -24,14 +24,22 @@ input {
     margin-bottom: 4%;
 }
 
-.btn {
+.long-btn {
     width: 80%;
     margin-bottom: 4%;
 }
 
 .back_btn {
     margin-top: 6%;
-}*/
+}
+
+.update-button {
+    width: 39%; 
+}
+
+.datepicker {
+    width: 39%;
+}
 
 /*TABLE*/
 

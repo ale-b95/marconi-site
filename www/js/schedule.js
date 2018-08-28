@@ -1,4 +1,5 @@
 $(function () {
+    jQuery('#datetimepicker1').datetimepicker();
     jQuery.datetimepicker.setLocale('it');
 
     jQuery('#datetimepicker1').datetimepicker({
@@ -30,8 +31,10 @@ $(function () {
         classroom_id = $("#select_classroom").val();
         classroom_name = $("#select_classroom").find(':selected').text();
 
-        if (classroom_id != 'Seleziona aula' && sc_date) {
+        if (classroom_name != 'Seleziona aula' && sc_date) {
             loadClassroomSchedule();
+        } else {
+            alert ("Controllare valori selezionati.");
         }
         
     });

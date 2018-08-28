@@ -1,5 +1,5 @@
 $(function () {
-    jQuery('#datetimepicker1').datetimepicker();
+    jQuery('#datetimepicker2').datetimepicker();
 
 /************************ show events ************************/
     var year;
@@ -7,6 +7,13 @@ $(function () {
     var startdate;
     var enddate;
     
+    jQuery('#datetimepicker2').datetimepicker({
+        minDate:'0',
+        timepicker:false,
+        format:'M.Y'
+    });
+    
+
     /*
     $('#events_show_datepicker').datepicker({
         format: 'mm/yyyy',
@@ -207,7 +214,6 @@ $(function () {
     $('#new_event_btn').on('click', () => {
         $('#main_events_page').hide();
         $('#new_event_page').show();
-        $("#events_create_datepicker").datepicker("update", null);
         $('#event_title').text('');
     });
     
