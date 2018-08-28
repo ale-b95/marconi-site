@@ -1,11 +1,13 @@
 $(function () {
-    
+    jQuery('#datetimepicker1').datetimepicker();
+
 /************************ show events ************************/
     var year;
     var month;
     var startdate;
     var enddate;
     
+    /*
     $('#events_show_datepicker').datepicker({
         format: 'mm/yyyy',
         language: "it",
@@ -15,6 +17,7 @@ $(function () {
         viewMode: "months", 
         minViewMode: "months"
     });
+    */
     
     $('#events_show_datepicker').on('changeMonth', (e) => {
         year = String(e.date).split(" ")[3];
@@ -66,7 +69,6 @@ $(function () {
                 var teacher_key;
                 var classroom;
                 var classroom_key;
-                var starting_hour;
                 
                 childSnap.forEach(gcSnap => {
                     if (gcSnap.key == 'title') {
@@ -181,14 +183,14 @@ $(function () {
     var cs_selected_rows = 0;
     var selected_hours = [];
     
-    $('#events_create_datepicker').datepicker({
+    /*$('#events_create_datepicker').datepicker({
         format: 'dd/mm/yyyy',
         language: "it",
         autoclose: true,
         todayHighlight: true,
         toggleActive: true,
         daysOfWeekHighlighted: "0"
-    });
+    });*/
     
     $('#events_create_datepicker').on('changeDate', () => {
         if (classroom_name != "Seleziona aula") {

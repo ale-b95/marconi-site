@@ -1,6 +1,14 @@
 $(function () {
+    jQuery.datetimepicker.setLocale('it');
+
+    jQuery('#datetimepicker1').datetimepicker({
+    minDate:'0',
+    timepicker:false,
+    format:'d.m.Y'
+    });
+
     var sc_date;
-    var classroom_name;
+    var classroom_name = "Seleziona aula";
     var classroom_id;
     
     /*
@@ -12,31 +20,22 @@ $(function () {
     var mb_selected_rows = 0;
     var selected_hours = [];
 
-    $('#classroom_datepicker').datepicker({
-        format: 'dd/mm/yyyy',
-        language: "it",
-        autoclose: true,
-        todayHighlight: true,
-        toggleActive: true,
-        daysOfWeekHighlighted: "0"
-    });
-
     /*
         Load the information about the selected classroom on a selected day when
         the classroom and the day have been selected
     */
-    $('#classroom_datepicker').on('changeDate', () => {
-        if (classroom_name != "Seleziona aula") {
+
+    $('#update-schedule_btn').on('click', () => {
+        sc_date = $("#datetimepicker1").datetimepicker('getValue');
+        classroom_id = $("#select_classroom").val();
+        classroom_name = $("#select_classroom").find(':selected').text();
+
+        if (classroom_id != 'Seleziona aula' && sc_date) {
             loadClassroomSchedule();
         }
+        
     });
-
-    $("#select_classroom").on('change', () => {
-        if (sc_date) {
-            loadClassroomSchedule();
-        }
-    });
-
+    
     /*
         Attach a listener to each row based on the kind of prenotation is set for 
         the relative hour
@@ -89,7 +88,6 @@ $(function () {
         Create a prenotation for each selected row
     */
     $('#book_prenotation_btn').on('click', () => {
-        
         /*
             Check whether the day of the selected has already passed, in wich
             case no prenotations are allowed.
@@ -105,7 +103,7 @@ $(function () {
         if (class_name && class_name != 'Seleziona classe' && cs_selected_rows > 0 && sc_date >= today && classroom_name != "Seleziona aula") {
             
             for (var i = 0; i < selected_hours.length; i++) {            
-                firebase.database().ref('institute/'+INSTITUTE_ID+'/prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
+                firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
                 class : class_name,
                 classroom : classroom_name,
                 teacher : user.displayName,
@@ -127,7 +125,7 @@ $(function () {
                 the previous prenotation.
             */
             for (var i = 0; i < selected_hours.length; i++) {
-                var prenotation_ref = firebase.database().ref('institute/'+INSTITUTE_ID+'/prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]);
+                var prenotation_ref = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]);
                 prenotation_ref.remove();
             }
             loadClassroomSchedule();
@@ -152,73 +150,65 @@ $(function () {
        Insert the rows with the prenotation for the selected day and the selected classroom
     */
     function loadClassroomSchedule() {
-        sc_date = $("#classroom_datepicker").datepicker('getDate');
+        $("#schedule_table_body").empty();
         
-        classroom_id = $("#select_classroom").val();
-        classroom_name = $("#select_classroom").find(':selected').text();
-        
-        if (classroom_id != 'Seleziona aula' && sc_date) {
-            $("#schedule_table_body").empty();
-            
-            for (var hour = 8; hour<16; hour++) {
-                $("#schedule_table_body").append(
-                '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
-                '<th>'+hour+':00</th><td></td>'+
-                '</tr>');
-            }
-            
-            var pRef = firebase.database().ref('institute/'+INSTITUTE_ID+'/prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/');
-            pRef.once('value', snap => {
-                
-                snap.forEach(childSnap => {
-                    var hour = childSnap.key;
-                    var hour;
-                    var teacher_name;
-                    var class_name;
-                    var event_title;
-                    var event_key;
-                    var second_column;
-                    var teacher_id;
-                    childSnap.forEach(gcSnap => {
-                        
-                        if (gcSnap.key == 'teacher') {
-                            teacher_name = gcSnap.val();
-                        } else if (gcSnap.key == 'event') {
-                            event_title = gcSnap.val();
-                        } else if (gcSnap.key == 'class') {
-                            class_name =  gcSnap.val();
-                        } else if (gcSnap.key == 'event_key') {
-                            event_key = gcSnap.val();
-                        } else if (gcSnap.key == 'teacher_key') {
-                            teacher_id = gcSnap.val();
-                        }
-                    }); 
-
-                    if (event_title) {
-                        second_column = event_title;
-                    } else {
-                        second_column = class_name + ' ' + teacher_name;
-                    }
-
-                    $("#hid_"+hour).empty();
-                    $("#hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
-                    
-                    if (event_title) {
-                        $("#hid_"+hour).addClass('event_prenotation');
-                        $("#hid_"+hour).val(event_key);              
-                    } else {
-                        var user = firebase.auth().currentUser;
-                    
-                        if (user.uid == teacher_id){
-                            $("#hid_"+hour).addClass('mybook');
-                        } else {
-                            $("#hid_"+hour).addClass('booked');
-                            $("#hid_"+hour).removeClass('clickable-row');
-                        }
-                    }
-                });
-            });
+        for (var hour = 8; hour<16; hour++) {
+            $("#schedule_table_body").append(
+            '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
+            '<th>'+hour+':00</th><td></td>'+
+            '</tr>');
         }
+        
+        var pRef = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/');
+        pRef.once('value', snap => {
+            
+            snap.forEach(childSnap => {
+                var hour = childSnap.key;
+                var teacher_name;
+                var class_name;
+                var event_title;
+                var event_key;
+                var second_column;
+                var teacher_id;
+                childSnap.forEach(gcSnap => {
+                    
+                    if (gcSnap.key == 'teacher') {
+                        teacher_name = gcSnap.val();
+                    } else if (gcSnap.key == 'event') {
+                        event_title = gcSnap.val();
+                    } else if (gcSnap.key == 'class') {
+                        class_name =  gcSnap.val();
+                    } else if (gcSnap.key == 'event_key') {
+                        event_key = gcSnap.val();
+                    } else if (gcSnap.key == 'teacher_key') {
+                        teacher_id = gcSnap.val();
+                    }
+                }); 
+
+                if (event_title) {
+                    second_column = event_title;
+                } else {
+                    second_column = class_name + ' ' + teacher_name;
+                }
+
+                $("#hid_"+hour).empty();
+                $("#hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
+                
+                if (event_title) {
+                    $("#hid_"+hour).addClass('event_prenotation');
+                    $("#hid_"+hour).val(event_key);              
+                } else {
+                    var user = firebase.auth().currentUser;
+                
+                    if (user.uid == teacher_id){
+                        $("#hid_"+hour).addClass('mybook');
+                    } else {
+                        $("#hid_"+hour).addClass('booked');
+                        $("#hid_"+hour).removeClass('clickable-row');
+                    }
+                }
+            });
+        });
     }
 
     function increase_mb_select(x) {
