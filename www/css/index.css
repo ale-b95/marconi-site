@@ -70,6 +70,10 @@ input {
      background-color: greenyellow;
 }
 
+#event_list {
+    margin-bottom: 7%;
+}
+
 td .btn {
     height:30px;
     width:50px;
