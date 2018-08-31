@@ -89,32 +89,40 @@ $(function () {
                     $("#ed_classroom").text('Luogo evento: '+classroom);
                     
                     var user = firebase.auth().currentUser;
+                    
                     if (isAdmin(user.uid) || user.uid == teacher_key) {
                         $("#delete_event").on('click', () => {
                             deleteEvent(childSnap.key, event_date, classroom_key);
                         });
-                        
                         $("#delete_event").show();
                     }
                     
                     $("#save_event").on('click', () => {
                         var class_name = $("#event_class").find(':selected').text();
-                        
                         if (class_name != 'Seleziona classe') {
-                            firebase.database().ref('class/'+class_name+'/event/'+event_key+'/').set({
+                            firebase.database().ref('class/'+class_name+'/event/'+event_key).set({
                                 title : title,
                                 event_date : event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear()
-                            }).then(() => {
-                                alert('Prenotazione effettuata');
-                                loadEventList();
-                                $('#event_details').hide();
-                                $('#main_events_page').show();
                             });
+                            
+                            var number_of_students;
+                            
+                            firebase.database().ref('class/'+class_name).once('value', snap => {
+                                number_of_students = snap.val().number_of_students;                                    
+                            }).then(() => {
+                                firebase.database().ref('event/'+event_key+'/class').update({
+                                    [class_name] : number_of_students
+                                });
+                            });
+                            
+                            loadEventList();
+                            alert('Prenotazione effettuata');
+                            $('#event_details').hide();
+                            $('#main_events_page').show();
                         } else {
                             alert ('Seleziona una classe');
                         }
                     });
-                    
                     $('#main_events_page').hide();
                     $('#event_details').show();
                 });
@@ -125,7 +133,6 @@ $(function () {
     function deleteEvent(event_key, event_date, event_classroom_key) {
         
         var ref_prenotation = firebase.database().ref('prenotation/'+event_date.getFullYear() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getDate() + '/' + event_classroom_key + '/');
-
         ref_prenotation.once('value', snap => {
             snap.forEach(childSnap => {
                 childSnap.forEach(gcSnap => {
@@ -138,11 +145,18 @@ $(function () {
             });
         });
 
-        var ref_event = firebase.database().ref('event/');
-        ref_event.child(event_key).remove();
-        $('#event_details').hide();
-        loadEventList();
-        $('#main_events_page').show();
+        firebase.database().ref('event/'+event_key+'/class/').once('value', snap => {
+            snap.forEach(childSnap => {
+                firebase.database().ref('class/'+childSnap.key+'/event/'+event_key).remove();         
+            });
+        }).then(() => {
+            var ref_event = firebase.database().ref('event/'+event_key).remove();
+            return ref_event;
+        }).then(() => {
+            $('#event_details').hide();
+            loadEventList();
+            $('#main_events_page').show();
+        });        
     }
 
     function isAdmin(userId) {
