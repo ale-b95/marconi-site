@@ -1,27 +1,34 @@
 $(function () {
-    jQuery('#datetimepicker2').datetimepicker();
+    const MonthsEnum = {GENNAIO : 1, FEBBRAIO : 2, MARZO : 3, APRILE : 4, MAGGIO : 5, GIUGNO : 6, LUGLIO : 7, AGOSTO : 8, SETTEMBRE : 9, OTTOBRE : 10, NOVEMBRE : 11, DICEMBRE : 12, properties : {
+        1 : {name: 'Gennaio'}, 2 : {name: 'Febbraio'}, 3 : {name: 'Marzo'}, 4 : {name: 'Aprile'}, 5 : {name: 'Maggio'}, 6 : {name: 'Giugno'}, 7 : {name: 'Luglio'}, 8 : {name: 'Agosto'}, 9 : {name: 'Settembre'},  10 : {name: 'Ottobre'}, 11 : {name: 'Novembre'}, 12 : {name: 'Dicembre'}
+   }};
+    
+    loadMonthAndYear();
+    
+    /************************ show events ************************/
 
-/************************ show events ************************/
     var year;
     var month;
     var startdate;
     var enddate;
     
-    jQuery('#datetimepicker2').datetimepicker({
-        minDate:'0',
-        timepicker:false,
-        format:'M.Y'
-    });
+    month = $("#select_month").find(':selected').val();
+    year = $("#select_year").find(':selected').text();
+    startdate = new Date(year+ '-' + month);
+    enddate = new Date(startdate);
+    enddate.setMonth(enddate.getMonth() + 1);
     
-    $('#update-event-btn').on('click', (e) => {
-        var e_date = $("#datetimepicker2").datetimepicker('getValue');
-        year = String(e_date).split(" ")[3];
-        month = new Date(e_date).getMonth() + 1;
+    loadEventList();
+    
+    $('#select_month, #select_year').on('change', () => {
+        month = $("#select_month").find(':selected').val();
+        year = $("#select_year").find(':selected').text();
         startdate = new Date(year+ '-' + month);
         enddate = new Date(startdate);
         enddate.setMonth(enddate.getMonth() + 1);
         loadEventList();
     });
+    
     
     $("#abort_delete").on('click', () => {
         $("#delete_event").addClass('btn-primary');
@@ -33,6 +40,7 @@ $(function () {
     $("#back_to_main_event").on('click', () => {
         $('#event_details').hide();
         $('#main_events_page').show();
+        loadEventList();
     });
     
     /*
@@ -93,6 +101,7 @@ $(function () {
                     if (isAdmin(user.uid) || user.uid == teacher_key) {
                         $("#delete_event").on('click', () => {
                             deleteEvent(childSnap.key, event_date, classroom_key);
+                            
                         });
                         $("#delete_event").show();
                     }
@@ -154,9 +163,10 @@ $(function () {
             return ref_event;
         }).then(() => {
             $('#event_details').hide();
-            loadEventList();
             $('#main_events_page').show();
-        });        
+        });      
+        
+        loadEventList();
     }
 
     function isAdmin(userId) {
@@ -205,7 +215,7 @@ $(function () {
         $('#new_event_page').hide();
         $('#main_events_page').show();
         $("#schedule_event_table_body").empty();
-        
+        loadEventList();
         selected_hours = [];
         cs_selected_rows = 0;
     });
@@ -336,5 +346,32 @@ $(function () {
                 }
             });
         });
+    }
+    
+    function loadMonthAndYear() {
+        var d = new Date();
+        const start_year = 2018;
+        const current_year = d.getFullYear();
+        var year = start_year;
+        var month = d.getMonth() + 1;
+        
+        $('#select_month').empty();
+        for (var i  = 1; i <= 12 ; i++) {
+            if (i == month) {
+                $('#select_month').append('<option selected="selected" value="'+i+'">'+ MonthsEnum.properties[i].name +'</option>');
+            } else {
+                $('#select_month').append('<option value="'+i+'">'+ MonthsEnum.properties[i].name +'</option>');
+            }
+        }      
+        
+        $('#select_year').empty();
+        while (year < current_year + 2) {
+            if (year == current_year) {
+                $('#select_year').append('<option selected="selected">'+ year +'</option>');
+            } else {
+                $('#select_year').append('<option>'+ year +'</option>');
+            }
+            year++;
+        }        
     }
 });

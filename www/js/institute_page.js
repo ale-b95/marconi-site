@@ -1,5 +1,4 @@
 $(function () {
-    
     /*
         Handle the buttons on institute page and show the correct page with the 
         relative data loaded.
@@ -15,7 +14,7 @@ $(function () {
     $("#events_btn").on('click', () => {
         $("#schedule_event_table_body").empty();
         loadClassroomSelectList("select_event_classroom", "Esterno");
-        //loadClassSelectList("select_event_class");
+        loadMonthAndYear();
         loadClassSelectList("event_class");
         showPage($("#events_page"));
     });
@@ -84,4 +83,6 @@ $(function () {
             });
         });
     }   
+    
+    
 });

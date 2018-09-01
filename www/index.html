@@ -7,7 +7,7 @@
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="css/index.css"/>
-
+        
         <title>Marconi</title>
     </head>
 
@@ -256,16 +256,13 @@
                     <div id="main_events_page">
                         <h1 class="h3 mb-3 font-weight-normal">Eventi</h1>
                         
-                        <!--<div id="events_show_datepicker" class="input-group date datepicker" data-provide="datepicker">                 
-                            <input type="text" class="form-control" placeholder="Mese">
-                            <div class="input-group-addon">
-                            <span class="glyphicon glyphicon-th"></span>
-                            </div>
-                        </div>-->
-
-                        <input class="datepicker" id="datetimepicker2" type="text">
-
-                        <button id="update-event-btn" class="btn btn-primary update-button btn-lg" type="button">Aggiorna</button>
+                        <select class="form-control" id="select_month">
+                        </select>
+                        <select class="form-control" id="select_year">
+                        </select>
+                        <!--<input class="datepicker" id="datetimepicker2" type="text">
+                        -->
+                        <!--<button id="update-event-btn" class="btn btn-primary update-button btn-lg" type="button">Aggiorna</button>-->
                     
                         <div id="event_list" class="list-group center-std-element">
                         </div> 
@@ -278,13 +275,6 @@
                     <div id="new_event_page" class="collapse">
                         
                         <input id="event_title" class="form-control" type="text" placeholder="titolo">
-                        
-                        <!--<div id="events_create_datepicker" class="input-group date datepicker" data-provide="datepicker">                          
-                            <input type="text" class="form-control" placeholder="Data">
-                            <div class="input-group-addon">
-                                <span class="glyphicon glyphicon-th"></span>
-                            </div>
-                        </div>-->
 
                         <input class="datepicker" id="datetimepicker3" type="text">
 
@@ -345,11 +335,6 @@
                     <h1 class="h3 mb-3 font-weight-normal">Prenotazioni</h1>
                     <select class="form-control" id="select_prenotations">
                     </select>
-                    <!--<select class="form-control" id="select_time_frame">
-                        <option>Questa settimana</option>
-                        <option>Questo mese</option>
-                        <option>Tutte le prenotazioni</option>
-                    </select>-->
 
                     <input class="datepicker" id="datetimepicker4" type="text">
 
@@ -367,6 +352,7 @@
         <!-- SCRIPT --> 
         
         <script type='text/javascript' >
+            
             var CURRENT_PAGE = null;
 
             var date = new Date();
@@ -378,6 +364,8 @@
                 CURRENT_PAGE = page;
                 CURRENT_PAGE.show();
             }
+            
+            
         </script>
 
         <script type="text/javascript" src="js/firebaseConfig.js"></script>
@@ -395,5 +383,7 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        
+        <script src="js/moment-with-locales.js"></script>
     </body>
 </html>
