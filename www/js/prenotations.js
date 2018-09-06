@@ -6,11 +6,11 @@ $(function () {
         $("#prenotations_list").empty();
         if ($("#select_prenotations").find(':selected').text() != "Seleziona classe") {
             var class_name = $("#select_prenotations").find(':selected').text();
-            var ref = firebase.database().ref('institute/'+INSTITUTE_ID+'/class/'+class_name+'/event/');
+            var ref = firebase.database().ref('class/'+class_name+'/event/');
             ref.once('value', snap => {
                 snap.forEach(childSnap => {
-                   var check = firebase.database().ref('institute/'+INSTITUTE_ID+'/event/').child(childSnap.key).once('value', xSnap => {
-                        if (xSnap.val() == null) { removeNode('institute/'+INSTITUTE_ID+'/class/'+class_name+'/event/'+childSnap.key);
+                   var check = firebase.database().ref('event/').child(childSnap.key).once('value', xSnap => {
+                        if (xSnap.val() == null) { removeNode('class/'+class_name+'/event/'+childSnap.key);
                         }
                     }).then(() => {
                         var title; 

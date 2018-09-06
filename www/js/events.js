@@ -6,6 +6,10 @@ $(function () {
     loadMonthAndYear();
     
     /************************ show events ************************/
+    
+    /*
+        TODO: per visualizzare l'evento considera il range temporale shiftato di un giorno in avanti 
+    */
 
     var year;
     var month;
@@ -100,72 +104,80 @@ $(function () {
                     
                     if (isAdmin(user.uid) || user.uid == teacher_key) {
                         $("#delete_event").on('click', () => {
-                            deleteEvent(childSnap.key, event_date, classroom_key);
+                            if (classroom_name != "Esterno") {
+                                deleteEvent(childSnap.key, event_date, title, classroom_key);
+                            } else {
+                                deleteEvent(childSnap.key, event_date);
+                            }
                             
                         });
                         $("#delete_event").show();
                     }
                     
                     $("#save_event").on('click', () => {
-                        var class_name = $("#event_class").find(':selected').text();
-                        if (class_name != 'Seleziona classe') {
-                            firebase.database().ref('class/'+class_name+'/event/'+event_key).set({
-                                title : title,
-                                event_date : event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear()
-                            });
-                            
-                            var number_of_students;
-                            
-                            firebase.database().ref('class/'+class_name).once('value', snap => {
-                                number_of_students = snap.val().number_of_students;                                    
-                            }).then(() => {
-                                firebase.database().ref('event/'+event_key+'/class').update({
-                                    [class_name] : number_of_students
-                                });
-                            });
-                            
-                            loadEventList();
-                            alert('Prenotazione effettuata');
-                            $('#event_details').hide();
-                            $('#main_events_page').show();
-                        } else {
-                            alert ('Seleziona una classe');
-                        }
+                        participateEvent($("#event_class").find(':selected').text(), event_key)
                     });
+                    
                     $('#main_events_page').hide();
                     $('#event_details').show();
                 });
             });
         });
     }
-    
-    function deleteEvent(event_key, event_date, event_classroom_key) {
-        
-        var ref_prenotation = firebase.database().ref('prenotation/'+event_date.getFullYear() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getDate() + '/' + event_classroom_key + '/');
-        ref_prenotation.once('value', snap => {
-            snap.forEach(childSnap => {
-                childSnap.forEach(gcSnap => {
-                    if (gcSnap.key == 'event_key') {
-                        if (event_key == gcSnap.val()) {
-                            ref_prenotation.child(childSnap.key).remove();
-                        }
-                    }
+
+
+    function participateEvent(class_name, event_key) {
+        if (class_name != 'Seleziona classe') {
+            
+            /*
+            firebase.database().ref('class/'+class_name+'/event/'+event_key).set({
+                title : title,
+                event_date : event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear()
+            });
+            */
+            
+            var number_of_students;
+            
+            firebase.database().ref('class/'+class_name).once('value', snap => {
+                number_of_students = snap.val().number_of_students;                                    
+            }).then(() => {
+                firebase.database().ref('event/'+event_key+'/class').update({
+                    [class_name] : number_of_students
                 });
             });
-        });
 
-        firebase.database().ref('event/'+event_key+'/class/').once('value', snap => {
-            snap.forEach(childSnap => {
-                firebase.database().ref('class/'+childSnap.key+'/event/'+event_key).remove();         
-            });
-        }).then(() => {
-            var ref_event = firebase.database().ref('event/'+event_key).remove();
-            return ref_event;
-        }).then(() => {
             $('#event_details').hide();
             $('#main_events_page').show();
-        });      
+            //alert('Prenotazione effettuata');
+        } else {
+            alert ('Seleziona una classe');
+        }
+        loadEventList();
+    }
+    
+    
+    function deleteEvent(event_key, event_date, title, event_classroom_key) {
+        if (event_classroom_key != null) {
+            var ref_prenotation = firebase.database().ref('prenotation/'+event_date.getFullYear() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getDate() + '/' + event_classroom_key + '/');
+            ref_prenotation.once('value', snap => {
+                snap.forEach(childSnap => {
+                    childSnap.forEach(gcSnap => {
+                        if (gcSnap.key == 'event_key') {
+                            if (event_key == gcSnap.val()) {
+                                ref_prenotation.child(childSnap.key).remove();
+                            }
+                        }
+                    });
+                });
+            });
+        } else {
+            alert ("ok go");
+        }
         
+        alert(title);
+        firebase.database().ref('event/'+event_key).remove();        
+        $('#event_details').hide();
+        $('#main_events_page').show();
         loadEventList();
     }
 
@@ -196,7 +208,7 @@ $(function () {
         format:'d.m.Y'
     });
 
-    $('#update-new-event-btn').on('click', () => {
+    $('#select_event_page, #select_event_classroom, #datetimepicker3').on('change', () => {
         ne_date = $("#datetimepicker3").datetimepicker('getValue');
         classroom_id = $("#select_event_classroom").val();
         classroom_name = $("#select_event_classroom").find(':selected').text();
@@ -249,12 +261,14 @@ $(function () {
                 starting_hour : selected_hours[0]
             });
             
-            for (var i = 0; i < selected_hours.length; i++) {            
-                firebase.database().ref('prenotation/'+year+'/'+month+'/'+day+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
-                event_key : event_prenotation.key,
-                event : eventTitle.value,
-                classroom : classroom_name
-                });
+            if (classroom_name != "Esterno") {
+                for (var i = 0; i < selected_hours.length; i++) {            
+                    firebase.database().ref('prenotation/'+year+'/'+month+'/'+day+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
+                    event_key : event_prenotation.key,
+                    event : eventTitle.value,
+                    classroom : classroom_name
+                    });
+                }
             }
             
             loadEventList();

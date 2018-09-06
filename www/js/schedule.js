@@ -1,5 +1,6 @@
 $(function () {
     jQuery('#datetimepicker1').datetimepicker();
+    
     jQuery.datetimepicker.setLocale('it');
 
     jQuery('#datetimepicker1').datetimepicker({
@@ -25,18 +26,15 @@ $(function () {
         Load the information about the selected classroom on a selected day when
         the classroom and the day have been selected
     */
-
-    $('#update-schedule_btn').on('click', () => {
+    
+    $('#datetimepicker1, #select_classroom, #select_class').on('change', () => {
         sc_date = $("#datetimepicker1").datetimepicker('getValue');
         classroom_id = $("#select_classroom").val();
         classroom_name = $("#select_classroom").find(':selected').text();
 
         if (classroom_name != 'Seleziona aula' && sc_date) {
             loadClassroomSchedule();
-        } else {
-            alert ("Controllare valori selezionati.");
         }
-        
     });
     
     /*

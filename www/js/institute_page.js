@@ -14,7 +14,6 @@ $(function () {
     $("#events_btn").on('click', () => {
         $("#schedule_event_table_body").empty();
         loadClassroomSelectList("select_event_classroom", "Esterno");
-        loadMonthAndYear();
         loadClassSelectList("event_class");
         showPage($("#events_page"));
     });
@@ -29,24 +28,22 @@ $(function () {
         is possible to personalize the first option field adding a default message
     */
     function loadClassroomSelectList(select_classroom, defaultmsg) {
-        
+         $('#'+select_classroom).empty();
         /*
             check whether or not is specified a custom message, if not uses the premade one
         */
-        if (defaultmsg == null) {
-            defaultmsg = "Seleziona aula";
+        $('#'+select_classroom).append('<option>Seleziona aula</option>');
+        if (defaultmsg != null) {
+             $('#'+select_classroom).append('<option value="'+defaultmsg+'">'+ defaultmsg +'</option>');
         }
-        
-        $('#'+select_classroom).empty();
-        $('#'+select_classroom).append('<option value="Esterno">'+ defaultmsg +'</option>');
+       
         
         /*
             get the reference to the database to obtain the list of the classrooms
         */
         const dbRef = firebase.database().ref('classroom/');
         
-        var classroomList = dbRef.on('value', snap => {
-            
+        var classroomList = dbRef.once('value', snap => {
             /*
                 generate the html code for each classroom found on the database
             */
