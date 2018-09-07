@@ -54,68 +54,57 @@ $(function () {
         
         $('#event_list').empty();
         
-        var ref = firebase.database().ref('event/');
+        var ref = firebase.database().ref().child('event/');
         ref.orderByChild("date").startAt(startdate.getTime()).endAt(enddate.getTime())
         .once("value", snap => {
             snap.forEach(childSnap => {
                 
                 var event_key = childSnap.key;
-                var title;
-                var event_date;
-                var hour;
-                var teacher;
-                var teacher_key;
-                var classroom;
-                var classroom_key;
-                
-                childSnap.forEach(gcSnap => {
-                    if (gcSnap.key == 'title') {
-                        $('#event_list').append('<button type="button" id="ed_'+childSnap.key+'" class="list-group-item"">'+ gcSnap.val() +'</button>');
-                        title = gcSnap.val();
-                    } else if (gcSnap.key == 'date') {
-                        event_date = new Date(gcSnap.val());
-                    } else if (gcSnap.key == 'starting_hour') {
-                        hour = gcSnap.val();
-                    } else if (gcSnap.key == 'teacher') {
-                        teacher = gcSnap.val();
-                    } else if (gcSnap.key == 'classroom') {
-                        classroom = gcSnap.val();
-                    } else if (gcSnap.key == 'teacher_key') {
-                        teacher_key = gcSnap.val();
-                    } else if (gcSnap.key == 'classroom_key') {
-                        classroom_key = gcSnap.val();
-                    }
-                });
+                var title = childSnap.val().title;
+                var event_date = new Date(childSnap.val().date);
+                var hour  = childSnap.val().starting_hour;
+                var teacher = childSnap.val().teacher;
+                var teacher_key = childSnap.val().teacher_key;
+                var classroom = childSnap.val().classroom;
+                var classroom_key = childSnap.val().classroom_key;
+
+                $('#event_list').append('<button type="button" id="ed_'+ event_key +'" class="list-group-item"">'+ title +'</button>');
                 
                 /*
                     Attach a listener for each event listed to retrive the informations about the event,
                     add a class to partecipate or (if the user created the event or has admin privileges)
                     remove the event.
                 */
-                $("#ed_"+childSnap.key+"").on('click', () => {
+                $("#ed_"+event_key+"").click(function(event) {
+                    var id = event.target.id;
+                    var current_key = id.substring(id.indexOf("_") + 1);
+                    var current_date = event_date;
                     $('#event_list').empty();
                     $("#ed_title").text(title);
-                    $("#ed_date").text('Data evento: '+event_date.getDate() + '/' + (event_date.getMonth() + 1 )+ '/' + event_date.getFullYear());
-                    $("#ed_starting_hour").text('Ora di inizio: '+hour);
-                    $("#ed_organizer").text('Organizzatore: '+teacher);
-                    $("#ed_classroom").text('Luogo evento: '+classroom);
+                    $("#ed_date").text('Data evento: '
+                    + current_date.getDate() + '/' 
+                    + (current_date.getMonth() + 1 )+ '/' 
+                    + current_date.getFullYear());
+                    $("#ed_starting_hour").text('Ora di inizio: '+ hour);
+                    $("#ed_organizer").text('Organizzatore: '+ teacher);
+                    $("#ed_classroom").text('Luogo evento: '+ classroom);
                     
                     var user = firebase.auth().currentUser;
                     
                     if (isAdmin(user.uid) || user.uid == teacher_key) {
                         $("#delete_event").on('click', () => {
                             if (classroom_name != "Esterno") {
-                                deleteEvent(childSnap.key, event_date, title, classroom_key);
+                                deleteEvent(current_key, current_date, classroom_key);
                             } else {
-                                deleteEvent(childSnap.key, event_date);
+                                deleteEvent(current_key, current_date);
                             }
-                            
                         });
                         $("#delete_event").show();
                     }
                     
                     $("#save_event").on('click', () => {
-                        participateEvent($("#event_class").find(':selected').text(), event_key)
+                        participateEvent($("#event_class").find(':selected').text(), current_key, 10);
+                        loadEventList();
                     });
                     
                     $('#main_events_page').hide();
@@ -126,39 +115,37 @@ $(function () {
     }
 
 
-    function participateEvent(class_name, event_key) {
+    function participateEvent(class_name, event_key, number_of_students) {
         if (class_name != 'Seleziona classe') {
-            
             /*
             firebase.database().ref('class/'+class_name+'/event/'+event_key).set({
                 title : title,
                 event_date : event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear()
             });
             */
-            
-            var number_of_students;
-            
-            firebase.database().ref('class/'+class_name).once('value', snap => {
-                number_of_students = snap.val().number_of_students;                                    
-            }).then(() => {
-                firebase.database().ref('event/'+event_key+'/class').update({
-                    [class_name] : number_of_students
-                });
+
+            firebase.database().ref().child('event/'+event_key+'/class').update({
+                [class_name] : number_of_students
             });
+            
 
             $('#event_details').hide();
             $('#main_events_page').show();
-            //alert('Prenotazione effettuata');
+            alert('Prenotazione effettuata');
         } else {
             alert ('Seleziona una classe');
         }
-        loadEventList();
+        
     }
     
-    
-    function deleteEvent(event_key, event_date, title, event_classroom_key) {
+    function deleteEvent(event_key, event_date, event_classroom_key) {
         if (event_classroom_key != null) {
-            var ref_prenotation = firebase.database().ref('prenotation/'+event_date.getFullYear() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getDate() + '/' + event_classroom_key + '/');
+            var ref_prenotation = firebase.database().ref().child('prenotation/'
+            + event_date.getFullYear() + '/' 
+            + (event_date.getMonth() + 1) + '/' 
+            + event_date.getDate() + '/' 
+            + event_classroom_key + '/');
+
             ref_prenotation.once('value', snap => {
                 snap.forEach(childSnap => {
                     childSnap.forEach(gcSnap => {
@@ -170,19 +157,18 @@ $(function () {
                     });
                 });
             });
-        } else {
-            alert ("ok go");
         }
-        
-        alert(title);
-        firebase.database().ref('event/'+event_key).remove();        
+
+        var event_ref = firebase.database().ref().child('event/');
+        event_ref.child(event_key).remove();
+
         $('#event_details').hide();
         $('#main_events_page').show();
         loadEventList();
     }
 
     function isAdmin(userId) {
-        const ref = firebase.database().ref('user/'+userId+'/admin');
+        const ref = firebase.database().ref().child('user/'+userId+'/admin');
         var isAdmin = false;
         ref.once('value', snap => {
             if (snap.val() == true) {
@@ -251,7 +237,7 @@ $(function () {
         user = firebase.auth().currentUser;
         
         if (cs_selected_rows > 0 && ne_date >= today &&  eventTitle.value != "") {
-            var event_prenotation = firebase.database().ref('event/').push({
+            var event_prenotation = firebase.database().ref().child('event/').push({
                 title : eventTitle.value,
                 classroom : classroom_name,
                 classroom_key : classroom_id,
@@ -263,7 +249,7 @@ $(function () {
             
             if (classroom_name != "Esterno") {
                 for (var i = 0; i < selected_hours.length; i++) {            
-                    firebase.database().ref('prenotation/'+year+'/'+month+'/'+day+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
+                    firebase.database().ref().child('prenotation/'+year+'/'+month+'/'+day+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
                     event_key : event_prenotation.key,
                     event : eventTitle.value,
                     classroom : classroom_name
@@ -301,7 +287,7 @@ $(function () {
             '</tr>');
         }
         
-        var pRef = firebase.database().ref('/prenotation/'+year+'/'+month+'/'+day+'/'+classroom_id+'/');
+        var pRef = firebase.database().ref().child('/prenotation/'+year+'/'+month+'/'+day+'/'+classroom_id+'/');
         pRef.once('value', snap => {
             
             snap.forEach(childSnap => {
