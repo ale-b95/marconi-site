@@ -6,33 +6,26 @@ $(function () {
     loadMonthAndYear();
     
     /************************ show events ************************/
-    
-    /*
-        TODO: per visualizzare l'evento considera il range temporale shiftato di un giorno in avanti 
-    */
 
     var year;
     var month;
     var startdate;
     var enddate;
     
-    month = $("#select_month").find(':selected').val();
-    year = $("#select_year").find(':selected').text();
-    startdate = new Date(year+ '-' + month);
-    enddate = new Date(startdate);
-    enddate.setMonth(enddate.getMonth() + 1);
+    month = Number($("#select_month").find(':selected').val());
+    year = Number($("#select_year").find(':selected').text());
+    startdate = new Date(year, month - 1, 1);
+    enddate = new Date(year, month, 0);
     
     loadEventList();
     
     $('#select_month, #select_year').on('change', () => {
         month = $("#select_month").find(':selected').val();
         year = $("#select_year").find(':selected').text();
-        startdate = new Date(year+ '-' + month);
-        enddate = new Date(startdate);
-        enddate.setMonth(enddate.getMonth() + 1);
+        startdate = new Date(year, month - 1, 1);
+        enddate = new Date(year, month, 0);
         loadEventList();
     });
-    
     
     $("#abort_delete").on('click', () => {
         $("#delete_event").addClass('btn-primary');
@@ -58,7 +51,6 @@ $(function () {
         ref.orderByChild("date").startAt(startdate.getTime()).endAt(enddate.getTime())
         .once("value", snap => {
             snap.forEach(childSnap => {
-                
                 var event_key = childSnap.key;
                 var title = childSnap.val().title;
                 var event_date = new Date(childSnap.val().date);
@@ -66,9 +58,9 @@ $(function () {
                 var teacher = childSnap.val().teacher;
                 var teacher_key = childSnap.val().teacher_key;
                 var classroom = childSnap.val().classroom;
-                var classroom_key = childSnap.val().classroom_key;
+                var classroom_key = childSnap.val().classroom_key;  
 
-                $('#event_list').append('<button type="button" id="ed_'+ event_key +'" class="list-group-item"">'+ title +'</button>');
+                $('#event_list').append('<button type="button" id="ed_'+ event_key +'" class="list-group-item">'+ title + ' - ' + event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear() +'</button>');
                 
                 /*
                     Attach a listener for each event listed to retrive the informations about the event,
@@ -76,6 +68,9 @@ $(function () {
                     remove the event.
                 */
                 $("#ed_"+event_key+"").click(function(event) {
+                    $("#delete_event").off();
+                    $("#save_event").off();
+
                     var id = event.target.id;
                     var current_key = id.substring(id.indexOf("_") + 1);
                     var current_date = event_date;
@@ -92,6 +87,7 @@ $(function () {
                     var user = firebase.auth().currentUser;
                     
                     if (isAdmin(user.uid) || user.uid == teacher_key) {
+                        
                         $("#delete_event").on('click', () => {
                             if (classroom_name != "Esterno") {
                                 deleteEvent(current_key, current_date, classroom_key);
@@ -103,7 +99,7 @@ $(function () {
                     }
                     
                     $("#save_event").on('click', () => {
-                        participateEvent($("#event_class").find(':selected').text(), current_key, 10);
+                        participateEvent($("#event_class").find(':selected').text(), current_key);
                         loadEventList();
                     });
                     
@@ -115,19 +111,18 @@ $(function () {
     }
 
 
-    function participateEvent(class_name, event_key, number_of_students) {
+    function participateEvent(class_name, event_key) {
         if (class_name != 'Seleziona classe') {
-            /*
-            firebase.database().ref('class/'+class_name+'/event/'+event_key).set({
-                title : title,
-                event_date : event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear()
-            });
-            */
 
-            firebase.database().ref().child('event/'+event_key+'/class').update({
-                [class_name] : number_of_students
-            });
-            
+            var number_of_students;
+
+            firebase.database().ref().child('class/'+class_name).once('value', snap => {
+               return number_of_students = snap.val().number_of_students;
+            }).then(() => {
+                firebase.database().ref().child('event/'+event_key+'/class').update({
+                    [class_name] : number_of_students
+                });
+            }) ;
 
             $('#event_details').hide();
             $('#main_events_page').show();
@@ -292,30 +287,13 @@ $(function () {
             
             snap.forEach(childSnap => {
                 var hour = childSnap.key;
-                var hour;
-                var teacher_name;
-                var class_name;
-                var event_title;
-                var teacher_id;
-                var event_key;
-                var classroom;
+                var teacher_name = childSnap.val().teacher;
+                var class_name = childSnap.val().class;
+                var event_title = childSnap.val().event;
+                var teacher_id = childSnap.val().teacher_key;
+                var event_key = childSnap.val().event_key;
+                var classroom = childSnap.val().classroom;
                 var second_column;
-                childSnap.forEach(gcSnap => {
-                    
-                    if (gcSnap.key == 'teacher') {
-                        teacher_name = gcSnap.val();
-                    } else if (gcSnap.key == 'event') {
-                        event_title = gcSnap.val();
-                    } else if (gcSnap.key == 'class') {
-                        class_name =  gcSnap.val();
-                    } else if (gcSnap.key == 'event_key') {
-                        event_key = gcSnap.val();
-                    } else if (gcSnap.key == 'teacher_key') {
-                        teacher_id = gcSnap.val();
-                    } else if (gcSnap.key == 'classroom') {
-                        classroom = gcSnap.val();
-                    }
-                });
                 
                 if (classroom != 'Esterno') {
                     if (event_title) {

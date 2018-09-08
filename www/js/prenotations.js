@@ -1,10 +1,12 @@
 $(function () {    
+
     /*
         List the the event the selected class have joined
     */
-    $("#prenotation_btn").on('click', () => {
+    $("#select_prenotations").on('change', () => {
         $("#prenotations_list").empty();
         if ($("#select_prenotations").find(':selected').text() != "Seleziona classe") {
+            alert('ciaone');
             var class_name = $("#select_prenotations").find(':selected').text();
             var ref = firebase.database().ref('class/'+class_name+'/event/');
             ref.once('value', snap => {
@@ -29,7 +31,7 @@ $(function () {
                 });
             });
         } else {
-            
+            alert('ciao');
         }
     });
     
