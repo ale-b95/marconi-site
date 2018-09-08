@@ -70,7 +70,7 @@ $(function () {
                 $("#ed_"+event_key+"").click(function(event) {
                     $("#delete_event").off();
                     $("#save_event").off();
-
+                    
                     var id = event.target.id;
                     var current_key = id.substring(id.indexOf("_") + 1);
                     var current_date = event_date;
