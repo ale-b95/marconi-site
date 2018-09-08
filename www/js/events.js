@@ -99,7 +99,7 @@ $(function () {
                     }
                     
                     $("#save_event").on('click', () => {
-                        participateEvent($("#event_class").find(':selected').text(), current_key);
+                        participateEvent($("#event_class").find(':selected').text(), current_key, event_date, title);
                         loadEventList();
                     });
                     
@@ -111,18 +111,22 @@ $(function () {
     }
 
 
-    function participateEvent(class_name, event_key) {
+    function participateEvent(class_name, event_key, event_date, event_title) {
         if (class_name != 'Seleziona classe') {
+            var date = event_date.getDate() + '-' + (event_date.getMonth() + 1) + '-' + event_date.getFullYear();
+            firebase.database().ref().child('class/'+class_name+'/event/'+event_key).update({
+                date : date,
+                title : event_title
+            });
 
             var number_of_students;
-
             firebase.database().ref().child('class/'+class_name).once('value', snap => {
                return number_of_students = snap.val().number_of_students;
             }).then(() => {
                 firebase.database().ref().child('event/'+event_key+'/class').update({
                     [class_name] : number_of_students
                 });
-            }) ;
+            });
 
             $('#event_details').hide();
             $('#main_events_page').show();
@@ -134,6 +138,15 @@ $(function () {
     }
     
     function deleteEvent(event_key, event_date, event_classroom_key) {
+        firebase.database().ref().child('event/'+event_key+'/class/').once('value', snap => {
+            snap.forEach(childSnap => {
+                firebase.database().ref().child('class/'+ childSnap.key+'/event/'+event_key).remove();
+            });
+        }).then(() => {
+            var event_ref = firebase.database().ref().child('event/');
+            event_ref.child(event_key).remove();
+        });
+
         if (event_classroom_key != null) {
             var ref_prenotation = firebase.database().ref().child('prenotation/'
             + event_date.getFullYear() + '/' 
@@ -153,10 +166,7 @@ $(function () {
                 });
             });
         }
-
-        var event_ref = firebase.database().ref().child('event/');
-        event_ref.child(event_key).remove();
-
+        
         $('#event_details').hide();
         $('#main_events_page').show();
         loadEventList();
