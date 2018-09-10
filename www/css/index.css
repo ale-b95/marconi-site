@@ -89,6 +89,12 @@ td .btn {
     border-radius: 5px;
 }
 
+.big-table {
+    width: 100%;
+    border: solid darkgray 1px;
+    border-radius: 5px;
+}
+
 .longtable {
      height: 270px !important;
 }

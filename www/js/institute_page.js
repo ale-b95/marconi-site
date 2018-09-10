@@ -22,6 +22,10 @@ $(function () {
         loadClassSelectList("select_prenotations");
         showPage($("#prenotations_page"));
     });
+
+    $("#big_table_btn").on('click', () => {
+        showPage($("#big_table_page"));
+    });
     
     /*
         fill the specified select list with the classrooms loaded from the database

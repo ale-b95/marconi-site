@@ -205,6 +205,7 @@
                     <button id="schedule_btn" class="btn long-btn btn-primary btn-lg" type="button">Orari aule</button>
                     <button id="events_btn" class="btn long-btn btn-primary btn-lg" type="button">Eventi</button>
                     <button id="prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni</button>
+                    <button id="big_table_btn" class="btn long-btn btn-primary btn-lg" type="button">Programmazione</button>
                     
                     <button id="admin_btn" class="btn long-btn btn-primary btn-lg collapse back_btn" type="button">Amministrazione</button> 
                     
@@ -345,6 +346,36 @@
             </div>
         </div>
 
+        <div id="big_table_page" class="collapse mainApp container-fluid">
+            <div class="row">
+                <div class="col-sm-1 col-md-1"></div>
+                <div class="col-sm-10 col-md-10">
+                    <h1 class="h3 mb-3 font-weight-normal">Programmazione Giornaliera</h1>
+                    <table id="big_table" class="table big-table table-fixed table-sm">
+                        <thead>
+                            <tr>
+                                <th>Ora</th>
+                                <th>Prenotazione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="big_table">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-1 col-md-1"></div>
+            
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4 col-md-4"></div>
+                <div class="col-sm-4 col-md-4">
+                    <button class="btn long-btn btn-primary btn-lg institute_page_btn" type="button">Indietro</button>
+                </div>
+                <div class="col-sm-4 col-md-4"></div>
+            </div>
+            
+        </div>
+
         <!-- SCRIPT --> 
         
         <script type='text/javascript' >
@@ -371,6 +402,7 @@
         <script type="text/javascript" src="js/events.js"></script>
         <script type="text/javascript" src="js/prenotations.js"></script>
         <script type="text/javascript" src="js/institute_page.js"></script>
+        <script type="text/javascript" src="js/daily_schedule.js"></script>
 
         <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
         
