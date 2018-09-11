@@ -1,0 +1,110 @@
+.table {
+    margin-left: 10%;
+    width: 80%;
+    margin-bottom: 7%;
+}
+
+.selected_row {
+    background-color: lightblue;
+}
+
+.booked {
+    background-color: lightyellow;
+}
+
+.mybook {
+    background-color: lightgreen;
+}
+
+.mybook_selected {
+    background-color: red;
+    color: white;
+}
+
+.event_prenotation {
+     background-color: greenyellow;
+}
+
+#event_list {
+    margin-bottom: 7%;
+    width: 80%;
+    margin-left: 10%;
+}
+
+td .btn {
+    height:30px;
+    width:50px;
+}
+
+.table-fixed tbody {
+    height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    border: solid darkgray 1px;
+    border-radius: 5px;
+}
+
+.big-table {
+    margin-left: 0%!important;
+    margin-bottom: 7%;
+    width: 100%;
+    border: solid darkgray 1px;
+    border-radius: 5px;
+}
+
+.big-table tbody{
+    height: 100%;
+    width: 100%;
+    border: solid darkgray 1px;
+    border-radius: 5px;
+}
+
+.big-table tbody td{
+    float: left;
+    width: 25%;
+    height: 80px;
+}
+
+.longtable {
+     height: 270px !important;
+}
+
+.table-fixed thead,
+.table-fixed tbody,
+.table-fixed tr,
+.table-fixed td,
+.table-fixed th {
+    display: block;
+}
+
+.table-fixed thead {
+    margin-top: 2%;
+}
+
+.four-columns-table tbody td, .four-columns-table thead > tr > th {
+    float: left;
+    width: 25%;
+}
+
+.three-columns-table tbody td, .three-columns-table thead > tr > th {
+    float: left;
+    width: 33%;
+}
+
+.two-columns-table tbody > tr > th, .two-columns-table tbody > tr > td, .two-columns-table thead > tr > th {
+    float: left;
+    width: 50%;
+    text-align: left;
+}
+
+.table-fixed tr:after {
+ content: "";
+ display: block;
+ visibility: hidden;
+ clear: both;
+}
+
+.table-fixed tbody td,
+.table-fixed thead > tr > th {
+ float: left;
+}
