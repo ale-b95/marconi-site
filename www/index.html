@@ -3,7 +3,6 @@
     
     <head>
         <meta charset="utf-8" />
-        
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="css/index.css"/>
@@ -24,6 +23,7 @@
                     <input id="lInEmail" class="form-control" type="email" placeholder="email">
                     <input id="lInPwd" class="form-control" type="password" placeholder="password">
                     <button class="btn long-btn btn-primary btn-lg" id="login_button" type="button">Accedi</button>
+                    <button class="btn btn-primary btn-lg long-btn" id="guest_button" type="button">Entra come ospite</button>
                     
                     <a class="btn long-btn btn-link btn-lg" id="signup_link">Registrati</a>   
                 </div>
@@ -32,22 +32,24 @@
             </div>
         </div>
         
-        <div id="signup" class="collapse index login container-fluid">
-            <div class="col-sm-4 col-md-4"></div>
-            <div class="col-sm-4 col-md-4">
-                <h1 class="h3 mb-3 font-weight-normal">Registrati</h1>
-                
-                <input id="sUpName" class="form-control" type="text" placeholder="nome">
-                <input id="sUpSurname" class="form-control" type="text" placeholder="cognome">
-                <input id="sUpEmail"  class="form-control"type="email" placeholder="email">
-                <input id="sUpPwd" class="form-control" type="password" placeholder="password">
-                <input id="sUpPwdRep" class="form-control" type="password" placeholder="ripeti password">
-                
-                <button class="btn long-btn btn-lg btn-primary" id="signup_button" type="button">Registrati</button>
-                
-                <a class="btn long-btn btn-link btn-lg login_page_btn">Accedi</a>
+        <div id="signup" class="index collapse login container-fluid">
+            <div class="row">
+                <div class="col-sm-4 col-md-4"></div>
+                <div class="col-sm-4 col-md-4">
+                    <h1 class="h3 mb-3 font-weight-normal">Registrati</h1>
+                    
+                    <input id="sUpName" class="form-control" type="text" placeholder="nome">
+                    <input id="sUpSurname" class="form-control" type="text" placeholder="cognome">
+                    <input id="sUpEmail"  class="form-control"type="email" placeholder="email">
+                    <input id="sUpPwd" class="form-control" type="password" placeholder="password">
+                    <input id="sUpPwdRep" class="form-control" type="password" placeholder="ripeti password">
+                    
+                    <button class="btn long-btn btn-lg btn-primary" id="signup_button" type="button">Registrati</button>
+                    
+                    <a class="btn long-btn btn-link btn-lg login_page_btn">Accedi</a>
+                </div>
+                <div class="col-sm-4 col-md-4"></div>
             </div>
-            <div class="col-sm-4 col-md-4"></div>
         </div>
 
         <div id="user_page" class="collapse index login container-fluid">
@@ -94,9 +96,9 @@
                         <table id="user_table" class="table table-fixed four-columns-table table-sm">
                             <thead>
                                 <tr>
+                                    <th>Nome</th>
+                                    <th>Ospite</th>
                                     <th>Utente</th>
-                                    <th>Host</th>
-                                    <th>User</th>
                                     <th>Admin</th>
                                 </tr>
                             </thead>
@@ -230,9 +232,6 @@
                     </select>     
                     
                     <input class="datepicker" id="datetimepicker1" type="text" >
-
-                    <!--<button id="update-schedule_btn" class="btn btn-primary update-button btn-lg" type="button">Aggiorna</button>
-                    -->
                     
                     <table id="schedule_table" class="table two-columns-table table-fixed table-sm">
                         <thead>
@@ -263,10 +262,7 @@
                         </select>
                         <select class="form-control" id="select_year">
                         </select>
-                        <!--<input class="datepicker" id="datetimepicker2" type="text">
-                        -->
-                        <!--<button id="update-event-btn" class="btn btn-primary update-button btn-lg" type="button">Aggiorna</button>-->
-                    
+
                         <div id="event_list" class="list-group center-std-element">
                         </div> 
                         
@@ -284,8 +280,6 @@
                         
                         <input class="datepicker" id="datetimepicker3" type="text">
 
-                        <!--<button id="update-new-event-btn" class="btn btn-primary update-button btn-lg" type="button">Aggiorna</button>-->
-                        
                         <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm">
                             <thead>
                                 <tr>
@@ -352,9 +346,9 @@
                 <div class="col-sm-0 col-md-0"></div>
                 <div class="col-sm-12 col-md-12">
                     <h1 class="h3 mb-3 font-weight-normal">Programmazione Giornaliera</h1>
-                    <table id="big-table" class="big-table table">
+                    <table id="big-table" class="big-table table table-bordered">
                         <thead>
-                            <tr id="bth-row">
+                            <tr>
                                 <th>Ora</th>
                             </tr>
                         </thead>
@@ -363,9 +357,7 @@
                     </table>
                 </div>
                 <div class="col-sm-0 col-md-0"></div>
-            
             </div>
-
             <div class="row">
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
@@ -373,7 +365,6 @@
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>
-            
         </div>
 
         <!-- SCRIPT --> 
@@ -391,8 +382,6 @@
                 CURRENT_PAGE = page;
                 CURRENT_PAGE.show();
             }
-            
-            
         </script>
 
         <script type="text/javascript" src="js/firebaseConfig.js"></script>
@@ -402,7 +391,6 @@
         <script type="text/javascript" src="js/events.js"></script>
         <script type="text/javascript" src="js/prenotations.js"></script>
         <script type="text/javascript" src="js/institute_page.js"></script>
-        <script type="text/javascript" src="js/daily_schedule.js"></script>
 
         <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
         

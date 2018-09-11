@@ -25,6 +25,14 @@
      background-color: greenyellow;
 }
 
+.reserved_lesson {
+    background-color: lightgreen;
+}
+
+.reserved_event {
+    background-color: greenyellow;
+}
+
 #event_list {
     margin-bottom: 7%;
     width: 80%;
@@ -46,7 +54,8 @@ td .btn {
 
 .big-table {
     margin-left: 0%!important;
-    margin-bottom: 7%;
+    margin-top: 4%;
+    margin-bottom: 2%;
     width: 100%;
     border: solid darkgray 1px;
     border-radius: 5px;

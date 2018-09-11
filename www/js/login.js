@@ -36,6 +36,10 @@ $(function () {
     goInstitutePage();
   });
 
+  $("#guest_button").on('click', () => {
+    logAsGuest();
+  });
+
 /*
   Called at every user state change (login / logout)
 */
@@ -135,27 +139,38 @@ $(function () {
 
     $("#institute_info").text("L.S. Marconi Pesaro");
     const USER = firebase.auth().currentUser;
-    firebase.database().ref('user/' + USER.uid).once('value', snap => {
+    if (USER) {
+      firebase.database().ref('user/' + USER.uid).once('value', snap => {
+        if (snap.val().priviledges == "3") {
+          showPage($("#institute_page"));
+          $("#admin_btn").show();
+          $("#schedule_btn").show();
+          $("#events_btn").show();
+          $("#prenotations_btn").show();
+        } else if (snap.val().priviledges == "2") {
+          $("#admin_btn").hide();
+          $("#schedule_btn").show();
+          $("#events_btn").show();
+          $("#prenotations_btn").show();
+          showPage($("#institute_page"));
+        } else if (snap.val().priviledges == "1") {
+          $("#admin_btn").hide();
+          $("#schedule_btn").hide();
+          $("#events_btn").hide();
+          $("#prenotations_btn").hide();
+          showPage($("#institute_page"));
+        }
+      });
+    } else {
+      logAsGuest()
+    }
+  }
 
-      if (snap.val().priviledges == "3") {
-        showPage($("#institute_page"));
-        $("#admin_btn").show();
-        $("#schedule_btn").show();
-        $("#events_btn").show();
-        $("#prenotations_btn").show();
-      } else if (snap.val().priviledges == "2") {
-        $("#admin_btn").hide();
-        $("#schedule_btn").show();
-        $("#events_btn").show();
-        $("#prenotations_btn").show();
-        showPage($("#institute_page"));
-      } else if (snap.val().priviledges == "1") {
-        $("#admin_btn").hide();
-        $("#schedule_btn").hide();
-        $("#events_btn").hide();
-        $("#prenotations_btn").hide();
-        showPage($("#institute_page"));
-      }
-    });
+  function logAsGuest() {
+    $("#admin_btn").hide();
+    $("#schedule_btn").hide();
+    $("#events_btn").hide();
+    $("#prenotations_btn").hide();
+    showPage($("#institute_page"));
   }
 });

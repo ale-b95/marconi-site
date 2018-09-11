@@ -24,6 +24,7 @@ $(function () {
     });
 
     $("#big_table_btn").on('click', () => {
+        loadClassroomSchedule();
         showPage($("#big_table_page"));
     });
     
@@ -85,5 +86,64 @@ $(function () {
         });
     }   
     
-    
+    function loadClassroomSchedule() {
+        //
+        $("#big-table").empty();
+        var date = new Date();
+        var croom_keys = [];
+        firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').once('value', snap => {
+            snap.forEach(childSnap => {
+                if (!croom_keys.includes(childSnap.key)) {
+                    croom_keys.push(childSnap.key);
+                }
+            });
+        }).then(() => {
+            var n_croom = croom_keys.length;
+
+            $("#big-table").append('<tr id="big-table-head"></tr>');
+            $("#big-table-head").append("<th id='th-0'></th>");
+            croom_keys.forEach((value, i) => {
+                $("#big-table-head").append("<th id='th-"+(i+1)+"'></th>");
+            });
+
+            for (var hour = 8; hour<16; hour++) {
+                $("#big-table").append(
+                '<tr id="hid_'+hour+'" value="'+hour+'">'+
+                '</tr>');
+                $("#hid_"+hour).append('<th>'+hour+':00</th>');
+                for(var i = 0; i < n_croom; i++) {
+                    $("#hid_"+hour).append('<td id=cll-"'+hour+'-'+i+'"> </td>');
+                }
+            }
+
+            croom_keys.forEach((value, i) => {
+                //for each selected classroom prints on the big table the corresponding schedule
+                var pRef = firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/'+value+'/');
+                pRef.once('value', snap => {
+                    snap.forEach(childSnap => {
+                        var index = i + 2;
+                        var hour = childSnap.key;
+                        var teacher_name = childSnap.val().teacher;
+                        var class_name =  childSnap.val().class;
+                        var event_title = childSnap.val().event;
+                        var classroom_name = childSnap.val().classroom;
+                        var text;
+
+                        if (event_title) {
+                            text = event_title;
+                        } else {
+                            text = class_name + ' ' + teacher_name;
+                        }
+                        $("#th-"+(i+1)).text(classroom_name);
+                        $("#hid_"+hour+" td:nth-child("+index+")").text(text);
+                        if (event_title) {
+                            $("#hid_"+hour+" td:nth-child("+index+")").addClass('reserved_event');           
+                        } else {
+                            $("#hid_"+hour+" td:nth-child("+index+")").addClass('reserved_lesson');
+                        }
+                    });
+                });
+            });
+        });        
+    }
 });
