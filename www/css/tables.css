@@ -59,11 +59,12 @@ td .btn {
     border-radius: 5px;
 }
 
-.big-table tbody td{
+/*.big-table tbody td{
     float: left;
-    width: 25%;
+    width: 50%;
     height: 80px;
 }
+*/
 
 .longtable {
      height: 270px !important;
