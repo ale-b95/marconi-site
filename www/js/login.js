@@ -123,10 +123,15 @@ $(function () {
   show user data (name and password) on the user page
 */
   function goUserPage() {
+    
     const USER = firebase.auth().currentUser;
-    $("#user_info").empty();
-    $("#user_info").append("<p>User: "+ USER.displayName + '<br/>Email: ' + USER.email + '</p>');
-    showPage($("#user_page"));
+    if (USER) {
+      $("#user_info").empty();
+      $("#user_info").append("<p>User: "+ USER.displayName + '<br/>Email: ' + USER.email + '</p>');
+      showPage($("#user_page"));
+    } else {
+      showPage($("#login"));
+    }
   }
 
 /*
