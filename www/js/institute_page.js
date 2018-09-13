@@ -87,7 +87,6 @@ $(function () {
     }   
     
     function loadClassroomSchedule() {
-        //
         $("#big-table").empty();
         var date = new Date();
         var croom_keys = [];
@@ -144,6 +143,11 @@ $(function () {
                     });
                 });
             });
+
+            if (n_croom == 0) {
+                $("#big-table").empty();
+                $("#no_prenotations").show();
+            }
         });        
     }
 });
