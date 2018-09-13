@@ -4,6 +4,7 @@
     <head>
         <meta charset="utf-8" />
         <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" /> 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="css/index.css"/>
         <link rel="stylesheet" type="text/css" href="css/tables.css"/>
@@ -18,7 +19,7 @@
         
         <div id="login" class="index collapse login container-fluid">
             <div class="row">
-                <div class="col-sm-4 col.md-4"></div>
+                <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
                     <h1 class="h3 mb-3 font-weight-normal">Accedi</h1>
                     <input id="lInEmail" class="form-control" type="email" placeholder="email">
@@ -238,7 +239,7 @@
                     <select class="form-control" id="select_class">
                     </select>     
                     
-                    <input class="datepicker" id="datetimepicker1" type="text" >
+                    <input class="datepicker" id="datetimepicker1" type="text" readonly="true">
                     
                     <table id="schedule_table" class="table two-columns-table table-fixed table-sm">
                         <thead>
@@ -285,7 +286,7 @@
                         <select id="select_event_classroom" class="form-control">
                         </select>
                         
-                        <input class="datepicker" id="datetimepicker3" type="text">
+                        <input class="datepicker" id="datetimepicker3" type="text" readonly="true">
 
                         <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm">
                             <thead>
