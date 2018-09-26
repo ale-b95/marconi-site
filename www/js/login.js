@@ -70,6 +70,7 @@ $(function () {
     const txtEmailSignup = $("#sUpEmail")[0];
     const txtPswd = $("#sUpPwd")[0];
     const txtPswdRep = $("#sUpPwdRep")[0];
+    const txtCode = $("#sUpCode")[0];
 
     if (txtPswd.value == txtPswdRep.value) {
       /*

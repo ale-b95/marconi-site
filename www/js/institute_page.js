@@ -27,6 +27,10 @@ $(function () {
         loadClassroomSchedule();
         showPage($("#big_table_page"));
     });
+
+    $("#access_code_btn").on('click', () => {
+        showPage($("#access_code_page"));
+    });
     
     /*
         fill the specified select list with the classrooms loaded from the database

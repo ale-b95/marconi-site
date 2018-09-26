@@ -41,6 +41,12 @@ $(function () {
         addClassToDb();
     });
 
+    $("#get_code_btn").on('click', () => {
+        var code = generateCode();
+        console.log(readCode(code));
+        $("#show_code").text(code);
+    });
+
     /*
         Fill the users table in "Roles and permission" page.
     */
@@ -236,5 +242,115 @@ $(function () {
                 });
             })
         });
+    }
+
+    function readCode(str) {
+        var number_of_letters;
+        var prev;
+
+        var code = str.split("");
+        console.log(code);
+        if (code.length == 6) {
+            if (isLetter(code[0])) {
+                if (code[0] == code[0].toLowerCase()) {
+                    number_of_letters = 5;
+                    prev = 1;
+                } else {
+                    number_of_letters = 4;
+                    prev = 2;
+                }
+
+                if (numberOfLetters(str) != number_of_letters) {
+                    console.log("exit 1");
+                    return false;
+                }
+            } else {
+                number_of_letters = (code[0] % 4) + 2;
+                prev = code[0];
+
+                if (numberOfLetters(str) != number_of_letters) {
+                    console.log("exit 2");
+                    return false;
+                }
+            }
+
+            for (i = 1; i < 6; i++) {
+                if (!isLetter(code[i])) {
+                    if (!(prev % 2 == 0 && code[i] % 2 != 0 || code[i] % 2 == 0 && prev % 2 != 0)) {
+                        console.log("exit 3");
+                        console.log("prev: " + prev + " current: " + code[i]);
+                        return false;
+                    }
+                }
+            }            
+        } else {
+            console.log("wrong lenght");
+            return false;
+        }
+
+        return true;
+    }
+
+    function generateCode() {
+        var code = [0,0,0,0,0,0];
+        var letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        var bigL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var smallL = "abcdefghijklmnopqrstuvwxyz";
+        var even = "02468";
+        var odd = "13579";
+      
+        var number_of_letters;
+        var prev;
+
+        for (var i = 0; i < 5; i++) {
+            if (i == 0) {
+                var val = randomIntFromInterval(0, 11);
+                prev = val;
+                //console.log("first value: " + val);
+                number_of_letters = (val % 4) + 2;
+                //console.log("corresponding first char number of letters: " + number_of_letters);
+                if (val == 10) {
+                    val = bigL.charAt(Math.floor(Math.random() * bigL.length));
+                } else if (val == 11) {
+                    val = smallL.charAt(Math.floor(Math.random() * smallL.length));
+                }
+                //console.log("corresponding first char: " + val);
+                code[i] = val;
+                while (numberOfLetters(code) < number_of_letters) {
+                    code[randomIntFromInterval(1, 5)] = letter.charAt(Math.floor(Math.random() * letter.length));
+                    //console.log(code);
+                }
+            } else if (i != 0) {
+                if (!isLetter(code[i])) {
+                    if (prev % 2 == 0) {
+                        val = odd.charAt(Math.floor(Math.random() * odd.length));
+                    } else {
+                        val = even.charAt(Math.floor(Math.random() * odd.length));
+                    } 
+                    code[i] = val;
+                    prev = val;
+                } 
+            }
+        }
+        return code.join("");
+    }
+
+    function numberOfLetters(array) {
+        var count = 0;
+        for(var i = 0; i < array.length; i++){
+            if (isLetter(array[i])) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    function isLetter(str) {
+        return !(/^\d+$/.test(str));
+    }
+
+    function randomIntFromInterval(min,max) {
+        return Math.floor(Math.random()*(max-min+1)+min);
     }
 });
