@@ -42,8 +42,10 @@ $(function () {
     });
 
     $("#get_code_btn").on('click', () => {
-        var code = generateCode();
-        console.log(readCode(code));
+        var code;
+        do {
+            code = generateCode();
+        } while (!readCode(code));
         $("#show_code").text(code);
     });
 
@@ -249,7 +251,6 @@ $(function () {
         var prev;
 
         var code = str.split("");
-        console.log(code);
         if (code.length == 6) {
             if (isLetter(code[0])) {
                 if (code[0] == code[0].toLowerCase()) {
@@ -259,9 +260,7 @@ $(function () {
                     number_of_letters = 4;
                     prev = 2;
                 }
-
                 if (numberOfLetters(str) != number_of_letters) {
-                    console.log("exit 1");
                     return false;
                 }
             } else {
@@ -269,22 +268,19 @@ $(function () {
                 prev = code[0];
 
                 if (numberOfLetters(str) != number_of_letters) {
-                    console.log("exit 2");
                     return false;
                 }
             }
 
             for (i = 1; i < 6; i++) {
                 if (!isLetter(code[i])) {
-                    if (!(prev % 2 == 0 && code[i] % 2 != 0 || code[i] % 2 == 0 && prev % 2 != 0)) {
-                        console.log("exit 3");
-                        console.log("prev: " + prev + " current: " + code[i]);
+                    if (!((prev % 2 == 0 && code[i] % 2 != 0) || (code[i] % 2 == 0 && prev % 2 != 0))) {
                         return false;
                     }
+                    prev = code[i];
                 }
             }            
         } else {
-            console.log("wrong lenght");
             return false;
         }
 
@@ -302,25 +298,22 @@ $(function () {
         var number_of_letters;
         var prev;
 
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 6; i++) {
             if (i == 0) {
                 var val = randomIntFromInterval(0, 11);
                 prev = val;
-                //console.log("first value: " + val);
                 number_of_letters = (val % 4) + 2;
-                //console.log("corresponding first char number of letters: " + number_of_letters);
                 if (val == 10) {
                     val = bigL.charAt(Math.floor(Math.random() * bigL.length));
                 } else if (val == 11) {
                     val = smallL.charAt(Math.floor(Math.random() * smallL.length));
                 }
-                //console.log("corresponding first char: " + val);
                 code[i] = val;
+
                 while (numberOfLetters(code) < number_of_letters) {
                     code[randomIntFromInterval(1, 5)] = letter.charAt(Math.floor(Math.random() * letter.length));
-                    //console.log(code);
                 }
-            } else if (i != 0) {
+            } else {
                 if (!isLetter(code[i])) {
                     if (prev % 2 == 0) {
                         val = odd.charAt(Math.floor(Math.random() * odd.length));
