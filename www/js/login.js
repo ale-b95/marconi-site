@@ -70,40 +70,46 @@ $(function () {
     const txtEmailSignup = $("#sUpEmail")[0];
     const txtPswd = $("#sUpPwd")[0];
     const txtPswdRep = $("#sUpPwdRep")[0];
-    const txtCode = $("#sUpCode")[0];
+    const txtCode = $("#sUpCode").val();
+    var available = true;
 
-    if (txtPswd.value == txtPswdRep.value) {
-      /*
-        Get email and password
-      */
-      var dispName = txtName.value + " " + txtSurname.value;
+    if (SecurityCodeUtility.readCode(txtCode)) {
       
-      /*
-            Signup
-      */    
-      firebase.auth().createUserWithEmailAndPassword(txtEmailSignup.value, txtPswd.value)
-      .then(() => {
-        /*
-            Set a display name for the user
-        */
-        firebase.auth().currentUser.updateProfile({
-          displayName: dispName
-        })
-        .catch(updateUser => console.log('user not updated ' + updateUser.message))
-      }).then(() => {
-          const USER = firebase.auth().currentUser;
-          var dbRef = firebase.database().ref();
-
-          dbRef.child('user/' + USER.uid).set({
-            name: txtName.value,
-            surname: txtSurname.value,
-            email: USER.email,
-            priviledges: "1"
-          }).catch(ops => console.log('ERROR '+ops.message));
-        goUserPage();
-      }).catch(createUser => console.log('error during user creation ' + createUser.message));
+      if (txtPswd.value == txtPswdRep.value) {
+        
+        var dispName = txtName.value + " " + txtSurname.value;
+         
+        var dbRef = firebase.database().ref();
+        dbRef.child('user/').once('value', snap => {
+          snap.forEach(chidsnap => {
+            if (chidsnap.val().code == txtCode) {
+              available = false;
+              alert ("Codice di sicurezza già utilizzato");
+            }
+          });
+        }).then(() =>{
+          if (available) {
+            firebase.auth().createUserWithEmailAndPassword(txtEmailSignup.value, txtPswd.value).then(() => {
+              firebase.auth().currentUser.updateProfile({
+                displayName: dispName
+              }).catch(updateUser => console.log('user not updated ' + updateUser.message))}).then(() => {
+                  const USER = firebase.auth().currentUser;
+                  dbRef.child('user/' + USER.uid).set({
+                    name: txtName.value,
+                    surname: txtSurname.value,
+                    email: USER.email,
+                    priviledges: "2",
+                    code : txtCode
+                  }).catch(ops => console.log('ERROR '+ops.message));
+                goUserPage();
+              }).catch(createUser => console.log('error during user creation ' + createUser.message));
+          }
+        });
+      } else {
+        $(this).closest('form').find("input[type=password]").val("");
+      }
     } else {
-      $(this).closest('form').find("input[type=password]").val("");
+      alert ("Codice di sicurezza non valido");
     }
   }
 
