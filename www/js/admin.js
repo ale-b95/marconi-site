@@ -49,6 +49,28 @@ $(function () {
         $("#show_code").text(code);
     });
 
+    $("#download_code_btn").on('click', () => {
+        
+        var code = [];
+        for (var i = 0 ; i < 100; i++) {
+            code[i] = SecurityCodeUtility.generateCode() + "\n";
+        }
+
+        var blob = new Blob(code, {type: "text/plain",endings:'native'});
+        const object_URL = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.setAttribute("type", "hidden");
+        a.href = object_URL;
+        a.download = "codiciAccesso";
+        document.body.appendChild(a);
+        a.click();
+        //a.remove();
+        //URL.revokeObjectURL(object_URL);
+
+        
+    });
+
+
     /*
         Fill the users table in "Roles and permission" page.
     */
