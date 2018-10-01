@@ -26,7 +26,6 @@ $(function () {
         Load the information about the selected classroom on a selected day when
         the classroom and the day have been selected
     */
-    
     $('#datetimepicker1, #select_classroom, #select_class').on('change', () => {
         sc_date = $("#datetimepicker1").datetimepicker('getValue');
         classroom_id = $("#select_classroom").val();
@@ -153,7 +152,7 @@ $(function () {
     function loadClassroomSchedule() {
         $("#schedule_table_body").empty();
         
-        for (var hour = 8; hour<16; hour++) {
+        for (var hour = 8; hour<25; hour++) {
             $("#schedule_table_body").append(
             '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
             '<th>'+hour+':00</th><td></td>'+

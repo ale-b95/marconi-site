@@ -37,11 +37,17 @@ input {
     width: 39%; 
 }
 
-.datepicker {
-    width: 78%;
+#showcase {
+    margin-top: 4%;
+    float: right;
+    width: 19%;
 }
 
 /*DATEPICKER & FORM*/
+
+.datepicker {
+    width: 78%;
+}
 
 .form-control {
     width: 80%;

@@ -109,7 +109,7 @@ $(function () {
                 $("#big-table-head").append("<th id='th-"+(i+1)+"'></th>");
             });
 
-            for (var hour = 8; hour<16; hour++) {
+            for (var hour = 8; hour<25; hour++) {
                 $("#big-table").append(
                 '<tr id="hid_'+hour+'" value="'+hour+'">'+
                 '</tr>');

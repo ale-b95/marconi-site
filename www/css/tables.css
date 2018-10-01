@@ -56,16 +56,11 @@ td .btn {
     margin-left: 0%!important;
     margin-top: 4%;
     margin-bottom: 2%;
-    width: 100%;
-    border: solid darkgray 1px;
+    width: 79%;
+    border: solid lightgray 2px;
     border-radius: 5px;
-}
-
-.big-table tbody{
-    height: 100%;
-    width: 100%;
-    border: solid darkgray 1px;
-    border-radius: 5px;
+    /*display: inline-block;*/
+    float: left;
 }
 
 /*.big-table tbody td{
