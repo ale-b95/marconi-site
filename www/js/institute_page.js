@@ -103,14 +103,15 @@ $(function () {
         }).then(() => {
             var n_croom = croom_keys.length;
 
-            $("#big-table").append('<tr id="big-table-head"></tr>');
+            $("#big-table").append('<thead id="big-table-head"></thead>');
             $("#big-table-head").append("<th id='th-0'></th>");
             croom_keys.forEach((value, i) => {
                 $("#big-table-head").append("<th id='th-"+(i+1)+"'></th>");
             });
 
+            $("#big-table").append('<tbody id="big-table-body"></tbody>');
             for (var hour = 8; hour<25; hour++) {
-                $("#big-table").append(
+                $("#big-table-body").append(
                 '<tr id="hid_'+hour+'" value="'+hour+'">'+
                 '</tr>');
                 $("#hid_"+hour).append('<th>'+hour+':00</th>');
@@ -118,6 +119,22 @@ $(function () {
                     $("#hid_"+hour).append('<td id=cll-"'+hour+'-'+i+'"> </td>');
                 }
             }
+
+            var selectors = [
+                ":lt(8)",
+                ":gt(7)"
+            ];
+            var $tableslide = $("#big-table-body").children(selectors[1]).hide().end();
+            var state = false;
+            
+            setInterval(function () {
+                var s = state;
+                $tableslide.children(selectors[+s]).fadeOut().promise().then(function () {
+                    $tableslide.children(selectors[+!s]).fadeIn();
+                });
+                state = !state;
+            }, 10000);
+        
 
             croom_keys.forEach((value, i) => {
                 //for each selected classroom prints on the big table the corresponding schedule
@@ -152,6 +169,6 @@ $(function () {
                 $("#big-table").empty();
                 $("#no_prenotations").show();
             }
-        });        
+        });     
     }
 });

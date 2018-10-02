@@ -38,9 +38,18 @@ input {
 }
 
 #showcase {
-    margin-top: 4%;
+    margin-top: 2%;
     float: right;
     width: 19%;
+    border: solid lightgray 2px;
+    background-color: none !important;
+    border-radius: 0%;
+    padding: 1%;
+}
+
+.event-show {
+    padding: 1%;
+    background-color: lightblue !important;
 }
 
 /*DATEPICKER & FORM*/
