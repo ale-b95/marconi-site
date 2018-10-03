@@ -151,18 +151,31 @@ $(function () {
                 If the selected rows already have a prenotation the button will remove
                 the previous prenotation.
             */
-            for (var i = 0; i < selected_hours.length; i++) {
-                var my_class;
-                preno_ref = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i])
-                preno_ref.once('value', snap => {
-                    snap.forEach(childSnap => {
-                        my_class = childSnap.val().class;
-                    });
-                }).then(() => {
-                    firebase.database().ref('class/'+my_class+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+selected_hours[i]).remove();
-                    preno_ref.remove();
-                });/*HEIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII*/
-            }
+
+            var class_hour = {};
+            p1 = new Promise(() => {
+                for (var i = 0; i < selected_hours.length; i++) {
+                    /*alert("hour: "+selected_hours[i]);
+                    preno_ref = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', snap => {
+                        class_hour[""+selected_hours[i]] = snap.val().class;
+                        alert('class: '+snap.val().class)
+                    });*/
+                }
+            });
+            
+            p1.then(() => {
+                alert('ciao');
+                for (var i = 0; i < selected_hours.length; i++) {
+                    
+                    /*firebase.database().ref('class/'+class_hour[selected_hours[i]]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+selected_hours[i]).delete();
+                    firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+class_hour[selected_hours[i]]).delete();
+                    */
+                }
+            });         
+            
+
+            
+
             loadClassroomSchedule();
             selected_hours = [];
             cs_selected_rows = 0;
