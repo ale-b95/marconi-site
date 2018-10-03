@@ -102,13 +102,20 @@ $(function () {
         */
         if (class_name && class_name != 'Seleziona classe' && cs_selected_rows > 0 && sc_date >= today && classroom_name != "Seleziona aula") {
             
-            for (var i = 0; i < selected_hours.length; i++) {            
-                firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]+'/').set({
+            for (var i = 0; i < selected_hours.length; i++) {
+                var hour = selected_hours[i];
+                firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+hour+'/').set({
                 class : class_name,
                 classroom : classroom_name,
                 teacher : user.displayName,
                 teacher_key : user.uid
                 });
+
+                firebase.database().ref('class/'+class_name+'/prenotation/'+sc_date.getDate()+"-"+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/').set({
+                    hour : classroom_name
+                });
+
+                //to continue
             }
             selected_hours = [];
             loadClassroomSchedule();

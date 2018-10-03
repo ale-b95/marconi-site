@@ -202,28 +202,6 @@
                 <div class="col-sm-4 col-md-4"></div>
             </div>
         </div>
-        
-        <div id="admin_prenotation_page" class="collapse admin container-fluid">
-            <div class="row">
-                <div class="col-sm-4 col-md-4"></div>
-                <div class="col-sm-4 col-md-4">
-                    <h1 class="h3 mb-3 font-weight-normal">Prenotazioni</h1>
-                    <button class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
-                </div>
-                <div class="col-sm-4 col-md-4"></div>
-            </div>
-        </div>
-
-        <div id="admin_events_page" class="collapse admin container-fluid">
-            <div class="row">
-                <div class="col-sm-4 col-md-4"></div>
-                <div class="col-sm-4 col-md-4">
-                    <h1 class="h3 mb-3 font-weight-normal">Eventi</h1>
-                    <button class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
-                </div>
-                <div class="col-sm-4 col-md-4"></div>
-            </div>
-        </div>
 
         <!-- MAIN APP -->
 
@@ -360,11 +338,24 @@
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
                     <h1 class="h3 mb-3 font-weight-normal">Prenotazioni</h1>
+
                     <select class="form-control" id="select_prenotations">
                     </select>
 
                     <div id="prenotations_list" class="list-group center-std-element"></div>
                     <br>
+
+                    <table id="class_pren_table" class="table two-columns-table table-fixed table-sm">
+                        <thead>
+                            <tr>
+                                <th>Ora</th>
+                                <th>Aula</th>
+                            </tr>
+                        </thead>
+                        <tbody id="class_pren_body">
+                        </tbody>
+                    </table>
+
                     <button class="btn long-btn btn-primary btn-lg institute_page_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
