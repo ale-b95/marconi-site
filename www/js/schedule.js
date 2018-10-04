@@ -152,23 +152,24 @@ $(function () {
             var class_hour = {};
             var promises = [];
             for (i in selected_hours) {
-                var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]+'/class').once('value');
+                var hour = selected_hours[i];
+                var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', function(snap) {
+                    class_hour[snap.val().class]= this.h;
+                }.bind({h : hour}));
                 promises.push(my_prom);
-
-                my_prom.then((val) => {
-                    class_hour[val] = selected_hours[i];
-                });
             }
 
-            Promise.all(promises).then(value => {
-                for (i in selected_hours) {
-                    console.log(class_hour[value]);
+            Promise.all(promises).then(() => {
+                var classes = Object.keys(class_hour);
+                console.log(classes);
+                for (x in classes) {
+                    firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+class_hour[classes[x]]).remove();
+                    firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+class_hour[classes[x]]).remove();
                 }
             });
-                /*
-                    firebase.database().ref('class/'+class_hour[selected_hours[i]]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+selected_hours[i]).delete();
-                    firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+class_hour[selected_hours[i]]).delete();
-                }*/
+                
+                    
+                
 
             loadClassroomSchedule();
             selected_hours = [];
