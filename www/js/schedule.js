@@ -41,8 +41,6 @@ $(function () {
         }).then(() => {
             loadClassroomSchedule();
         });
-
-        console.log(occupied_h);
     });
 
     /*
@@ -150,31 +148,27 @@ $(function () {
             /*
                 If the selected rows already have a prenotation the button will remove
                 the previous prenotation.
-            */
-
+            */  
             var class_hour = {};
-            p1 = new Promise(() => {
-                for (var i = 0; i < selected_hours.length; i++) {
-                    /*alert("hour: "+selected_hours[i]);
-                    preno_ref = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', snap => {
-                        class_hour[""+selected_hours[i]] = snap.val().class;
-                        alert('class: '+snap.val().class)
-                    });*/
+            var promises = [];
+            for (i in selected_hours) {
+                var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]+'/class').once('value');
+                promises.push(my_prom);
+
+                my_prom.then((val) => {
+                    class_hour[val] = selected_hours[i];
+                });
+            }
+
+            Promise.all(promises).then(value => {
+                for (i in selected_hours) {
+                    console.log(class_hour[value]);
                 }
             });
-            
-            p1.then(() => {
-                alert('ciao');
-                for (var i = 0; i < selected_hours.length; i++) {
-                    
-                    /*firebase.database().ref('class/'+class_hour[selected_hours[i]]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+selected_hours[i]).delete();
+                /*
+                    firebase.database().ref('class/'+class_hour[selected_hours[i]]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+selected_hours[i]).delete();
                     firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+class_hour[selected_hours[i]]).delete();
-                    */
-                }
-            });         
-            
-
-            
+                }*/
 
             loadClassroomSchedule();
             selected_hours = [];
