@@ -154,21 +154,33 @@ $(function () {
             for (i in selected_hours) {
                 var hour = selected_hours[i];
                 var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', function(snap) {
-                    class_hour[snap.val().class]= this.h;
+                    if (class_hour.hasOwnProperty(snap.val().class+"")) {
+                        var arr = class_hour[snap.val().class];
+                        arr.push(this.h);
+                        class_hour[snap.val().class] = arr;
+                        console.log('1.1');
+                    } else {
+                        var arr = [];
+                        arr.push(this.h);
+                        class_hour[snap.val().class] = arr;
+                        console.log('1.2');
+                    }
                 }.bind({h : hour}));
                 promises.push(my_prom);
             }
 
             Promise.all(promises).then(() => {
+                
                 var classes = Object.keys(class_hour);
-                console.log(classes);
+                console.log(class_hour[classes[0]]);
                 for (x in classes) {
-                    firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+class_hour[classes[x]]).remove();
-                    firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+class_hour[classes[x]]).remove();
+                    var arr = class_hour[classes[x]];
+                    for (y in arr) {
+                        firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+arr[y]).remove();
+                        firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+arr[y]).remove();
+                    }
                 }
             });
-                
-                    
                 
 
             loadClassroomSchedule();
