@@ -23,24 +23,10 @@ $(function () {
     var mb_selected_rows = 0;
     var selected_hours = [];
     var occupied_h = [];
+    var occupied_cr = [];
 
     $("#select_class").on('change', () => {
-        class_name = $("#select_class").find(':selected').text();
-
-        occupied_h = [];
-
-        firebase.database().ref('class/'
-        +class_name
-        +'/prenotation/'
-        +sc_date.getDate()+"-"
-        +(sc_date.getMonth() + 1)+'-'
-        +sc_date.getFullYear()+'/').once('value', snap => {
-            snap.forEach(childSnap => {
-                occupied_h.push(childSnap.key);
-            });
-        }).then(() => {
-            loadClassroomSchedule();
-        });
+        update_class_references();
     });
 
     /*
@@ -51,8 +37,9 @@ $(function () {
         sc_date = $("#datetimepicker1").datetimepicker('getValue');
         classroom_id = $("#select_classroom").val();
         classroom_name = $("#select_classroom").find(':selected').text();
+        
 
-        if (classroom_name != 'Seleziona aula' && sc_date) {
+        if (classroom_name != 'Seleziona aula') {
             loadClassroomSchedule();
         }
     });
@@ -158,19 +145,16 @@ $(function () {
                         var arr = class_hour[snap.val().class];
                         arr.push(this.h);
                         class_hour[snap.val().class] = arr;
-                        console.log('1.1');
                     } else {
                         var arr = [];
                         arr.push(this.h);
                         class_hour[snap.val().class] = arr;
-                        console.log('1.2');
                     }
                 }.bind({h : hour}));
                 promises.push(my_prom);
             }
 
             Promise.all(promises).then(() => {
-                
                 var classes = Object.keys(class_hour);
                 console.log(class_hour[classes[0]]);
                 for (x in classes) {
@@ -181,8 +165,7 @@ $(function () {
                     }
                 }
             });
-                
-
+            
             loadClassroomSchedule();
             selected_hours = [];
             cs_selected_rows = 0;
@@ -191,6 +174,8 @@ $(function () {
         } else if (sc_date < today) {
             alert('ERRORE: Non possono essere effettuate modifiche per la data selezionata.');
         }
+
+        update_class_references();
     });
 
     $('.cs_back_btn').on('click', () => {
@@ -206,16 +191,30 @@ $(function () {
     */
     function loadClassroomSchedule() {
         $("#schedule_table_body").empty();
-        
+        var clickable;
+        var idx;
+        var class_info = "";
+
         for (var hour = 8; hour<25; hour++) {
+            clickable = true;
+            idx = occupied_h.indexOf(hour+"");
+            if (idx != -1) {
+                if (occupied_cr[idx] != classroom_name) {
+                    class_info = 'CLASSE NON DISPONIBILE!';
+                    clickable = false;
+                }
+            } else {
+                class_info = "";
+            }
+
             $("#schedule_table_body").append(
             '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
-            '<th>'+hour+':00</th><td></td>'+
+            '<th>'+hour+':00</th><td>'+ class_info +'</td>'+
             '</tr>');
 
-            if (occupied_h.includes(hour)) {
-                second_column += '  (CLASSE NON DISPONIBILE)  ';
+            if (!clickable) {
                 $("#hid_"+hour).removeClass('clickable-row');
+                $("#hid_"+hour).addClass('booked');
             }
         }
 
@@ -229,16 +228,11 @@ $(function () {
                 var teacher_id = childSnap.val().teacher_key;
                 var second_column;
 
-                if (occupied_h.includes(hour)) {
-                    second_column += '(CLASSE NON DISPONIBILE!)  ';
-                }
-
                 if (event_title) {
                     second_column = event_title;
                 } else {
                     second_column = class_name + ' ' + teacher_name;
                 }
-
 
                 $("#hid_"+hour).empty();
                 $("#hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
@@ -269,5 +263,26 @@ $(function () {
         } else {
             $('#book_prenotation_btn').text('Prenota');
         }
+    }
+
+    function update_class_references() {
+        class_name = $("#select_class").find(':selected').text();
+
+        occupied_h = [];
+        occupied_cr = [];
+
+        firebase.database().ref('class/'
+        +class_name
+        +'/prenotation/'
+        +sc_date.getDate()+"-"
+        +(sc_date.getMonth() + 1)+'-'
+        +sc_date.getFullYear()+'/').once('value', snap => {
+            snap.forEach(childSnap => {
+                occupied_h.push(childSnap.key);
+                occupied_cr.push(childSnap.val());
+            });
+        }).then(() => {
+            loadClassroomSchedule();
+        });
     }
 });
