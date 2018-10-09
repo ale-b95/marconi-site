@@ -19,7 +19,7 @@ $(function () {
     });
     
     $("#prenotations_btn").on('click', () => {
-        loadClassSelectList("select_prenotations");
+        loadClassSelectList("select_class_pren");
         showPage($("#prenotations_page"));
     });
 
@@ -112,11 +112,11 @@ $(function () {
             $("#big-table").append('<tbody id="big-table-body"></tbody>');
             for (var hour = 8; hour<25; hour++) {
                 $("#big-table-body").append(
-                '<tr id="hid_'+hour+'" value="'+hour+'">'+
+                '<tr id="bt_hid_'+hour+'" value="'+hour+'">'+
                 '</tr>');
-                $("#hid_"+hour).append('<th>'+hour+':00</th>');
+                $("#bt_hid_"+hour).append('<th>'+hour+':00</th>');
                 for(var i = 0; i < n_croom; i++) {
-                    $("#hid_"+hour).append('<td id=cll-"'+hour+'-'+i+'"> </td>');
+                    $("#bt_hid_"+hour).append('<td id=cll-"'+hour+'-'+i+'"> </td>');
                 }
             }
 
@@ -155,11 +155,11 @@ $(function () {
                             text = class_name + ' ' + teacher_name;
                         }
                         $("#th-"+(i+1)).text(classroom_name);
-                        $("#hid_"+hour+" td:nth-child("+index+")").text(text);
+                        $("#bt_hid_"+hour+" td:nth-child("+index+")").text(text);
                         if (event_title) {
-                            $("#hid_"+hour+" td:nth-child("+index+")").addClass('reserved_event');           
+                            $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_event');           
                         } else {
-                            $("#hid_"+hour+" td:nth-child("+index+")").addClass('reserved_lesson');
+                            $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_lesson');
                         }
                     });
                 });

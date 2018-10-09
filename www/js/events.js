@@ -44,9 +44,7 @@ $(function () {
         Fill the list with the events of the selected month
     */
     function loadEventList() {
-        
         $('#event_list').empty();
-        
         var ref = firebase.database().ref().child('event/');
         ref.orderByChild("date").startAt(startdate.getTime()).endAt(enddate.getTime())
         .once("value", snap => {
@@ -58,7 +56,8 @@ $(function () {
                 var teacher = childSnap.val().teacher;
                 var teacher_key = childSnap.val().teacher_key;
                 var classroom = childSnap.val().classroom;
-                var classroom_key = childSnap.val().classroom_key;  
+                var classroom_key = childSnap.val().classroom_key; 
+                
 
                 $('#event_list').append('<button type="button" id="ed_'+ event_key +'" class="list-group-item">'+ title + ' - ' + event_date.getDate() + '/' + (event_date.getMonth() + 1) + '/' + event_date.getFullYear() +'</button>');
                 
@@ -109,7 +108,6 @@ $(function () {
             });
         });
     }
-
 
     function participateEvent(class_name, event_key, event_date, event_title) {
         if (class_name != 'Seleziona classe') {
@@ -285,9 +283,9 @@ $(function () {
 
         $("#schedule_event_table_body").empty();
         
-        for (var hour = 8; hour<16; hour++) {
+        for (var hour = 8; hour<25; hour++) {
             $("#schedule_event_table_body").append(
-            '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
+            '<tr class="clickable-row" id="ev_hid_'+hour+'" value="'+hour+'">'+
             '<th>'+hour+':00</th><td></td>'+
             '</tr>');
         }
@@ -312,23 +310,23 @@ $(function () {
                         second_column = class_name + ' ' + teacher_name;
                     }
 
-                    $("#hid_"+hour).empty();
-                    $("#hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
+                    $("#ev_hid_"+hour).empty();
+                    $("#ev_hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
                     user = firebase.auth().currentUser;
-                    $("#hid_"+hour).empty();
-                    $("#hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
+                    $("#ev_hid_"+hour).empty();
+                    $("#ev_hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
 
                     if (event_title) {
-                        $("#hid_"+hour).addClass('event_prenotation');
-                        $("#hid_"+hour).val(event_key);              
+                        $("#ev_hid_"+hour).addClass('event_prenotation');
+                        $("#ev_hid_"+hour).val(event_key);              
                     } else {
                         user = firebase.auth().currentUser;
 
                         if (user.uid == teacher_id){
-                            $("#hid_"+hour).addClass('mybook');
+                            $("#ev_hid_"+hour).addClass('mybook');
                         } else {
-                            $("#hid_"+hour).addClass('booked');
-                            $("#hid_"+hour).removeClass('clickable-row');
+                            $("#ev_hid_"+hour).addClass('booked');
+                            $("#ev_hid_"+hour).removeClass('clickable-row');
                         }
                     }
                 }

@@ -208,13 +208,13 @@ $(function () {
             }
 
             $("#schedule_table_body").append(
-            '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
+            '<tr class="clickable-row" id="s_hid_'+hour+'" value="'+hour+'">'+
             '<th>'+hour+':00</th><td>'+ class_info +'</td>'+
             '</tr>');
 
             if (!clickable) {
-                $("#hid_"+hour).removeClass('clickable-row');
-                $("#hid_"+hour).addClass('booked');
+                $("#s_hid_"+hour).removeClass('clickable-row');
+                $("#s_hid_"+hour).addClass('booked');
             }
         }
 
@@ -234,21 +234,21 @@ $(function () {
                     second_column = class_name + ' ' + teacher_name;
                 }
 
-                $("#hid_"+hour).empty();
-                $("#hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
+                $("#s_hid_"+hour).empty();
+                $("#s_hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
                 
                 if (event_title) {
-                    $("#hid_"+hour).addClass('event_prenotation');
-                    $("#hid_"+hour).val(event_key);              
+                    $("#s_hid_"+hour).addClass('event_prenotation');
+                    $("#s_hid_"+hour).val(event_key);              
                 } else {
                     var user = firebase.auth().currentUser;
                 
                     if (user.uid == teacher_id){
-                        $("#hid_"+hour).addClass('mybook');
-                        $("#hid_"+hour).addClass('clickable-row');
+                        $("#s_hid_"+hour).addClass('mybook');
+                        $("#s_hid_"+hour).addClass('clickable-row');
                     } else {
-                        $("#hid_"+hour).addClass('booked');
-                        $("#hid_"+hour).removeClass('clickable-row');
+                        $("#s_hid_"+hour).addClass('booked');
+                        $("#s_hid_"+hour).removeClass('clickable-row');
                     }
                 }
             });

@@ -1,8 +1,7 @@
 $(function () {
     var class_name;
-    var sc_date;
+    var prn_date;
 
-    jQuery('#datetimepicker2').datetimepicker();
     jQuery('#datetimepicker2').datetimepicker({
         minDate:'0',
         timepicker:false,
@@ -10,32 +9,51 @@ $(function () {
     });
 
     $('#datetimepicker2, #select_class_pren').on('change', () => {
-        sc_date = $("#datetimepicker1").datetimepicker('getValue');
+        $("#class_pren_body").empty();
+        prn_date = $("#datetimepicker1").datetimepicker('getValue');
         if (classroom_name != 'Seleziona aula') {
             class_name = $("#select_class_pren").find(':selected').text();
 
-            occupied_h = [];
-            occupied_cr = [];
+            var occupied_h = [];
+            var occupied_cls = [];
     
             firebase.database().ref('class/'
-            +class_name
-            +'/prenotation/'
-            +sc_date.getDate()+"-"
-            +(sc_date.getMonth() + 1)+'-'
-            +sc_date.getFullYear()+'/').once('value', snap => {
+            + class_name
+            + '/prenotation/'
+            + prn_date.getDate() + "-"
+            + (prn_date.getMonth() + 1) + '-'
+            + prn_date.getFullYear() + '/').once('value', snap => {
                 snap.forEach(childSnap => {
                     occupied_h.push(childSnap.key);
-                    occupied_cr.push(childSnap.val());
+                    occupied_cls.push(childSnap.val());
                 });
             }).then(() => {
                 $("#class_pren_body").empty();
 
                 for (var hour = 8; hour<25; hour++) {
+
+                    idx = occupied_h.indexOf(hour+"");
+                    if (idx != -1) {
+                        class_info = occupied_cls[idx];
+                    } else {
+                        class_info = "";
+                    }
+
                     $("#class_pren_body").append(
-                    '<tr class="clickable-row" id="hid_'+hour+'" value="'+hour+'">'+
+                    '<tr>'+
                     '<th>'+hour+':00</th><td>'+ class_info +'</td>'+
                     '</tr>');
                 }
+            });
+
+            firebase.database().ref('class/' + class_name +'/event/').once('value', snap => {
+                var today_date = prn_date.getDate() + "-" + (prn_date.getMonth() + 1) + '-'+ prn_date.getFullYear();
+                snap.forEach(childSnap => {
+                    if (childSnap.val().date == today_date) {
+                        $("#prenotations_list").append('<li class="list-group-item">La classe partecipa all\'evento: ' + 
+                        childSnap.val().title+ '</li>');
+                    }
+                });
             });
         }
     });
