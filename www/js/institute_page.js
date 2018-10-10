@@ -13,7 +13,7 @@ $(function () {
     $("#events_btn").on('click', () => {
         $("#schedule_event_table_body").empty();
         loadClassroomSelectList("select_event_classroom", "Esterno");
-        loadClassSelectList("event_class");
+        loadClassSelectList("event_class", "Iscrivi classe");
         EventsManagement.loadEventList();
         showPage($("#events_page"));
     });

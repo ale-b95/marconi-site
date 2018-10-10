@@ -30,6 +30,7 @@ $(function () {
 
   $("#logout_button").on('click', () => {
     logOut();
+    history.go(0);
   });
 
   $("#log_institute_button").on('click', () => {

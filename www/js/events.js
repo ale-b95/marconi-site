@@ -69,13 +69,18 @@ var EventsManagement = {
                             }
                         });
                         $("#delete_event").show();
+
+                        $("#save_event").on('click', () => {
+                            EventsManagement.participateEvent($("#event_class").find(':selected').text(), current_key, event_date, title);
+                            EventsManagement.loadEventList();
+                        });
+
+                        $("#save_event").show();
+                        $("#event_class").show();
+                    } else {
+                        $("#event_class").hide();
                     }
-                    
-                    $("#save_event").on('click', () => {
-                        EventsManagement.participateEvent($("#event_class").find(':selected').text(), current_key, event_date, title);
-                        EventsManagement.loadEventList();
-                    });
-                    
+
                     $('#main_events_page').hide();
                     $('#event_details').show();
                 });
@@ -311,6 +316,9 @@ $(function () {
     $("#back_to_main_event").on('click', () => {
         $('#event_details').hide();
         $('#main_events_page').show();
+        $("#delete_event").hide();
+        $("#save_event").hide();
+        $("#event_class").hide();
         EventsManagement.loadEventList();
     });
     
