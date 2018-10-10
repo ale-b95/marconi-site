@@ -280,6 +280,8 @@
                     </div>
                         
                     <div id="new_event_page" class="collapse">
+
+                            <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
                         
                         <input id="event_title" class="form-control" type="text" placeholder="titolo">
                         
@@ -426,6 +428,20 @@
                 CURRENT_PAGE = page;
                 CURRENT_PAGE.show();
             }
+
+            function isAdmin (userId) {
+                const ref = firebase.database().ref().child('user/'+userId+'/admin');
+                var isAdmin = false;
+                ref.once('value', snap => {
+                    if (snap.val() == true) {
+                        isAdmin = true;
+                    } else {
+                        isAdmin = false;
+                    }
+                });
+                return isAdmin;
+            }
+
         </script>
 
         <script type="text/javascript" src="js/firebaseConfig.js"></script>

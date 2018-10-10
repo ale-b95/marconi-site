@@ -3,7 +3,6 @@ $(function () {
         Handle the buttons on institute page and show the correct page with the 
         relative data loaded.
     */
-    
     $("#schedule_btn").on('click', () => {
         $("#schedule_table_body").empty();
         loadClassroomSelectList("select_classroom");
@@ -15,6 +14,7 @@ $(function () {
         $("#schedule_event_table_body").empty();
         loadClassroomSelectList("select_event_classroom", "Esterno");
         loadClassSelectList("event_class");
+        EventsManagement.loadEventList();
         showPage($("#events_page"));
     });
     
@@ -90,6 +90,7 @@ $(function () {
         });
     }   
     
+
     function loadClassroomSchedule() {
         $("#big-table").empty();
         var date = new Date();
