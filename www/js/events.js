@@ -28,7 +28,8 @@ var EventsManagement = {
                 var teacher_key = childSnap.val().teacher_key;
                 var classroom = childSnap.val().classroom;
                 var classroom_key = childSnap.val().classroom_key; 
-                
+                var description = childSnap.val().description;
+
                 $('#event_list').append('<button type="button" id="ed_'
                 + event_key +'" class="list-group-item">'
                 + title + ' - ' 
@@ -57,13 +58,18 @@ var EventsManagement = {
                     $("#ed_organizer").text('- '+ teacher);
                     $("#ed_classroom").text('- '+ classroom);
                     
+                    $('#desc_title').empty();
+                    $('#desc_text').empty();
+                    $('#desc_title').append(title);
+                    $('#desc_text').append(description);
+                    
                     var user = firebase.auth().currentUser;
 
                     firebase.database().ref('user/'+user.uid).once('value', snap => {
                         var level = snap.val().priviledges + '';
                         if (level == 3 || user.uid == teacher_key) {
                         
-                            $("#delete_event").show();
+                            $("#safe_delete_event_btn").show();
                             $("#save_event").show();
                             $("#event_class").show();
                             
@@ -73,6 +79,9 @@ var EventsManagement = {
                                 } else {
                                     EventsManagement.deleteEvent(current_key, current_date);
                                 }
+
+                                $("#safe_delete_event_btn").text('Elimina evento');
+                                $("#delete_event").slideUp();
                             });
     
                             $("#save_event").on('click', () => {
@@ -84,8 +93,6 @@ var EventsManagement = {
                         }
                     });
 
-                    
-
                     $('#main_events_page').hide();
                     $('#event_details').show();
                 });
@@ -94,7 +101,7 @@ var EventsManagement = {
     },
 
     participateEvent : function (class_name, event_key, event_date, event_title) {
-        if (class_name != 'Iscrivi classe') {
+        if (class_name != 'Seleziona classe') {
             var date = event_date.getDate() + '-' + (event_date.getMonth() + 1) + '-' + event_date.getFullYear();
             firebase.database().ref().child('class/'+class_name+'/event/'+event_key).update({
                 date : date,
@@ -253,6 +260,7 @@ var EventsManagement = {
         var event_description = $.trim($("#e_desc").val());
 
         if (EventsManagement.cs_selected_rows > 0 && EventsManagement.ne_date >= today &&  $('#event_title')[0].value != "") {
+            $("#schedule_event_table").hide();
             var mydate = EventsManagement.ne_date;
             var event_prenotation = firebase.database().ref().child('event/').push({
                 title : $('#event_title')[0].value,
@@ -296,9 +304,23 @@ var EventsManagement = {
             $('#new_event_page').hide();
             $('#main_events_page').show();
             $("#schedule_event_table_body").empty();
-            
+            $('#warning_event_creation').hide();
         } else if (EventsManagement.ne_date < today) {
-            alert('ERRORE: Non possono essere effettuate modifiche per la data selezionata.');
+            $('#warning_event_creation').slideDown();
+            $('#warning_event_creation').text('Non possono essere effettuate modifiche per la data selezionata.');
+        } else if ($('#event_title')[0].value == "") {
+            $('#warning_event_creation').slideDown();
+            $('#warning_event_creation').text('Inserisci un titolo per l\'evento.');
+        } else if ($("#select_event_classroom").find(':selected').text() == 'Seleziona aula') {
+            $('#warning_event_creation').slideDown();
+            $('#warning_event_creation').text('Seleziona il luogo dove si svolgerà l\'evento.');
+        } else if (EventsManagement.cs_selected_rows == 0) {
+            if ($("#select_event_classroom").find(':selected').text() == 'Esterno') {
+                $('#warning_event_creation').text('Seleziona l\'ora di inizio.');
+            } else {
+                $('#warning_event_creation').text('Seleziona l\'orario.');
+            }
+            $('#warning_event_creation').slideDown();
         }
     }
 }
@@ -314,19 +336,24 @@ $(function () {
         EventsManagement.loadEventList();
     });
     
-    $("#abort_delete").on('click', () => {
-        $("#delete_event").addClass('btn-primary');
-        $("#delete_event").removeClass('btn-danger');
-        $("#delete_event").text('Elimina evento');
-        $("#abort_delete").slideUp();
+    $("#safe_delete_event_btn").on('click', () => {
+        if ($("#safe_delete_event_btn").text() == "Elimina evento") {
+            $("#delete_event").slideDown();
+            $("#safe_delete_event_btn").text('Annulla');
+        } else {
+            $("#safe_delete_event_btn").text('Elimina evento');
+            $("#delete_event").slideUp();
+        }
     });   
     
     $("#back_to_main_event").on('click', () => {
         $('#event_details').hide();
         $('#main_events_page').show();
+        $("#safe_delete_event_btn").hide();
         $("#delete_event").hide();
         $("#save_event").hide();
         $("#event_class").hide();
+        $('#warning_event_creation').hide();
         EventsManagement.loadEventList();
     });
     
@@ -338,23 +365,20 @@ $(function () {
     });
 
     $('#select_event_page, #select_event_classroom, #datetimepicker3').on('change', () => {
-        $("#schedule_event_table").slideDown();
+        if ($("#event_class").find(':selected').text() != 'Seleziona classe');
+        EventsManagement.selected_hours = [];
+        EventsManagement.cs_selected_rows = 0;
         EventsManagement.updateEventPageData();
+    });
+
+    $('#select_event_classroom').on('change', () => {
+        $("#schedule_event_table").slideDown();
     });
     
     $('#new_event_btn').on('click', () => {
         $('#main_events_page').hide();
         $('#new_event_page').show();
         $('#event_title').text('');
-    });
-    
-    $('#abort_event_btn').on('click', () => {
-        $('#new_event_page').hide();
-        $('#main_events_page').show();
-        $("#schedule_event_table_body").empty();
-        EventsManagement.loadEventList();
-        EventsManagement.selected_hours = [];
-        EventsManagement.cs_selected_rows = 0;
     });
     
     $('#schedule_event_table').on('click', '.clickable-row', function(event) {
@@ -372,12 +396,27 @@ $(function () {
     });
     
     $('#create_event_btn').on('click', () => {
+        EventsManagement.updateEventPageData();
         EventsManagement.createEvent();
+        $('#event_title').trigger('reset');
+        $('#e_desc').trigger('reset');
+    });
+
+    $('#abort_event_btn').on('click', () => {
+        $('#new_event_page').hide();
+        $('#main_events_page').show();
+        $("#schedule_event_table_body").empty();
         $("#schedule_event_table").hide();
+        EventsManagement.loadEventList();
+        EventsManagement.selected_hours = [];
+        EventsManagement.cs_selected_rows = 0;
+        $('#event_title').trigger('reset');
+        $('#e_desc').trigger('reset');
+        $('#warning_event_creation').hide();
+        
     });
 
     $('#modal_link_event_desk').on('click', () => {
         $('#exampleModalLong').modal();
     });
-    
 });

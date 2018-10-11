@@ -40,6 +40,11 @@ input {
     float: left;
 }
 
+.my_alert {
+    width: 80%;
+    margin-left: 10%;
+}
+
 .long-btn {
     width: 80%;
     margin-bottom: 3%;
