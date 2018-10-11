@@ -28,6 +28,18 @@ input {
     margin-bottom: 4%;
 }
 
+.event_det_list {
+    text-align: left;
+}
+
+#event_det_list_right {
+    float: right;
+}
+
+#event_det_list_left {
+    float: left;
+}
+
 .long-btn {
     width: 80%;
     margin-bottom: 3%;

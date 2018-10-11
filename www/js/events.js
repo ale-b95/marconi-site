@@ -48,38 +48,43 @@ var EventsManagement = {
                     var current_key = id.substring(id.indexOf("_") + 1);
                     var current_date = event_date;
                     $('#event_list').empty();
-                    $("#ed_title").text(title);
-                    $("#ed_date").text('Data evento: '
+                    $("#ed_title").text('- ' + title);
+                    $("#ed_date").text('- '
                     + current_date.getDate() + '/' 
                     + (current_date.getMonth() + 1 )+ '/' 
                     + current_date.getFullYear());
-                    $("#ed_starting_hour").text('Ora di inizio: '+ hour);
-                    $("#ed_organizer").text('Organizzatore: '+ teacher);
-                    $("#ed_classroom").text('Luogo evento: '+ classroom);
+                    $("#ed_starting_hour").text('- '+ hour + ':00');
+                    $("#ed_organizer").text('- '+ teacher);
+                    $("#ed_classroom").text('- '+ classroom);
                     
                     var user = firebase.auth().currentUser;
-                    
-                    if (isAdmin(user.uid) || user.uid == teacher_key) {
+
+                    firebase.database().ref('user/'+user.uid).once('value', snap => {
+                        var level = snap.val().priviledges + '';
+                        if (level == 3 || user.uid == teacher_key) {
                         
-                        $("#delete_event").on('click', () => {
-                            if (classroom_name != "Esterno") {
-                                EventsManagement.deleteEvent(current_key, current_date, classroom_key);
-                            } else {
-                                EventsManagement.deleteEvent(current_key, current_date);
-                            }
-                        });
-                        $("#delete_event").show();
+                            $("#delete_event").show();
+                            $("#save_event").show();
+                            $("#event_class").show();
+                            
+                            $("#delete_event").on('click', () => {
+                                if (classroom_name != "Esterno") {
+                                    EventsManagement.deleteEvent(current_key, current_date, classroom_key);
+                                } else {
+                                    EventsManagement.deleteEvent(current_key, current_date);
+                                }
+                            });
+    
+                            $("#save_event").on('click', () => {
+                                EventsManagement.participateEvent($("#event_class").find(':selected').text(), current_key, event_date, title);
+                                EventsManagement.loadEventList();
+                            });
+                        } else {
+                            $("#event_class").hide();
+                        }
+                    });
 
-                        $("#save_event").on('click', () => {
-                            EventsManagement.participateEvent($("#event_class").find(':selected').text(), current_key, event_date, title);
-                            EventsManagement.loadEventList();
-                        });
-
-                        $("#save_event").show();
-                        $("#event_class").show();
-                    } else {
-                        $("#event_class").hide();
-                    }
+                    
 
                     $('#main_events_page').hide();
                     $('#event_details').show();
@@ -89,7 +94,7 @@ var EventsManagement = {
     },
 
     participateEvent : function (class_name, event_key, event_date, event_title) {
-        if (class_name != 'Seleziona classe') {
+        if (class_name != 'Iscrivi classe') {
             var date = event_date.getDate() + '-' + (event_date.getMonth() + 1) + '-' + event_date.getFullYear();
             firebase.database().ref().child('class/'+class_name+'/event/'+event_key).update({
                 date : date,
@@ -245,7 +250,8 @@ var EventsManagement = {
     createEvent : function () {
         var today = Date.now() - (24*3600*1000);
         user = firebase.auth().currentUser;
-        
+        var event_description = $.trim($("#e_desc").val());
+
         if (EventsManagement.cs_selected_rows > 0 && EventsManagement.ne_date >= today &&  $('#event_title')[0].value != "") {
             var mydate = EventsManagement.ne_date;
             var event_prenotation = firebase.database().ref().child('event/').push({
@@ -255,7 +261,8 @@ var EventsManagement = {
                 date : mydate.getTime(),
                 teacher : user.displayName,
                 teacher_key : user.uid,
-                starting_hour : EventsManagement.selected_hours[0]
+                starting_hour : EventsManagement.selected_hours[0],
+                description : event_description
             });
             if (EventsManagement.classroom_name != "Esterno") {
                 for (var i = 0; i < EventsManagement.selected_hours.length; i++) {            
@@ -267,7 +274,8 @@ var EventsManagement = {
                     + EventsManagement.selected_hours[i]+'/').set({
                     event_key : event_prenotation.key,
                     event : $('#event_title')[0].value,
-                    classroom : EventsManagement.classroom_name
+                    classroom : EventsManagement.classroom_name,
+                    description : event_description
                     });
                 }
             }
@@ -289,7 +297,7 @@ var EventsManagement = {
             $('#main_events_page').show();
             $("#schedule_event_table_body").empty();
             
-        } else if (ne_date < today) {
+        } else if (EventsManagement.ne_date < today) {
             alert('ERRORE: Non possono essere effettuate modifiche per la data selezionata.');
         }
     }
@@ -330,6 +338,7 @@ $(function () {
     });
 
     $('#select_event_page, #select_event_classroom, #datetimepicker3').on('change', () => {
+        $("#schedule_event_table").slideDown();
         EventsManagement.updateEventPageData();
     });
     
@@ -364,6 +373,11 @@ $(function () {
     
     $('#create_event_btn').on('click', () => {
         EventsManagement.createEvent();
+        $("#schedule_event_table").hide();
+    });
+
+    $('#modal_link_event_desk').on('click', () => {
+        $('#exampleModalLong').modal();
     });
     
 });
