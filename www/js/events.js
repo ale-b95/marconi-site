@@ -30,6 +30,8 @@ var EventsManagement = {
                 var classroom_key = childSnap.val().classroom_key; 
                 var description = childSnap.val().description;
 
+                this.selected_event_key = event_key;
+
                 $('#event_list').append('<button type="button" id="ed_'
                 + event_key +'" class="list-group-item">'
                 + title + ' - ' 
@@ -48,21 +50,24 @@ var EventsManagement = {
                     var id = event.target.id;
                     var current_key = id.substring(id.indexOf("_") + 1);
                     var current_date = event_date;
+                    
                     $('#event_list').empty();
                     $("#ed_title").text('- ' + title);
                     $("#ed_date").text('- '
                     + current_date.getDate() + '/' 
                     + (current_date.getMonth() + 1 )+ '/' 
                     + current_date.getFullYear());
+
+                    EventsManagement.printClasses(event_key);
+                    
                     $("#ed_starting_hour").text('- '+ hour + ':00');
                     $("#ed_organizer").text('- '+ teacher);
                     $("#ed_classroom").text('- '+ classroom);
-                    
                     $('#desc_title').empty();
                     $('#desc_text').empty();
                     $('#desc_title').append(title);
                     $('#desc_text').append(description);
-                    
+
                     var user = firebase.auth().currentUser;
 
                     firebase.database().ref('user/'+user.uid).once('value', snap => {
@@ -70,7 +75,7 @@ var EventsManagement = {
                         if (level == 3 || user.uid == teacher_key) {
                         
                             $("#safe_delete_event_btn").show();
-                            $("#save_event").show();
+                            $("#save_event").hide();
                             $("#event_class").show();
                             
                             $("#delete_event").on('click', () => {
@@ -83,10 +88,39 @@ var EventsManagement = {
                                 $("#safe_delete_event_btn").text('Elimina evento');
                                 $("#delete_event").slideUp();
                             });
-    
-                            $("#save_event").on('click', () => {
-                                EventsManagement.participateEvent($("#event_class").find(':selected').text(), current_key, event_date, title);
-                                EventsManagement.loadEventList();
+
+                            $('#save_event').on('click', () => {
+                                var class_name = $("#event_class").find(':selected').text();
+                                if ($('#save_event').text() == 'Rimuovi classe') {
+                                    EventsManagement.cancelPartecipation(class_name, event_key);
+                                    EventsManagement.printClasses(event_key);
+                                    $('#save_event').text('Aggiungi classe');
+                                } else {
+                                    EventsManagement.participateEvent(class_name, current_key, event_date, title);
+                                    EventsManagement.printClasses(event_key);
+                                    $('#save_event').text('Rimuovi classe');
+                                }
+                            });
+
+                            $("#event_class").on('change', () => {
+                                var class_name = $("#event_class").find(':selected').text();
+                                if (class_name != 'Seleziona classe' && event_key != '') {
+                                    var event_classes = [];
+                                    firebase.database().ref('event/'+ event_key +'/class/').once('value', snap => {
+                                        snap.forEach(childSnap => {
+                                            event_classes.push(childSnap.key);
+                                        });
+                                    }).then(() => {
+                                        if (event_classes.includes(class_name)) {
+                                            $('#save_event').text('Rimuovi classe');
+                                        } else {
+                                            $('#save_event').text('Aggiungi classe');
+                                        }
+                                    });
+                                    $("#save_event").slideDown();
+                                } else {
+                                    $("#save_event").slideUp();
+                                }
                             });
                         } else {
                             $("#event_class").hide();
@@ -97,6 +131,26 @@ var EventsManagement = {
                     $('#event_details').show();
                 });
             });
+        });
+    },
+
+    printClasses : function (event_key) {
+        var classes = [];
+        firebase.database().ref('event/' + event_key + '/class').once('value', snap => {
+            snap.forEach(childSnap => {
+                classes.push(childSnap.key);
+            });
+        }).then(() => {
+            var str_classes = '';
+            for (i in classes) {
+                    if (i == classes.length - 1) {
+                    str_classes += classes[i] + '.';
+                } else {
+                    str_classes += classes[i] + ', ';
+                }
+            }
+            $('#event_classes').empty();
+            $('#event_classes').append(str_classes);
         });
     },
 
@@ -116,13 +170,14 @@ var EventsManagement = {
                     [class_name] : number_of_students
                 });
             });
-
-            $('#event_details').hide();
-            $('#main_events_page').show();
-            alert('Prenotazione effettuata');
         } else {
             alert ('Seleziona una classe');
         }
+    },
+
+    cancelPartecipation : function (class_name, event_key)  {
+        firebase.database().ref('event/'+ event_key +'/class/'+class_name).remove();
+        firebase.database().ref('class/'+class_name+'/event/'+event_key).remove();
     },
 
     deleteEvent : function (event_key, event_date, event_classroom_key) {
@@ -260,8 +315,11 @@ var EventsManagement = {
         var event_description = $.trim($("#e_desc").val());
 
         if (EventsManagement.cs_selected_rows > 0 && EventsManagement.ne_date >= today &&  $('#event_title')[0].value != "") {
+            
             $("#schedule_event_table").hide();
+            
             var mydate = EventsManagement.ne_date;
+
             var event_prenotation = firebase.database().ref().child('event/').push({
                 title : $('#event_title')[0].value,
                 classroom : EventsManagement.classroom_name,
@@ -272,6 +330,7 @@ var EventsManagement = {
                 starting_hour : EventsManagement.selected_hours[0],
                 description : event_description
             });
+
             if (EventsManagement.classroom_name != "Esterno") {
                 for (var i = 0; i < EventsManagement.selected_hours.length; i++) {            
                     firebase.database().ref().child('prenotation/'
@@ -365,7 +424,6 @@ $(function () {
     });
 
     $('#select_event_page, #select_event_classroom, #datetimepicker3').on('change', () => {
-        if ($("#event_class").find(':selected').text() != 'Seleziona classe');
         EventsManagement.selected_hours = [];
         EventsManagement.cs_selected_rows = 0;
         EventsManagement.updateEventPageData();

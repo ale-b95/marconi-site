@@ -32,6 +32,11 @@ input {
     text-align: left;
 }
 
+.link {
+    text-decoration: underline !important;
+    color: #007bff !important;
+}
+
 #event_det_list_right {
     float: right;
 }
