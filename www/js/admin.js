@@ -32,6 +32,10 @@ $(function () {
         showPage($("#admin_classes_page"));
     });
 
+    $("#advanced_prenotations_btn").on('click', () => {
+        showPage($("#admin_prenotation_page"));
+    });
+
     //----------------------------------------------------------------------------------- Behaviour buttons
     $("#add_classroom_btn").on('click', () => {
         addClassroom();
@@ -70,6 +74,39 @@ $(function () {
         
     });
 
+    //----------------------------------------------------------------------------------- Advanced prenotations
+
+    jQuery('#datetimepicker4').datetimepicker({
+        minDate:'0',
+        timepicker:false,
+        format:'d.m.Y'
+    });
+
+    jQuery('#datetimepicker5').datetimepicker({
+        minDate:'0',
+        timepicker:false,
+        format:'d.m.Y'
+    });
+
+    $('#select_adv_prenotation').on('change', () => {
+        $('#proto_week_selection').slideDown();
+        if ($('#select_adv_prenotation').val() == 0) {
+            $('#advanced_croom_prenotation').slideDown();
+            $('#advanced_event_creation').slideUp();
+        } else {
+            $('#advanced_event_creation').slideDown();
+            $('#advanced_croom_prenotation').slideUp();
+        }
+    });
+
+   $('#adv_prenotation_back_btn, #adv_prenotation_btn').on('click', () => {
+        $('#proto_week_selection').slideUp();
+        $('#advanced_event_creation').slideUp();
+        $('#advanced_croom_prenotation').slideUp();
+    });
+    
+
+    //----------------------------------------------------------------------------------- Functions
 
     /*
         Fill the users table in "Roles and permission" page.
