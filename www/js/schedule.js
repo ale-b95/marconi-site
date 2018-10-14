@@ -156,7 +156,6 @@ $(function () {
 
             Promise.all(promises).then(() => {
                 var classes = Object.keys(class_hour);
-                console.log(class_hour[classes[0]]);
                 for (x in classes) {
                     var arr = class_hour[classes[x]];
                     for (y in arr) {

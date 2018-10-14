@@ -36,6 +36,10 @@ $(function () {
         showPage($("#admin_prenotation_page"));
     });
 
+    $("#access_code_btn").on('click', () => {
+        showPage($("#access_code_page"));
+    });
+
     //----------------------------------------------------------------------------------- Behaviour buttons
     $("#add_classroom_btn").on('click', () => {
         addClassroom();

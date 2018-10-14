@@ -11,8 +11,11 @@ var EventsManagement = {
 
     loadEventList : function () {
         $('#event_list').empty();
-        var year = Number($("#select_year").find(':selected').text());
-        var month = Number($("#select_month").find(':selected').val());
+        var tmp_date = $("#datetimepicker6").datetimepicker('getValue');
+
+        var month = tmp_date.getMonth() + 1;
+        var year = tmp_date.getFullYear();
+
         var startdate = new Date(year, month - 1, 1);
         var enddate = new Date(year, month, 0);
 
@@ -388,10 +391,12 @@ $(function () {
     EventsManagement.loadMonthAndYear();
 
     /************************ show events ************************/
+    jQuery('#datetimepicker6').datetimepicker({
+        timepicker:false,
+        format:'d M Y'
+    });
 
-    $('#select_month, #select_year').on('change', () => {
-        EventsManagement.month = $("#select_month").find(':selected').val();
-        EventsManagement.year = $("#select_year").find(':selected').text();
+    $('#datetimepicker6').on('change', () => {
         EventsManagement.loadEventList();
     });
     

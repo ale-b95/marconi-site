@@ -15,6 +15,7 @@
 
     <body>
         <!-- LOGIN -->
+        <div>
         <div id="login" class="index collapse login container-fluid">
             <div class="row">
                 <div class="col-sm-4 col-md-4"></div>
@@ -69,8 +70,10 @@
                 </div>
             </div>
         </div>
+        </div>
         
         <!-- ADMIN -->
+        <div>
 
         <div id="administration_page" class="collapse mainApp container-fluid">
             <div class="row">
@@ -83,7 +86,7 @@
                     <button id="roles_and_permission_btn" class="btn long-btn btn-primary btn-lg" type="button">Ruoli e permessi</button>
                     <button id="admin_classrooms_btn" class="btn long-btn btn-primary btn-lg" type="button">Aule</button>
                     <button id="admin_classes_btn" class="btn long-btn btn-primary btn-lg" type="button">Classi</button>      
-                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni</button>        
+                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni Avanzate</button>        
                     
                     <button class="btn long-btn btn-primary btn-lg institute_page_btn back_btn" type="button">Indietro</button>
                 </div>
@@ -205,14 +208,15 @@
                 <div class="col-sm-4 col-md-4">
                     <h1 class="h3 mb-3 font-weight-normal">Prenotazioni Avanzate</h1>
                     <br/>
-                    <input class="datepicker form-control" id="datetimepicker4" type="text" readonly="true" placeholder="Seleziona prima settimana" autocomplete="off">
-                    <input class="datepicker form-control" id="datetimepicker5" type="text" readonly="true" placeholder="Seleziona ultima settimana" autocomplete="off">
-
                     <select class="form-control" id="select_adv_prenotation" autocomplete="off">
                         <option value="" disabled selected>Prenota Aula/Organizza Evento</option>
                         <option value="0">Prenota Aula</option>
                         <option value="1">Organizza Evento</option>
                     </select>
+                    <input class="datepicker form-control" id="datetimepicker4" type="text" readonly="true" placeholder="Seleziona prima settimana" autocomplete="off">
+                    <input class="datepicker form-control" id="datetimepicker5" type="text" readonly="true" placeholder="Seleziona ultima settimana" autocomplete="off">
+
+                    
 
                     <div id="advanced_croom_prenotation" class="collapse">
                         <select class="form-control" id="adv_croom_select" autocomplete="off">
@@ -235,7 +239,7 @@
                     </div>
 
                     <div id="proto_week_selection" class="collapse">
-                        <select class="form-control" id="select_classroom" autocomplete="off">
+                        <select class="form-control" id="adv_select_classroom" autocomplete="off">
                                 <option value="" disabled selected>Giorno della settimana</option>
                                 <option value="0">Lunedì</option>
                                 <option value="1">Martedì</option>
@@ -247,16 +251,12 @@
                             </select>
         
                             <table id="advanced_schedule_table" class="table two-columns-table table-fixed table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Ora</th>
-                                        <th>Giorno</th>
-                                    </tr>
-                                </thead>
                                 <tbody id="advanced_schedule_table_body">
                                 </tbody>
                             </table>                            
                     </div>
+
+                    <br/>
                     <button id="adv_prenotation_btn" class="btn long-btn btn-primary btn-lg administration_page_btn" type="button">Prenota</button>
                     <button id="adv_prenotation_back_btn" class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
                 </div>
@@ -264,20 +264,21 @@
             </div>
         </div>
 
-        <!-- MAIN APP -->
+        </div>
 
+        <!-- MAIN APP -->
+        <div>
         <div id="institute_page" class="collapse admin container-fluid">
             <div class="row">
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
                     
-                    <h1 class="h3 mb-3 font-weight-normal">Istituto</h1>
-                    <p id="institute_info" class="h4 mb-3 font-weight-normal"></p>
-                    
-                    <button id="schedule_btn" class="btn long-btn btn-primary btn-lg" type="button">Orari aule</button>
+                    <h1 id="institute_info" class="h3 mb-3 font-weight-normal">Istituto</h1>
+                    <br/>
+                    <button id="croom_prenotation_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazione Aula</button>
+                    <button id="search_class_btn" class="btn long-btn btn-primary btn-lg" type="button">Ricerca Classe</button>
                     <button id="events_btn" class="btn long-btn btn-primary btn-lg" type="button">Eventi</button>
-                    <button id="prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni</button>
-                    <button id="big_table_btn" class="btn long-btn btn-primary btn-lg" type="button">Programmazione</button>
+                    <button id="bacheca_btn" class="btn long-btn btn-primary btn-lg" type="button">Bacheca</button>
                     
                     <button id="admin_btn" class="btn long-btn btn-primary btn-lg collapse back_btn" type="button">Amministrazione</button> 
                     
@@ -292,7 +293,7 @@
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
                         
-                    <h1 class="h3 mb-3 font-weight-normal">Orari aule</h1>
+                    <h1 class="h3 mb-3 font-weight-normal">Prenotazione Aula</h1>
                     
                     <select class="form-control" id="select_classroom" autocomplete="off">
                     </select>
@@ -303,12 +304,6 @@
                     <input class="datepicker form-control" id="datetimepicker1" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
                     
                     <table id="schedule_table" class="table two-columns-table table-fixed table-sm">
-                        <thead>
-                            <tr>
-                                <th>Ora</th>
-                                <th>Prenotazione</th>
-                            </tr>
-                        </thead>
                         <tbody id="schedule_table_body">
                         </tbody>
                     </table>
@@ -327,10 +322,7 @@
                     <div id="main_events_page">
                         <h1 class="h3 mb-3 font-weight-normal">Eventi</h1>
                         
-                        <select class="form-control" id="select_month" autocomplete="off">
-                        </select>
-                        <select class="form-control" id="select_year" autocomplete="off">
-                        </select>
+                        <input class="datepicker form-control" id="datetimepicker6" type="text" readonly="true" autocomplete="off" placeholder="Seleziona mese">
 
                         <div id="event_list" class="list-group center-std-element" autocomplete="off">
                         </div> 
@@ -354,12 +346,6 @@
                         <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
 
                         <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
-                            <thead>
-                                <tr>
-                                    <th>Ora</th>
-                                    <th>Prenotazione</th>
-                                </tr>
-                            </thead>
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
@@ -436,7 +422,7 @@
             <div class="row">
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
-                    <h1 class="h3 mb-3 font-weight-normal">Prenotazioni</h1>
+                    <h1 class="h3 mb-3 font-weight-normal">Ricerca Classe</h1>
 
                     <select class="form-control" id="select_class_pren" autocomplete="off">
                     </select>
@@ -447,12 +433,6 @@
                     </ul>
 
                     <table id="class_pren_table" class="table two-columns-table table-fixed table-sm">
-                        <thead>
-                            <tr>
-                                <th>Ora</th>
-                                <th>Aula</th>
-                            </tr>
-                        </thead>
                         <tbody id="class_pren_body">
                         </tbody>
                     </table>
@@ -464,7 +444,7 @@
         </div>
 
         <div id="big_table_page" class="collapse mainApp container-fluid">
-            <h1 class="h3 mb-3 font-weight-normal">Programmazione Giornaliera</h1>
+            <h1 class="h3 mb-3 font-weight-normal">Bacheca</h1>
             <div class="row">
                 <div class="col-sm-4 col-md-2 col-lg-1"></div>
                 <div class="col-sm-4 col-md-8 col-lg-10">
@@ -506,6 +486,8 @@
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>
+        </div>
+
         </div>
 
         <!-- SCRIPT --> 

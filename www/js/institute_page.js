@@ -3,7 +3,7 @@ $(function () {
         Handle the buttons on institute page and show the correct page with the 
         relative data loaded.
     */
-    $("#schedule_btn").on('click', () => {
+    $("#croom_prenotation_btn").on('click', () => {
         $("#schedule_table_body").empty();
         loadClassroomSelectList("select_classroom");
         loadClassSelectList("select_class");
@@ -18,19 +18,17 @@ $(function () {
         showPage($("#events_page"));
     });
     
-    $("#prenotations_btn").on('click', () => {
+    $("#search_class_btn").on('click', () => {
         loadClassSelectList("select_class_pren");
         showPage($("#prenotations_page"));
     });
 
-    $("#big_table_btn").on('click', () => {
+    $("#bacheca_btn").on('click', () => {
         loadClassroomSchedule();
         showPage($("#big_table_page"));
     });
 
-    $("#access_code_btn").on('click', () => {
-        showPage($("#access_code_page"));
-    });
+    
     
     /*
         fill the specified select list with the classrooms loaded from the database
