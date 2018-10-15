@@ -213,20 +213,19 @@
                         <option value="0">Prenota Aula</option>
                         <option value="1">Organizza Evento</option>
                     </select>
-                    <input class="datepicker form-control" id="datetimepicker4" type="text" readonly="true" placeholder="Seleziona prima settimana" autocomplete="off">
-                    <input class="datepicker form-control" id="datetimepicker5" type="text" readonly="true" placeholder="Seleziona ultima settimana" autocomplete="off">
 
+                    <div id="adv_datepicker" class="collapse">
+                        <input class="datepicker form-control" id="datetimepicker4" type="text" readonly="true" placeholder="Seleziona prima settimana" autocomplete="off">
+                        <input class="datepicker form-control" id="datetimepicker5" type="text" readonly="true" placeholder="Seleziona ultima settimana" autocomplete="off">
+                    </div>
                     
 
                     <div id="advanced_croom_prenotation" class="collapse">
                         <select class="form-control" id="adv_croom_select" autocomplete="off">
-                            <option value="" disabled selected>Aula</option>
                         </select>
                         <select class="form-control" id="adv_class_select" autocomplete="off">
-                            <option value="" disabled selected>Classe</option>
                         </select>
-                        <select class="form-control" id="adv_prof_select" autocomplete="off">
-                            <option value="" disabled selected>Prof</option>
+                        <select class="form-control" id="adv_user_select" autocomplete="off">
                         </select>
                     </div>
 
@@ -234,12 +233,12 @@
                         <input id="adv_event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <textarea class="form-control" id="adv_e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
                         <select id="adv_event_croom_select" placehoder='Aula' class="form-control" autocomplete="off">
-                                <option value="" disabled selected>Aula</option>
+                                
                         </select>
                     </div>
 
                     <div id="proto_week_selection" class="collapse">
-                        <select class="form-control" id="adv_select_classroom" autocomplete="off">
+                        <select class="form-control" id="adv_select_day" autocomplete="off">
                                 <option value="" disabled selected>Giorno della settimana</option>
                                 <option value="0">Lunedì</option>
                                 <option value="1">Martedì</option>

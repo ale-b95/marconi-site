@@ -72,13 +72,13 @@ $(function () {
         a.download = "codiciAccesso";
         document.body.appendChild(a);
         a.click();
-        //a.remove();
-        //URL.revokeObjectURL(object_URL);
-
-        
     });
 
     //----------------------------------------------------------------------------------- Advanced prenotations
+    var proto_week_selection = {
+        selected_rows : 0,
+        selected_hours : [[],[],[],[],[],[],[]]
+    }
 
     jQuery('#datetimepicker4').datetimepicker({
         minDate:'0',
@@ -94,6 +94,8 @@ $(function () {
 
     $('#select_adv_prenotation').on('change', () => {
         $('#proto_week_selection').slideDown();
+        $('#adv_datepicker').slideDown();
+
         if ($('#select_adv_prenotation').val() == 0) {
             $('#advanced_croom_prenotation').slideDown();
             $('#advanced_event_creation').slideUp();
@@ -107,10 +109,36 @@ $(function () {
         $('#proto_week_selection').slideUp();
         $('#advanced_event_creation').slideUp();
         $('#advanced_croom_prenotation').slideUp();
+        $('#adv_datepicker').slideUp();
     });
+
+    $('#select_adv_prenotation').on('change', () => {
+        var selection = $('#select_adv_prenotation').val();
+
+        switch (selection) {
+            case '0': //classroom prenotation
+                DataFormFillUtility.loadClassroomSelectList('adv_croom_select');
+                DataFormFillUtility.loadClassSelectList('adv_class_select');
+                DataFormFillUtility.loadUserSelectList('adv_user_select');
+                break;
+            case '1': //event organizzation
+                DataFormFillUtility.loadClassroomSelectList('adv_event_croom_select');
+                break;
+            default:
+                break;
+        }
+    });
+
+    $('#adv_select_day').on('change', () => {
+        if ($('#adv_select_day').val() != null) {
+            DataFormFillUtility.loadDayScheduleTable('advanced_schedule_table_body', proto_week_selection, parseInt($('#adv_select_day').val(), 10));
+        }   
+    }); 
     
 
     //----------------------------------------------------------------------------------- Functions
+
+
 
     /*
         Fill the users table in "Roles and permission" page.

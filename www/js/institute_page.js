@@ -1,56 +1,24 @@
-$(function () {
-    /*
-        Handle the buttons on institute page and show the correct page with the 
-        relative data loaded.
-    */
-    $("#croom_prenotation_btn").on('click', () => {
-        $("#schedule_table_body").empty();
-        loadClassroomSelectList("select_classroom");
-        loadClassSelectList("select_class");
-        showPage($("#schedule_page"));
-    });
-    
-    $("#events_btn").on('click', () => {
-        $("#schedule_event_table_body").empty();
-        loadClassroomSelectList("select_event_classroom", "Esterno");
-        loadClassSelectList("event_class");
-        EventsManagement.loadEventList();
-        showPage($("#events_page"));
-    });
-    
-    $("#search_class_btn").on('click', () => {
-        loadClassSelectList("select_class_pren");
-        showPage($("#prenotations_page"));
-    });
-
-    $("#bacheca_btn").on('click', () => {
-        loadClassroomSchedule();
-        showPage($("#big_table_page"));
-    });
-
-    
-    
+var DataFormFillUtility = {
     /*
         fill the specified select list with the classrooms loaded from the database
         is possible to personalize the first option field adding a default message
     */
-    function loadClassroomSelectList(select_classroom, defaultmsg) {
-         $('#'+select_classroom).empty();
+    loadClassroomSelectList : function (select_classroom, defaultmsg) {
+        $('#'+select_classroom).empty();
         /*
             check whether or not is specified a custom message, if not uses the premade one
         */
-        $('#'+select_classroom).append('<option>Seleziona aula</option>');
+        $('#'+select_classroom).append('<option value="" selected>Seleziona aula</option>');
         if (defaultmsg != null) {
-             $('#'+select_classroom).append('<option value="'+defaultmsg+'">'+ defaultmsg +'</option>');
+             $('#'+select_classroom).append('<option value="" selected>'+ defaultmsg +'</option>');
         }
-       
         
         /*
             get the reference to the database to obtain the list of the classrooms
         */
         const dbRef = firebase.database().ref('classroom/');
         
-        var classroomList = dbRef.once('value', snap => {
+        dbRef.once('value', snap => {
             /*
                 generate the html code for each classroom found on the database
             */
@@ -60,36 +28,35 @@ $(function () {
                 $('#'+select_classroom).append('<option value="'+key+'">'+name+ '</option>');
             });
         });
-    }
+    },
 
     /*
         fill the specified select list with the classes loaded from the database
         is possible to personalize the first option field adding a default message
     */
-    function loadClassSelectList(select_class, defaultmsg) {
+    loadClassSelectList : function (select_class, defaultmsg) {
+        $('#'+select_class).empty();
         /*
             check whether or not is specified a custom message, if not uses the premade one
         */
         if (defaultmsg == null) {
             defaultmsg = "Seleziona classe";
         }
-        
-        $('#'+select_class).empty();
-        $('#'+select_class).append('<option>'+ defaultmsg +'</option>');
-        
+
+        $('#'+select_class).append('<option value="" selected>'+ defaultmsg +'</option>');
+
         /*
             get the reference to the database to obtain the list of classes
             and generate the html code for each class found on the database
         */
         firebase.database().ref('class/').once('value', snap => {
-             snap.forEach(childSnap => {
+            snap.forEach(childSnap => {
                 $('#'+select_class).append('<option>'+childSnap.key+'</option>');
             });
         });
-    }   
-    
+    },
 
-    function loadClassroomSchedule() {
+    loadBacheca : function () {
         $("#big-table").empty();
         var date = new Date();
         var croom_keys = [];
@@ -169,5 +136,81 @@ $(function () {
                 $("#no_prenotations").show();
             }
         });     
+    },
+
+    loadUserSelectList : function (select_user, defaultmsg) {
+        if (defaultmsg == null) {
+            defaultmsg = "Seleziona utente";
+        }
+
+        $('#'+select_user).empty();
+        $('#'+select_user).append('<option value="" selected>'+ defaultmsg +'</option>');
+
+        /*
+            get the reference to the database to obtain the list of classes
+            and generate the html code for each class found on the database
+        */
+        firebase.database().ref('user/').once('value', snap => {
+            snap.forEach(childSnap => {
+                $('#'+select_user).append('<option value="'+childSnap.key+'">'+childSnap.val().name + ' ' + childSnap.val().surname+'</option>');
+            });
+        });
+    },
+
+    loadDayScheduleTable : function ( table_body, table_click_ref, day) {
+        $("#"+table_body).empty();
+        
+        for (var hour = 8; hour<25; hour++) {
+            $("#"+table_body).append(
+            '<tr class="clickable-row" id="'+table_body+'_'+hour+'" value="'+hour+'">'+
+            '<th>'+hour+':00</th><td></td>'+
+            '</tr>');
+        }
+
+        $("#"+table_body).on('click', '.clickable-row', function(event) {
+            var idx;
+            if ($(this).hasClass('selected_row')) {
+                $(this).removeClass('selected_row');
+                table_click_ref.selected_rows--;
+                idx = table_click_ref.selected_hours[day].indexOf($(this).attr('value'));
+                if (idx >= 0) table_click_ref.selected_hours[day].splice(idx, 1);
+                table_click_ref.cs_selected_rows--;
+            } else if (!$(this).hasClass('selected_row') && !$(this).hasClass('mybook') && !$(this).hasClass('event_prenotation')) {
+                $(this).addClass('selected_row');
+                table_click_ref.selected_hours[day].push($(this).attr('value'));
+                table_click_ref.selected_rows++;
+            }
+        });
     }
+}
+
+$(function () {
+    /*
+        Handle the buttons on institute page and show the correct page with the 
+        relative data loaded.
+    */
+    $("#croom_prenotation_btn").on('click', () => {
+        $("#schedule_table_body").empty();
+        DataFormFillUtility.loadClassroomSelectList("select_classroom");
+        DataFormFillUtility.loadClassSelectList("select_class");
+        showPage($("#schedule_page"));
+    });
+    
+    $("#events_btn").on('click', () => {
+        $("#schedule_event_table_body").empty();
+        DataFormFillUtility.loadClassroomSelectList("select_event_classroom", "Esterno");
+        DataFormFillUtility.loadClassSelectList("event_class");
+        EventsManagement.loadEventList();
+        showPage($("#events_page"));
+    });
+    
+    $("#search_class_btn").on('click', () => {
+        DataFormFillUtility.loadClassSelectList("select_class_pren");
+        showPage($("#prenotations_page"));
+    });
+
+    $("#bacheca_btn").on('click', () => {
+        DataFormFillUtility.loadBacheca();
+        showPage($("#big_table_page"));
+    });
 });
