@@ -139,11 +139,10 @@ var DataFormFillUtility = {
     },
 
     loadUserSelectList : function (select_user, defaultmsg) {
+        $('#'+select_user).empty();
         if (defaultmsg == null) {
             defaultmsg = "Seleziona utente";
         }
-
-        $('#'+select_user).empty();
         $('#'+select_user).append('<option value="" selected>'+ defaultmsg +'</option>');
 
         /*
@@ -152,7 +151,7 @@ var DataFormFillUtility = {
         */
         firebase.database().ref('user/').once('value', snap => {
             snap.forEach(childSnap => {
-                $('#'+select_user).append('<option value="'+childSnap.key+'">'+childSnap.val().name + ' ' + childSnap.val().surname+'</option>');
+                $('#'+select_user).append('<option value="usr_'+childSnap.key+'">'+childSnap.val().name + ' ' + childSnap.val().surname+'</option>');
             });
         });
     },

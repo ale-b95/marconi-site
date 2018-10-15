@@ -80,6 +80,7 @@ $(function () {
         selected_hours : [[],[],[],[],[],[],[]]
     }
 
+
     jQuery('#datetimepicker4').datetimepicker({
         minDate:'0',
         timepicker:false,
@@ -105,17 +106,12 @@ $(function () {
         }
     });
 
-   $('#adv_prenotation_back_btn, #adv_prenotation_btn').on('click', () => {
-        $('#proto_week_selection').slideUp();
-        $('#advanced_event_creation').slideUp();
-        $('#advanced_croom_prenotation').slideUp();
-        $('#adv_datepicker').slideUp();
+   $('#adv_prenotation_back_btn').on('click', () => {
+        
     });
 
     $('#select_adv_prenotation').on('change', () => {
-        var selection = $('#select_adv_prenotation').val();
-
-        switch (selection) {
+        switch ($('#select_adv_prenotation').val()) {
             case '0': //classroom prenotation
                 DataFormFillUtility.loadClassroomSelectList('adv_croom_select');
                 DataFormFillUtility.loadClassSelectList('adv_class_select');
@@ -134,6 +130,79 @@ $(function () {
             DataFormFillUtility.loadDayScheduleTable('advanced_schedule_table_body', proto_week_selection, parseInt($('#adv_select_day').val(), 10));
         }   
     }); 
+    
+    $('#adv_prenotation_btn').on('click', () => {
+        var prenotation_ok = false;
+        if ($('#select_adv_prenotation').val() != null) {
+                switch (parseInt($('#select_adv_prenotation').val())) {
+                    case 0:
+                        if (wellFilledForm('adv_croom_select') && wellFilledForm('adv_class_select') && wellFilledForm('adv_user_select')) {
+                            var first_week = $("#datetimepicker4").datetimepicker('getValue');
+                            var last_week = $("#datetimepicker5").datetimepicker('getValue');
+    
+                            if (first_week == null) {
+                                first_week = new Date();
+                            }
+    
+                            if (last_week == null) {
+                                last_week = new Date();
+                            }
+                            prenotation_ok = true;
+                        } else {
+                            var error_msg = "";
+                            if (!wellFilledForm('adv_croom_select')) {
+                                error_msg += 'Seleziona un\'aula.\n';
+                            }
+    
+                            if (!wellFilledForm('adv_class_select')) {
+                                error_msg += 'Seleziona una classe.\n';
+                            }
+
+                            if (!wellFilledForm('adv_user_select')) {
+                                error_msg += 'Seleziona un utente.\n';
+                            }
+    
+                            alert(error_msg);
+                            prenotation_ok = false;
+                        }
+                    break;
+    
+                    case 1:
+                    break;
+    
+                    default:
+                    ;
+                }
+
+                if (prenotation_ok) {
+                   if (!proto_week_selection.selected_rows > 0) {
+                        alert('Seleziona l\'orario per la prenotazione');
+                        prenotation_ok = false;
+                   }
+                }
+    
+            if (prenotation_ok) {
+                console.log('effettuo prenotazione da settimana del:' + first_week + '\nalla settimana del: ' + last_week);
+                prenotationDone();
+            }
+        } else {
+            alert('Seleziona la modalità di prenotazione avanzata.')
+        }
+    });
+
+    function wellFilledForm(form) {
+        return ($('#'+form).val() != '');
+    }
+
+    function prenotationDone() {
+        $("#advanced_schedule_table_body").empty();
+        $('#proto_week_selection').slideUp();
+        $('#advanced_event_creation').slideUp();
+        $('#advanced_croom_prenotation').slideUp();
+        $('#adv_datepicker').slideUp();
+        showPage($("#administration_page"));
+        $('#select_adv_prenotation').selectedIndex = -1 ;
+    }
     
 
     //----------------------------------------------------------------------------------- Functions
@@ -180,21 +249,21 @@ $(function () {
                     switch(priviledges) {
                         case "1" :
                             $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
-                        '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1" checked></td>'+ 
-                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2"></td>'+
-                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3"></td></form></tr>');
+                            '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1" checked></td>'+ 
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2"></td>'+
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3"></td></form></tr>');
                         break;
                         case "2" :
                             $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
-                        '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td>'+ 
-                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2" checked></td>'+
-                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3"></td></form></tr>');
+                            '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td>'+ 
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2" checked></td>'+
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3"></td></form></tr>');
                         break;
                         case "3" :
                             $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
-                        '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td>'+ 
-                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2"></td>'+
-                        '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3" checked></td></form></tr>');
+                            '<form><td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td>'+ 
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="2"></td>'+
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="3" checked></td></form></tr>');
                         break;
                     }
 
