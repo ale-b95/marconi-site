@@ -49,6 +49,10 @@ $(function () {
         addClassToDb();
     });
 
+    $(".administration_page_btn").on('click', () => {
+        resetForms();
+    });
+
     $("#get_code_btn").on('click', () => {
         var code;
         do {
@@ -107,7 +111,7 @@ $(function () {
     });
 
    $('#adv_prenotation_back_btn').on('click', () => {
-        
+        prenotationDone();
     });
 
     $('#select_adv_prenotation').on('change', () => {
@@ -134,64 +138,64 @@ $(function () {
     $('#adv_prenotation_btn').on('click', () => {
         var prenotation_ok = false;
         if ($('#select_adv_prenotation').val() != null) {
-                switch (parseInt($('#select_adv_prenotation').val())) {
-                    case 0:
-                        if (wellFilledForm('adv_croom_select') && wellFilledForm('adv_class_select') && wellFilledForm('adv_user_select')) {
-                            var first_week = $("#datetimepicker4").datetimepicker('getValue');
-                            var last_week = $("#datetimepicker5").datetimepicker('getValue');
-    
-                            if (first_week == null) {
-                                first_week = new Date();
-                            }
-    
-                            if (last_week == null) {
-                                last_week = new Date();
-                            }
-                            prenotation_ok = true;
-                        } else {
-                            var error_msg = "";
-                            if (!wellFilledForm('adv_croom_select')) {
-                                error_msg += 'Seleziona un\'aula.\n';
-                            }
-    
-                            if (!wellFilledForm('adv_class_select')) {
-                                error_msg += 'Seleziona una classe.\n';
-                            }
+            switch (parseInt($('#select_adv_prenotation').val())) {
+                case 0:
+                    if (wellFilledForm('adv_croom_select') && wellFilledForm('adv_class_select') && wellFilledForm('adv_user_select')) {
+                        var first_week = $("#datetimepicker4").datetimepicker('getValue');
+                        var last_week = $("#datetimepicker5").datetimepicker('getValue');
 
-                            if (!wellFilledForm('adv_user_select')) {
-                                error_msg += 'Seleziona un utente.\n';
-                            }
-    
-                            alert(error_msg);
-                            prenotation_ok = false;
+                        if (first_week == null) {
+                            first_week = new Date();
                         }
-                    break;
-    
-                    case 1:
-                    break;
-    
-                    default:
-                    ;
-                }
 
-                if (prenotation_ok) {
-                   if (!proto_week_selection.selected_rows > 0) {
-                        alert('Seleziona l\'orario per la prenotazione');
+                        if (last_week == null) {
+                            last_week = new Date();
+                        }
+                        prenotation_ok = true;
+                    } else {
+                        var error_msg = "";
+                        if (!wellFilledForm('adv_croom_select')) {
+                            error_msg += 'Seleziona un\'aula.\n';
+                        }
+
+                        if (!wellFilledForm('adv_class_select')) {
+                            error_msg += 'Seleziona una classe.\n';
+                        }
+
+                        if (!wellFilledForm('adv_user_select')) {
+                            error_msg += 'Seleziona un utente.\n';
+                        }
+
+                        alert(error_msg);
                         prenotation_ok = false;
-                   }
-                }
-    
+                    }
+                break;
+
+                case 1:
+                break;
+
+                default:
+                ;
+            }
+
             if (prenotation_ok) {
-                console.log('effettuo prenotazione da settimana del:' + first_week + '\nalla settimana del: ' + last_week);
-                prenotationDone();
+                if (!proto_week_selection.selected_rows > 0) {
+                    alert('Seleziona l\'orario per la prenotazione');
+                    prenotation_ok = false;
+                }
             }
         } else {
-            alert('Seleziona la modalità di prenotazione avanzata.')
+            alert('Seleziona la modalità di prenotazione.')
+        }
+
+        if (prenotation_ok) {
+            console.log('effettuo prenotazione da settimana del:' + first_week + '\nalla settimana del: ' + last_week);
+            prenotationDone();
         }
     });
 
     function wellFilledForm(form) {
-        return ($('#'+form).val() != '');
+        return ($('#'+form).val() != null);
     }
 
     function prenotationDone() {
@@ -201,7 +205,31 @@ $(function () {
         $('#advanced_croom_prenotation').slideUp();
         $('#adv_datepicker').slideUp();
         showPage($("#administration_page"));
-        $('#select_adv_prenotation').selectedIndex = -1 ;
+
+        resetForms();
+        proto_week_selection = {
+            selected_rows : 0,
+            selected_hours : [[],[],[],[],[],[],[]]
+        }
+    }
+
+    function resetForms() {
+        $('#adv_event_title').val('');
+        $('#adv_e_desc').val('');
+        $('#classroom_name').val('');
+        $('#classroom_capacity').val('');
+        $('#classclass_nameroom_capacity').val('');
+        $('#n_of_students').val('');
+        $('#class_name').val('');
+        $('#show_code').text('CODICE');
+        $('#adv_event_croom_select').get(0).selectedIndex = 0;
+        $('#select_adv_prenotation').get(0).selectedIndex = 0;
+        $('#adv_croom_select').get(0).selectedIndex = 0;
+        $('#adv_class_select').get(0).selectedIndex = 0;
+        $('#adv_user_select').get(0).selectedIndex = 0;
+        $('#adv_select_day').get(0).selectedIndex = 0;
+        $('#datetimepicker4').datetimepicker('show').datetimepicker('reset');
+        $('#datetimepicker5').datetimepicker('show').datetimepicker('reset');
     }
     
 

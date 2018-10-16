@@ -160,12 +160,12 @@
                     </table>
                     
                     <form id="add_classroom_form">
-                        <input id="classroom_name"  class="form-control" type="text" placeholder="nome aula" autocomplete="off">
-                        <input id="classroom_capacity"  class="form-control"  type="number"  min="1" placeholder="capacità aula" autocomplete="off">
+                        <input id="classroom_name"  class="form-control" type="text" placeholder="Nome aula" autocomplete="off">
+                        <input id="classroom_capacity"  class="form-control"  type="number"  min="1" placeholder="Capacità aula" autocomplete="off">
                         <button id="add_classroom_btn" type="button" class="btn long-btn btn-primary btn-lg">Aggiungi Aula</button>
                     </form>
                     
-                    <button class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
+                    <button id="croom_back_btn" class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>
@@ -232,8 +232,7 @@
                     <div id="advanced_event_creation" class="collapse">
                         <input id="adv_event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <textarea class="form-control" id="adv_e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
-                        <select id="adv_event_croom_select" placehoder='Aula' class="form-control" autocomplete="off">
-                                
+                        <select id="adv_event_croom_select" class="form-control" autocomplete="off">
                         </select>
                     </div>
 
@@ -254,8 +253,6 @@
                                 </tbody>
                             </table>                            
                     </div>
-
-                    <br/>
                     <button id="adv_prenotation_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenota</button>
                     <button id="adv_prenotation_back_btn" class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
                 </div>

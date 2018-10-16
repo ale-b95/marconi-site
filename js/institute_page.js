@@ -8,16 +8,16 @@ var DataFormFillUtility = {
         /*
             check whether or not is specified a custom message, if not uses the premade one
         */
-        $('#'+select_classroom).append('<option value="" selected>Seleziona aula</option>');
-        if (defaultmsg != null) {
-             $('#'+select_classroom).append('<option value="" selected>'+ defaultmsg +'</option>');
+        if (defaultmsg == null) {
+            defaultmsg = "Seleziona un'aula";
         }
+
+        $('#'+select_classroom).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
         
         /*
             get the reference to the database to obtain the list of the classrooms
         */
         const dbRef = firebase.database().ref('classroom/');
-        
         dbRef.once('value', snap => {
             /*
                 generate the html code for each classroom found on the database
@@ -42,8 +42,7 @@ var DataFormFillUtility = {
         if (defaultmsg == null) {
             defaultmsg = "Seleziona classe";
         }
-
-        $('#'+select_class).append('<option value="" selected>'+ defaultmsg +'</option>');
+        $('#'+select_class).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
 
         /*
             get the reference to the database to obtain the list of classes
@@ -140,10 +139,11 @@ var DataFormFillUtility = {
 
     loadUserSelectList : function (select_user, defaultmsg) {
         $('#'+select_user).empty();
+
         if (defaultmsg == null) {
-            defaultmsg = "Seleziona utente";
+            defaultmsg = "Seleziona un utente";
         }
-        $('#'+select_user).append('<option value="" selected>'+ defaultmsg +'</option>');
+        $('#'+select_user).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
 
         /*
             get the reference to the database to obtain the list of classes
