@@ -101,6 +101,12 @@ td .btn {
     text-align: left;
 }
 
+#advanced_schedule_table tbody > tr > th{
+    float: left;
+    width: 100%;
+    text-align: left;
+}
+
 .table-fixed tr:after {
  content: "";
  display: block;

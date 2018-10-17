@@ -84,7 +84,6 @@ $(function () {
         selected_hours : [[],[],[],[],[],[],[]]
     }
 
-
     jQuery('#datetimepicker4').datetimepicker({
         minDate:'0',
         timepicker:false,
@@ -110,7 +109,7 @@ $(function () {
         }
     });
 
-   $('#adv_prenotation_back_btn').on('click', () => {
+    $('#adv_prenotation_back_btn').on('click', () => {
         prenotationDone();
     });
 
@@ -130,9 +129,7 @@ $(function () {
     });
 
     $('#adv_select_day').on('change', () => {
-        if ($('#adv_select_day').val() != null) {
-            DataFormFillUtility.loadDayScheduleTable('advanced_schedule_table_body', proto_week_selection, parseInt($('#adv_select_day').val(), 10));
-        }   
+        DataFormFillUtility.loadDayScheduleTable('advanced_schedule_table_body', proto_week_selection, parseInt($('#adv_select_day').val()));
     }); 
     
     $('#adv_prenotation_btn').on('click', () => {
@@ -141,15 +138,15 @@ $(function () {
             switch (parseInt($('#select_adv_prenotation').val())) {
                 case 0:
                     if (wellFilledForm('adv_croom_select') && wellFilledForm('adv_class_select') && wellFilledForm('adv_user_select')) {
-                        var first_week = $("#datetimepicker4").datetimepicker('getValue');
-                        var last_week = $("#datetimepicker5").datetimepicker('getValue');
+                        var first_day = $("#datetimepicker4").datetimepicker('getValue');
+                        var last_day = $("#datetimepicker5").datetimepicker('getValue');
 
-                        if (first_week == null) {
-                            first_week = new Date();
+                        if (first_day == null) {
+                            first_day = new Date();
                         }
 
-                        if (last_week == null) {
-                            last_week = new Date();
+                        if (last_day == null) {
+                            last_day = new Date();
                         }
                         prenotation_ok = true;
                     } else {
@@ -189,7 +186,12 @@ $(function () {
         }
 
         if (prenotation_ok) {
-            console.log('effettuo prenotazione da settimana del:' + first_week + '\nalla settimana del: ' + last_week);
+            console.log('d1: '+ first_day+ '\nd2: '+ last_day);
+            console.log('user: '+ $('#adv_user_select').val());
+            console.log('classroom: '+ $('#adv_croom_select').val());
+            console.log('class: '+ $('#adv_class_select').val());
+            console.log(proto_week_selection);
+
             prenotationDone();
         }
     });
@@ -228,8 +230,8 @@ $(function () {
         $('#adv_class_select').get(0).selectedIndex = 0;
         $('#adv_user_select').get(0).selectedIndex = 0;
         $('#adv_select_day').get(0).selectedIndex = 0;
-        $('#datetimepicker4').datetimepicker('show').datetimepicker('reset');
-        $('#datetimepicker5').datetimepicker('show').datetimepicker('reset');
+        $('#datetimepicker4').datetimepicker('reset');
+        $('#datetimepicker5').datetimepicker('reset');
     }
     
 

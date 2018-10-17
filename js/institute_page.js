@@ -151,33 +151,46 @@ var DataFormFillUtility = {
         */
         firebase.database().ref('user/').once('value', snap => {
             snap.forEach(childSnap => {
-                $('#'+select_user).append('<option value="usr_'+childSnap.key+'">'+childSnap.val().name + ' ' + childSnap.val().surname+'</option>');
+                $('#'+select_user).append('<option value="'+childSnap.key+'">'+childSnap.val().name + ' ' + childSnap.val().surname+'</option>');
             });
         });
     },
 
+    /*
+    var proto_week_selection = {
+        selected_rows : 0,
+        selected_hours : [[],[],[],[],[],[],[]]
+    }
+    */
     loadDayScheduleTable : function ( table_body, table_click_ref, day) {
         $("#"+table_body).empty();
         
         for (var hour = 8; hour<25; hour++) {
             $("#"+table_body).append(
-            '<tr class="clickable-row" id="'+table_body+'_'+hour+'" value="'+hour+'">'+
-            '<th>'+hour+':00</th><td></td>'+
+            '<tr class="clickable-row d-'+day+'" id="'+table_body+'_'+hour+'_'+day+'" value="'+hour+'">'+
+            '<th>'+hour+':00</th>'+
             '</tr>');
+
+            if (table_click_ref.selected_hours[day].includes(hour)) {
+                $('#'+table_body+'_'+hour+'_'+day).addClass('selected_row');
+            }
         }
 
         $("#"+table_body).on('click', '.clickable-row', function(event) {
-            var idx;
-            if ($(this).hasClass('selected_row')) {
-                $(this).removeClass('selected_row');
-                table_click_ref.selected_rows--;
-                idx = table_click_ref.selected_hours[day].indexOf($(this).attr('value'));
-                if (idx >= 0) table_click_ref.selected_hours[day].splice(idx, 1);
-                table_click_ref.cs_selected_rows--;
-            } else if (!$(this).hasClass('selected_row') && !$(this).hasClass('mybook') && !$(this).hasClass('event_prenotation')) {
-                $(this).addClass('selected_row');
-                table_click_ref.selected_hours[day].push($(this).attr('value'));
-                table_click_ref.selected_rows++;
+            if ($(this).hasClass('d-'+day)) {
+                var s_hour = parseInt($(this).attr('value'));
+                console.log(table_click_ref.selected_hours[day]);
+                console.log(typeof s_hour + ' : ' + s_hour);
+                if ($(this).hasClass('selected_row')) {
+                    $(this).removeClass('selected_row');
+                    table_click_ref.selected_rows--;
+                    var idx = table_click_ref.selected_hours[day].indexOf(s_hour);
+                    if (idx >= 0) table_click_ref.selected_hours[day].splice(idx, 1);
+                } else {
+                    $(this).addClass('selected_row');
+                    table_click_ref.selected_hours[day].push(s_hour);
+                    table_click_ref.selected_rows++;
+                }
             }
         });
     }
