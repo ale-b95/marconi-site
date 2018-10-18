@@ -84,6 +84,22 @@ $(function () {
         selected_hours : [[],[],[],[],[],[],[]]
     }
 
+    var user_name;
+    var user_key;
+
+    $('#adv_user_select').on('change', () => {
+        user_key = $('#adv_user_select').val();
+        if (user_key != null) {
+            firebase.database().ref('user/'+user_key).once('value',snap => {
+                snap.forEach(childSnap => {
+                    user_name = childSnap.val().name + ' ' + childSnap.val().surname;
+                });
+            });
+        } else {
+            user_name = null;
+        }
+    });
+
     jQuery('#datetimepicker4').datetimepicker({
         minDate:'0',
         timepicker:false,
@@ -158,11 +174,6 @@ $(function () {
                         if (!wellFilledForm('adv_class_select')) {
                             error_msg += 'Seleziona una classe.\n';
                         }
-
-                        if (!wellFilledForm('adv_user_select')) {
-                            error_msg += 'Seleziona un utente.\n';
-                        }
-
                         alert(error_msg);
                         prenotation_ok = false;
                     }
@@ -186,15 +197,60 @@ $(function () {
         }
 
         if (prenotation_ok) {
-            console.log('d1: '+ first_day+ '\nd2: '+ last_day);
-            console.log('user: '+ $('#adv_user_select').val());
-            console.log('classroom: '+ $('#adv_croom_select').val());
-            console.log('class: '+ $('#adv_class_select').val());
-            console.log(proto_week_selection);
+            var selected_classroom = $('#adv_croom_select').val();
+            var selected_class = $('#adv_class_select').val();
 
+            prenote(user_key, user_name, selected_classroom, selected_class, first_day, last_day, proto_week_selection);
             prenotationDone();
         }
     });
+
+    function prenote(user_key, user_name, slected_classroom, selected_class, first_day, last_day, week_schedule) {
+        var teacher_name = user_name;
+        var teacher_key = user_key;
+        
+        if (user_name == null && user_key == null) {
+            teacher_name = user.displayName;
+            teacher_key = user.uid;
+        }
+
+        var temp_date = new Date(first_day);
+        var day = 0;
+        
+        while (temp_date <= last_day) {
+            day = temp_date.getDay();
+            //console.log('date: ' +  temp_date + '\nday: '+day+ ' h: ' + week_schedule.selected_hours[day].length);
+            
+            for (var i = 0; i < week_schedule.selected_hours[day].length; i++) {
+                var hour = week_schedule.selected_hours[day][i];
+                console.log(temp_date.getFullYear()+'\n'+(temp_date.getMonth() + 1)+'\n'+temp_date.getDate()+'\n'+slected_classroom+'\n'+hour+'\n\n\n');
+                /*
+                firebase.database().ref('prenotation/'+temp_date.getFullYear()+'/'+(temp_date.getMonth() + 1)+'/'+temp_date.getDate()+'/'+slected_classroom+'/'+hour+'/').set({
+                    class : selected_class,
+                    classroom : slected_classroom,
+                    teacher : teacher_name,
+                    teacher_key : teacher_key
+                });
+
+                firebase.database().ref('class/'+selected_class+'/prenotation/'+temp_date.getDate()+"-"+(temp_date.getMonth() + 1)+'-'+temp_date.getFullYear()+'/').update({
+                    [hour] : slected_classroom
+                });*/
+            }
+            
+            temp_date.setDate(temp_date.getDate() + 1);
+        }
+
+        console.log('d1: '+ first_day+ '\nd2: '+ last_day);
+        console.log('user: '+ $('#adv_user_select').val());
+        console.log('classroom: '+ $('#adv_croom_select').val());
+        console.log('class: '+ $('#adv_class_select').val());
+        console.log(week_schedule);
+
+        proto_week_selection = {
+            selected_rows : 0,
+            selected_hours : [[],[],[],[],[],[],[]]
+        }
+    }
 
     function wellFilledForm(form) {
         return ($('#'+form).val() != null);

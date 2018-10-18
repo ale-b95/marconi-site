@@ -179,8 +179,6 @@ var DataFormFillUtility = {
         $("#"+table_body).on('click', '.clickable-row', function(event) {
             if ($(this).hasClass('d-'+day)) {
                 var s_hour = parseInt($(this).attr('value'));
-                console.log(table_click_ref.selected_hours[day]);
-                console.log(typeof s_hour + ' : ' + s_hour);
                 if ($(this).hasClass('selected_row')) {
                     $(this).removeClass('selected_row');
                     table_click_ref.selected_rows--;
