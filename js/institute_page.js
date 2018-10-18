@@ -156,23 +156,13 @@ var DataFormFillUtility = {
         });
     },
 
-    /*
-    var proto_week_selection = {
-        selected_rows : 0,
-        selected_hours : [[],[],[],[],[],[],[]]
-    }
-    */
-    loadDayScheduleTable : function ( table_body, table_click_ref, day) {
-        $("#"+table_body).empty();
-        
-        for (var hour = 8; hour<25; hour++) {
-            $("#"+table_body).append(
-            '<tr class="clickable-row d-'+day+'" id="'+table_body+'_'+hour+'_'+day+'" value="'+hour+'">'+
-            '<th>'+hour+':00</th>'+
-            '</tr>');
-
-            if (table_click_ref.selected_hours[day].includes(hour)) {
-                $('#'+table_body+'_'+hour+'_'+day).addClass('selected_row');
+    createDayScheduleTable : function (table_body, table_click_ref) {
+        for (var day = 0; day < 7; day++) {
+            for (var hour = 8; hour<25; hour++) {
+                $("#"+table_body).append(
+                '<tr class="clickable-row d-'+day+' collapse d-row" id="'+table_body+'_'+hour+'_'+day+'" value="'+hour+'">'+
+                '<th>'+hour+':00</th>'+
+                '</tr>');
             }
         }
 
@@ -191,6 +181,19 @@ var DataFormFillUtility = {
                 }
             }
         });
+
+        console.log('table ready');
+    },
+
+    loadDayScheduleTable : function (table_body, table_click_ref, day) {
+        $('.d-row').hide();
+        $('.d-'+day).show();
+        
+        for (var hour = 8; hour<25; hour++) {
+            if (table_click_ref.selected_hours[day].includes(hour)) {
+                $('#'+table_body+'_'+hour+'_'+day).addClass('selected_row');
+            }
+        }
     }
 }
 

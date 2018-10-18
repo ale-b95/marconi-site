@@ -38,8 +38,10 @@ $(function () {
         classroom_id = $("#select_classroom").val();
         classroom_name = $("#select_classroom").find(':selected').text();
         
-
         if (classroom_name != 'Seleziona aula') {
+            selected_hours = [];
+            cs_selected_rows = 0;
+            mb_selected_rows = 0;
             loadClassroomSchedule();
         }
     });
