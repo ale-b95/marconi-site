@@ -1,4 +1,5 @@
 var DataFormFillUtility = {
+    
     /*
         fill the specified select list with the classrooms loaded from the database
         is possible to personalize the first option field adding a default message
@@ -156,7 +157,7 @@ var DataFormFillUtility = {
         });
     },
 
-    createDayScheduleTable : function (table_body, table_click_ref) {
+    createDayScheduleTable : function (table_body) {
         for (var day = 0; day < 7; day++) {
             for (var hour = 8; hour<25; hour++) {
                 $("#"+table_body).append(
@@ -165,24 +166,6 @@ var DataFormFillUtility = {
                 '</tr>');
             }
         }
-
-        $("#"+table_body).on('click', '.clickable-row', function(event) {
-            if ($(this).hasClass('d-'+day)) {
-                var s_hour = parseInt($(this).attr('value'));
-                if ($(this).hasClass('selected_row')) {
-                    $(this).removeClass('selected_row');
-                    table_click_ref.selected_rows--;
-                    var idx = table_click_ref.selected_hours[day].indexOf(s_hour);
-                    if (idx >= 0) table_click_ref.selected_hours[day].splice(idx, 1);
-                } else {
-                    $(this).addClass('selected_row');
-                    table_click_ref.selected_hours[day].push(s_hour);
-                    table_click_ref.selected_rows++;
-                }
-            }
-        });
-
-        console.log('table ready');
     },
 
     loadDayScheduleTable : function (table_body, table_click_ref, day) {

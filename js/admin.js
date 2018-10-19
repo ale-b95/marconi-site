@@ -79,15 +79,33 @@ $(function () {
     });
 
     //----------------------------------------------------------------------------------- Advanced prenotations
+    DataFormFillUtility.createDayScheduleTable('advanced_schedule_table_body', proto_week_selection);
+
     var proto_week_selection = {
         selected_rows : 0,
         selected_hours : [[],[],[],[],[],[],[]]
     }
 
-    DataFormFillUtility.createDayScheduleTable('advanced_schedule_table_body', proto_week_selection);
-
     var user_name;
     var user_key;
+
+    $("#advanced_schedule_table_body").on('click', '.clickable-row', function(event) {
+        var day = $('#adv_select_day').val();
+        if ($(this).hasClass('d-'+day)) {
+            var s_hour = parseInt($(this).attr('value'));
+            if ($(this).hasClass('selected_row')) {
+                $(this).removeClass('selected_row');
+                proto_week_selection.selected_rows--;
+                var idx = proto_week_selection.selected_hours[day].indexOf(s_hour);
+                if (idx >= 0) proto_week_selection.selected_hours[day].splice(idx, 1);
+            } else {
+                $(this).addClass('selected_row');
+                proto_week_selection.selected_hours[day].push(s_hour);
+                proto_week_selection.selected_rows++;
+            }
+        }
+        console.log(proto_week_selection.selected_rows);
+    });
 
     $('#adv_user_select').on('change', () => {
         user_key = $('#adv_user_select').val();
@@ -233,20 +251,23 @@ $(function () {
             if (day < 0) day = 6;
 
             var promises = [];
+            var toRemove = {class_name:[], hour:[]};
             for (i in week_schedule.selected_hours[day]) {
                 var hour = week_schedule.selected_hours[day][i];
-                var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom+'/'+hour).once('value', snap => {
-                    
+                var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom+'/'+hour).once('value', function(snap)  {
                     if (snap.exists()) {
-                        firebase.database().ref('class/'+snap.val().class+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+hour+'/').remove();
+                        toRemove.class_name.push(snap.val().class);
+                        toRemove.hour.push(this.h);
                     }
-                });
+                }.bind({h : hour}));
                 promises.push(my_prom);
             }
 
             Promise.all(promises).then(() => {
+                console.log(toRemove);
                 for (i in week_schedule.selected_hours[day]) {
                     var hour = week_schedule.selected_hours[day][i];
+                    firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
                     firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom+'/'+hour+'/').set({
                         class : selected_class,
                         classroom : selected_classroom,
@@ -270,7 +291,7 @@ $(function () {
     }
 
     function prenotationDone() {
-        $("#advanced_schedule_table_body").empty();
+        $(".d-row").removeClass('selected_row');
         $('#proto_week_selection').slideUp();
         $('#advanced_event_creation').slideUp();
         $('#advanced_croom_prenotation').slideUp();
@@ -421,7 +442,6 @@ $(function () {
         Load the classrooms table in the classroom page
     */
     function loadClassroomList() {
-        
         $("#admin_classroom_table_body").empty();
         const dbRef = firebase.database().ref('classroom/');
         var classroomList =  dbRef.once('value', snap => {
