@@ -83,9 +83,9 @@ var EventsManagement = {
                             
                             $("#delete_event").on('click', () => {
                                 if (classroom_name != "Esterno") {
-                                    EventsManagement.deleteEvent(current_key, current_date, classroom_key);
+                                    EventsManagement.deleteEvent(current_key, classroom_key);
                                 } else {
-                                    EventsManagement.deleteEvent(current_key, current_date);
+                                    EventsManagement.deleteEvent(current_key);
                                 }
 
                                 $("#safe_delete_event_btn").text('Elimina evento');
@@ -183,39 +183,47 @@ var EventsManagement = {
         firebase.database().ref('class/'+class_name+'/event/'+event_key).remove();
     },
 
-    deleteEvent : function (event_key, event_date, event_classroom_key) {
+    deleteEvent : function (event_key, event_classroom_key) {
         firebase.database().ref().child('event/'+event_key+'/class/').once('value', snap => {
             snap.forEach(childSnap => {
                 firebase.database().ref().child('class/'+ childSnap.key+'/event/'+event_key).remove();
             });
         }).then(() => {
-            var event_ref = firebase.database().ref().child('event/');
-            event_ref.child(event_key).remove();
+            if (event_classroom_key != null) {
+                firebase.database().ref('event/'+ event_key +'/period/').once('value', snap => {
+                    snap.forEach(childSnap => {
+                        console.log(childSnap.key + ' ciao');
+                        var e_date = new Date(childSnap.val());
+                        var ref_prenotation = firebase.database().ref().child('prenotation/'
+                        + e_date.getFullYear() + '/' 
+                        + (e_date.getMonth() + 1) + '/' 
+                        + e_date.getDate() + '/' 
+                        + event_classroom_key + '/');
+            
+                        ref_prenotation.once('value', sbSnap => {
+                            sbSnap.forEach(sbChildSnap => {
+                                sbChildSnap.forEach(gcSnap => {
+                                    if (gcSnap.key == 'event_key') {
+                                        if (event_key == gcSnap.val()) {
+                                            ref_prenotation.child(sbChildSnap.key).remove();
+                                        }
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }).then(() => {
+                    var event_ref = firebase.database().ref().child('event/');
+                    event_ref.child(event_key).remove();
+                }).then(() => {
+                    $('#event_details').hide();
+                    $('#main_events_page').show();
+                    EventsManagement.loadEventList();
+                });
+            }
         });
 
-        if (event_classroom_key != null) {
-            var ref_prenotation = firebase.database().ref().child('prenotation/'
-            + event_date.getFullYear() + '/' 
-            + (event_date.getMonth() + 1) + '/' 
-            + event_date.getDate() + '/' 
-            + event_classroom_key + '/');
-
-            ref_prenotation.once('value', snap => {
-                snap.forEach(childSnap => {
-                    childSnap.forEach(gcSnap => {
-                        if (gcSnap.key == 'event_key') {
-                            if (event_key == gcSnap.val()) {
-                                ref_prenotation.child(childSnap.key).remove();
-                            }
-                        }
-                    });
-                });
-            });
-        }
         
-        $('#event_details').hide();
-        $('#main_events_page').show();
-        EventsManagement.loadEventList();
     },
 
     loadClassroomSchedule : function () {
@@ -290,20 +298,23 @@ var EventsManagement = {
         user = firebase.auth().currentUser;
         var event_description = $.trim($("#e_desc").val());
 
-        if (EventsManagement.cs_selected_rows > 0 && EventsManagement.ne_date >= today &&  $('#event_title')[0].value != "") {
+        if ((EventsManagement.cs_selected_rows > 0 || EventsManagement.classroom_name == "Esterno") && EventsManagement.ne_date >= today &&  $('#event_title')[0].value != "") {
             
             $("#schedule_event_table").hide();
             
             var mydate = EventsManagement.ne_date;
-
+            var rDate = mydate.getDate() + '-' + (mydate.getMonth()+1) + '-' + mydate.getFullYear();
             var event_prenotation = firebase.database().ref().child('event/').push({
                 title : $('#event_title')[0].value,
                 classroom : EventsManagement.classroom_name,
                 classroom_key : EventsManagement.classroom_id,
                 date : mydate.getTime(),
+                period : {
+                    date0 : mydate.getTime()
+                },
+                readableDate : rDate,
                 teacher : user.displayName,
                 teacher_key : user.uid,
-                starting_hour : EventsManagement.selected_hours[0],
                 description : event_description
             });
 
@@ -317,8 +328,7 @@ var EventsManagement = {
                     + EventsManagement.selected_hours[i]+'/').set({
                     event_key : event_prenotation.key,
                     event : $('#event_title')[0].value,
-                    classroom : EventsManagement.classroom_name,
-                    description : event_description
+                    classroom : EventsManagement.classroom_name
                     });
                 }
             }
@@ -330,7 +340,6 @@ var EventsManagement = {
             + day + '/' 
             + month + '/' 
             + year + '\nAula:  ' 
-            + EventsManagement.classroom_name + '\nOra di inizio:  ' 
             + EventsManagement.selected_hours[0] + ':00');
             
             EventsManagement.selected_hours = [];
@@ -350,9 +359,7 @@ var EventsManagement = {
             $('#warning_event_creation').slideDown();
             $('#warning_event_creation').text('Seleziona il luogo dove si svolgerà l\'evento.');
         } else if (EventsManagement.cs_selected_rows == 0) {
-            if ($("#select_event_classroom").find(':selected').text() == 'Esterno') {
-                $('#warning_event_creation').text('Seleziona l\'ora di inizio.');
-            } else {
+            if ($("#select_event_classroom").find(':selected').text() != 'Esterno') {
                 $('#warning_event_creation').text('Seleziona l\'orario.');
             }
             $('#warning_event_creation').slideDown();
