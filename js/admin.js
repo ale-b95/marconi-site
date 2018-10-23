@@ -432,8 +432,6 @@ $(function () {
 
     //----------------------------------------------------------------------------------- Functions
 
-
-
     /*
         Fill the users table in "Roles and permission" page.
     */
@@ -549,21 +547,35 @@ $(function () {
     function loadClassroomList() {
         $("#admin_classroom_table_body").empty();
         const dbRef = firebase.database().ref('classroom/');
-        var classroomList =  dbRef.once('value', snap => {
+        dbRef.once('value', snap => {
             snap.forEach(childSnap => {
                 var key =  childSnap.key;
                 var name;
-                var capacity;
                 
-                childSnap.forEach(gcSnap => {
-                    if (gcSnap.key == 'classroom_name') {
-                        name = gcSnap.val();
-                    } else if (gcSnap.key == 'classroom_capacity'){
-                        capacity = gcSnap.val();
+                name = childSnap.val().classroom_name;
+                isFavourite = childSnap.val().isFavourite;
+
+                var my_btn = '<tr><td>'+name+'</td>'+'<td><input class="favourite_croom" id="croom_'+key+'" type="checkbox" value="'+key+'""></td>'+
+                '<td><button id="'+ key +'" class="btn btn-primary btn-sm" type="button">X</button></td></tr>';
+
+                $("#admin_classroom_table_body").append(my_btn);
+
+                if (isFavourite) {
+                    $('#croom_'+key).attr('checked','checked');
+                }
+
+                $('#croom_'+key).click(() => {
+                    var classroom = $('#croom_'+key).val();
+                    if($('#croom_'+key).is(':checked')){
+                        firebase.database().ref('classroom/'+classroom+'/').update({
+                            isFavourite : true
+                        });
+                    } else {
+                        firebase.database().ref('classroom/'+classroom+'/').update({
+                            isFavourite : false
+                        });
                     }
                 });
-                var my_btn = '<tr><td>'+name+'</td>'+'<td>'+capacity+'</td>'+'<td><button id="'+ key +'" class="btn btn-primary btn-sm" type="button">X</button></td></tr>';
-                $("#admin_classroom_table_body").append(my_btn);
 
                 $("#"+key).on('click', () => {
                     $("#admin_classroom_table_body").empty();

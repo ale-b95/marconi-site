@@ -118,3 +118,9 @@ td .btn {
 .table-fixed thead > tr > th {
  float: left;
 }
+
+.big-table tbody > tr > th, 
+.big-table tbody > tr > td,
+.big-table thead > tr > th {
+    width: 9%;
+}
