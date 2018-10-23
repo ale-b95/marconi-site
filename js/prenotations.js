@@ -10,7 +10,7 @@ $(function () {
 
     $('#datetimepicker2, #select_class_pren').on('change', () => {
         $("#class_pren_body").empty();
-        prn_date = $("#datetimepicker1").datetimepicker('getValue');
+        prn_date = $("#datetimepicker2").datetimepicker('getValue');
         if (classroom_name != 'Seleziona aula') {
             class_name = $("#select_class_pren").find(':selected').text();
 

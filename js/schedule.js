@@ -25,10 +25,6 @@ $(function () {
     var occupied_h = [];
     var occupied_cr = [];
 
-    $("#select_class").on('change', () => {
-        update_class_references();
-    });
-
     /*
         Load the information about the selected classroom on a selected day when
         the classroom and the day have been selected
@@ -37,7 +33,7 @@ $(function () {
         sc_date = $("#datetimepicker1").datetimepicker('getValue');
         classroom_id = $("#select_classroom").val();
         classroom_name = $("#select_classroom").find(':selected').text();
-        
+        update_class_references();
         if (classroom_name != 'Seleziona aula') {
             selected_hours = [];
             cs_selected_rows = 0;

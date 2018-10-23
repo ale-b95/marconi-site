@@ -108,19 +108,20 @@ td .btn {
 }
 
 .table-fixed tr:after {
- content: "";
- display: block;
- visibility: hidden;
- clear: both;
+    content: "";
+    display: block;
+    visibility: hidden;
+    clear: both;
 }
 
 .table-fixed tbody td,
 .table-fixed thead > tr > th {
- float: left;
+    float: left;
 }
 
 .big-table tbody > tr > th, 
 .big-table tbody > tr > td,
 .big-table thead > tr > th {
-    width: 9%;
+    max-width: 8%;
+    max-height: 4%;
 }
