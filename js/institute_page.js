@@ -75,7 +75,7 @@ var DataFormFillUtility = {
 
         var state = 0;
         //start cycling the elements
-        setInterval(function () {
+        INTERVAL = setInterval(function () {
             switch (state) {
                 case 0:
                     for (id in afternoon_hours) {
@@ -116,11 +116,24 @@ var DataFormFillUtility = {
         }, 5000);
     },
 
+    clearBacheca : function () {
+        for (i = 1; i <= 10; i++) {
+            $('#th_'+ i).empty();
+        }
+
+        for (i = 8; i < 25; i++) {
+            for (j = 0; j < 10 ; j++) {
+                $('#cll_'+ i + '_' + j).empty();
+            }
+        }
+    },
+
     loadBacheca : function () {
         this.bachecaAutoScroll();
+        this.clearBacheca();
         var date = new Date();
         firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value', () => {
-            
+            this.clearBacheca();
             var selected_croom = [];
             var croom_w_prenotation = [];
             var bacheca_croom = [];
@@ -306,5 +319,9 @@ $(function () {
         DataFormFillUtility.eventDisplay();
         showPage($("#big_table_page"));
         
+    });
+
+    $('#bacheca_back_btn').on('click', () => {
+        clearInterval(INTERVAL);
     });
 });
