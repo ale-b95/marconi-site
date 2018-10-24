@@ -122,14 +122,17 @@ var DataFormFillUtility = {
         }
 
         for (i = 8; i < 25; i++) {
+            var index = i + 1;
             for (j = 0; j < 10 ; j++) {
                 $('#cll_'+ i + '_' + j).empty();
+                $("#bt_hid_"+i+" td:nth-child("+index+")").removeClass('reserved_lesson');
+                $("#bt_hid_"+i+" td:nth-child("+index+")").removeClass('reserved_event');   
             }
         }
     },
 
     loadBacheca : function () {
-        this.bachecaAutoScroll();
+        //this.bachecaAutoScroll();
         this.clearBacheca();
         var date = new Date();
         firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value', () => {
@@ -212,7 +215,7 @@ var DataFormFillUtility = {
                     $("#bt_hid_"+hour+" td:nth-child("+index+")").text(text);
                     if (event_title) {
                         $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_event'); 
-                        $("#bt_hid_"+hour+" td:nth-child("+index+")").remove('reserved_lesson');          
+                        $("#bt_hid_"+hour+" td:nth-child("+index+")").removeClass('reserved_lesson');          
                     } else {
                         $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_lesson');
                         $("#bt_hid_"+hour+" td:nth-child("+index+")").removeClass('reserved_event'); 
