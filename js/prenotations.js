@@ -41,7 +41,7 @@ $(function () {
 
                     $("#class_pren_body").append(
                     '<tr>'+
-                    '<th>'+hour+':00</th><td>'+ class_info +'</td>'+
+                    '<th>'+SPECIAL_HOURS[hour]+'</th><td>'+ class_info +'</td>'+
                     '</tr>');
                 }
             });

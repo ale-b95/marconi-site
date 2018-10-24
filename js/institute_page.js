@@ -270,7 +270,7 @@ var DataFormFillUtility = {
             for (var hour = 8; hour<25; hour++) {
                 $("#"+table_body).append(
                 '<tr class="clickable-row d-'+day+' collapse d-row" id="'+table_body+'_'+hour+'_'+day+'" value="'+hour+'">'+
-                '<th>'+hour+':00</th>'+
+                '<th>'+SPECIAL_HOURS[hour]+'</th>'+
                 '</tr>');
             }
         }

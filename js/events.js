@@ -67,7 +67,7 @@ var EventsManagement = {
 
                     EventsManagement.printClasses(event_key);
                     
-                    $("#ed_starting_hour").text('- '+ hour + ':00');
+                    $("#ed_starting_hour").text('- '+ SPECIAL_HOURS[hour]);
                     $("#ed_organizer").text('- '+ teacher);
                     $("#ed_classroom").text('- '+ classroom);
                     $('#desc_title').empty();
@@ -240,7 +240,7 @@ var EventsManagement = {
         for (var hour = 8; hour<25; hour++) {
             $("#schedule_event_table_body").append(
             '<tr class="clickable-row" id="ev_hid_'+hour+'" value="'+hour+'">'+
-            '<th>'+hour+':00</th><td></td>'+
+            '<th>'+SPECIAL_HOURS[hour]+'</th><td></td>'+
             '</tr>');
         }
         

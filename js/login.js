@@ -157,20 +157,20 @@ $(function () {
         if (snap.val().priviledges == "3") {
           showPage($("#institute_page"));
           $("#admin_btn").show();
-          $("#schedule_btn").show();
+          $("#croom_prenotation_btn").show();
           $("#events_btn").show();
-          $("#prenotations_btn").show();
+          $("#search_class_btn").show();
         } else if (snap.val().priviledges == "2") {
           $("#admin_btn").hide();
-          $("#schedule_btn").show();
+          $("#croom_prenotation_btn").show();
           $("#events_btn").show();
-          $("#prenotations_btn").show();
+          $("#search_class_btn").show();
           showPage($("#institute_page"));
         } else if (snap.val().priviledges == "1") {
           $("#admin_btn").hide();
-          $("#schedule_btn").hide();
+          $("#croom_prenotation_btn").hide();
+          $("#search_class_btn").hide();
           $("#events_btn").hide();
-          $("#prenotations_btn").hide();
           showPage($("#institute_page"));
         }
       });

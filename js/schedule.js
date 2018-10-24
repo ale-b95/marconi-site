@@ -206,7 +206,7 @@ $(function () {
 
             $("#schedule_table_body").append(
             '<tr class="clickable-row" id="s_hid_'+hour+'" value="'+hour+'">'+
-            '<th>'+hour+':00</th><td>'+ class_info +'</td>'+
+            '<th>'+SPECIAL_HOURS[hour]+'</th><td>'+ class_info +'</td>'+
             '</tr>');
 
             if (!clickable) {
