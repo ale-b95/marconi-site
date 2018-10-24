@@ -13,6 +13,10 @@ var EventsManagement = {
         $('#event_list').empty();
         var tmp_date = $("#datetimepicker6").datetimepicker('getValue');
 
+        if (tmp_date == null) {
+            tmp_date = new Date();
+        }
+
         var month = tmp_date.getMonth() + 1;
         var year = tmp_date.getFullYear();
 

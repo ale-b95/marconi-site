@@ -124,4 +124,5 @@ td .btn {
 .big-table thead > tr > th {
     max-width: 8%;
     max-height: 4%;
+    font-size: medium;
 }
