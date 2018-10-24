@@ -1,5 +1,4 @@
 var DataFormFillUtility = {
-    
     /*
         fill the specified select list with the classrooms loaded from the database
         is possible to personalize the first option field adding a default message
@@ -59,22 +58,74 @@ var DataFormFillUtility = {
         });
     },
 
-    loadBacheca : function () {
-        
-        var date = new Date();
-        var myInterval = 0;
+    bachecaAutoScroll : function () {
+        var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13','bt_hid_14'];
+        var afternoon_hours = ['bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19','bt_hid_20','bt_hid_21'];
+        var night_hours = ['bt_hid_22','bt_hid_23','bt_hid_24'];
+        //prepare elements to show first
+        for (id in afternoon_hours) {
+            $('#'+afternoon_hours[id]).fadeOut();
+            $('#'+night_hours[id]).fadeOut();
+        }
+        setTimeout(() => {
+            for (id in morning_hours) {
+                $('#'+morning_hours[id]).fadeIn();
+            }
+        }, 500);
 
-        firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value', () => { 
-            if (myInterval != 0) clearInterval(myInterval);
-            $("#big-table").empty();
-            $("#big-table-head").empty();
-            $("#big-table-body").empty();
+        var state = 0;
+        //start cycling the elements
+        setInterval(function () {
+            switch (state) {
+                case 0:
+                    for (id in afternoon_hours) {
+                        $('#'+afternoon_hours[id]).fadeOut();
+                        $('#'+night_hours[id]).fadeOut();
+                    }
+                    setTimeout(() => {
+                        for (id in morning_hours) {
+                            $('#'+morning_hours[id]).fadeIn();
+                        }
+                    }, 500);
+                break;
+                case 1:
+                    for (id in morning_hours) {
+                        $('#'+morning_hours[id]).fadeOut();
+                        $('#'+night_hours[id]).fadeOut();
+                    }
+                    setTimeout(() => {
+                        for (id in afternoon_hours) {
+                            $('#'+afternoon_hours[id]).fadeIn();
+                        }
+                    }, 500);
+                break;
+                case 2:
+                    for (id in morning_hours) {
+                        $('#'+morning_hours[id]).fadeOut();
+                        $('#'+afternoon_hours[id]).fadeOut();
+                    }
+                    setTimeout(() => {
+                        for (id in night_hours) {
+                            $('#'+night_hours[id]).fadeIn();
+                        }
+                    }, 500);
+                break;
+                default:
+            }
+            state = (state + 1) % 3;
+        }, 5000);
+    },
+
+    loadBacheca : function () {
+        this.bachecaAutoScroll();
+        var date = new Date();
+        firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value', () => {
             
             var selected_croom = [];
             var croom_w_prenotation = [];
             var bacheca_croom = [];
 
-            var promises1 = [];
+            var promises = [];
 
             var myProm_01 = firebase.database().ref('classroom/').once('value', snap => {
                 snap.forEach(childSnap => {
@@ -94,14 +145,12 @@ var DataFormFillUtility = {
                 });
             });
 
-            promises1.push(myProm_01);
-            promises1.push(myProm_02);
+            promises.push(myProm_01);
+            promises.push(myProm_02);
 
-            Promise.all(promises1).then(() => {
-                var n_croom = 10;
-
+            Promise.all(promises).then(() => {
                 //first add classrooms selected which have prenotations
-            for (i in selected_croom) {
+                for (i in selected_croom) {
                     if (croom_w_prenotation.includes(selected_croom[i])) {
                         bacheca_croom.push(selected_croom[i]);
                     }
@@ -120,82 +169,7 @@ var DataFormFillUtility = {
                         bacheca_croom.push(selected_croom[i]);
                     }
                 }
-
-                $("#big-table").append('<thead id="big-table-head"></thead>');
-                $("#big-table-head").append("<th id='th-0'></th>");
-
-                for (i = 0; i < 10; i++) {
-                    var idx = i + 1;
-                    $("#big-table-head").append("<th id='th-"+idx+"'></th>");
-                }
-
-                $("#big-table").append('<tbody id="big-table-body"></tbody>');
-
-                for (var hour = 8; hour<25; hour++) {
-                    $("#big-table-body").append(
-                    '<tr id="bt_hid_'+hour+'" value="'+hour+'">'+
-                    '</tr>');
-                    $("#bt_hid_"+hour).append('<th>'+hour+':00</th>');
-                    for(var i = 0; i < n_croom; i++) {
-                        $("#bt_hid_"+hour).append('<td id=cll-"'+hour+'-'+i+'"> </td>');
-                    }
-                }
-
-                var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13',];
-                var afternoon_hours = ['bt_hid_14','bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19',];
-                var night_hours = ['bt_hid_20','bt_hid_21','bt_hid_22','bt_hid_23','bt_hid_24',];
                 
-                for (id in afternoon_hours) {
-                    $('#'+afternoon_hours[id]).fadeOut();
-                    $('#'+night_hours[id]).fadeOut();
-                }
-                setTimeout(() => {
-                    for (id in morning_hours) {
-                        $('#'+morning_hours[id]).fadeIn();
-                    }
-                }, 500);
-
-                var state = 0;
-                myInterval = setInterval(function () {
-                    switch (state) {
-                        case 0:
-                            for (id in afternoon_hours) {
-                                $('#'+afternoon_hours[id]).fadeOut();
-                                $('#'+night_hours[id]).fadeOut();
-                            }
-                            setTimeout(() => {
-                                for (id in morning_hours) {
-                                    $('#'+morning_hours[id]).fadeIn();
-                                }
-                            }, 500);
-                        break;
-                        case 1:
-                            for (id in morning_hours) {
-                                $('#'+morning_hours[id]).fadeOut();
-                                $('#'+night_hours[id]).fadeOut();
-                            }
-                            setTimeout(() => {
-                                for (id in afternoon_hours) {
-                                    $('#'+afternoon_hours[id]).fadeIn();
-                                }
-                            }, 500);
-                        break;
-                        case 2:
-                            for (id in morning_hours) {
-                                $('#'+morning_hours[id]).fadeOut();
-                                $('#'+afternoon_hours[id]).fadeOut();
-                            }
-                            setTimeout(() => {
-                                for (id in night_hours) {
-                                    $('#'+night_hours[id]).fadeIn();
-                                }
-                            }, 500);
-                        break;
-                        default:
-                    }
-                    state = (state + 1) % 3;
-                }, 10000);
-
                 for (i in bacheca_croom) {
                     var idx = parseInt(i) + 1;
                     this.fillBacheca(croom_w_prenotation ,bacheca_croom[i], idx);
@@ -221,7 +195,7 @@ var DataFormFillUtility = {
                         text = childSnap.val().class + ' ' + childSnap.val().teacher;
                     }
 
-                    $("#th-"+idx).text(childSnap.val().classroom);
+                    $("#th_"+idx).text(childSnap.val().classroom);
                     $("#bt_hid_"+hour+" td:nth-child("+index+")").text(text);
                     if (event_title) {
                         $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_event'); 
@@ -234,7 +208,7 @@ var DataFormFillUtility = {
             });
         } else {
             firebase.database().ref('classroom/'+classroom_name).once('value', snap => {
-                $("#th-"+idx).text(snap.val().classroom_name);
+                $("#th_"+idx).text(snap.val().classroom_name);
             });
         }
     },

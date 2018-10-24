@@ -80,7 +80,12 @@ var EventsManagement = {
                     firebase.database().ref('user/'+user.uid).once('value', snap => {
                         var level = snap.val().priviledges + '';
                         if (level == 3 || user.uid == teacher_key) {
-                        
+                            if (level == 3) {
+                                $('#specialEvent').show();
+                            } else {
+                                $('#specialEvent').hide();
+                            }
+
                             $("#safe_delete_event_btn").show();
                             $("#save_event").hide();
                             $("#event_class").show();
@@ -301,7 +306,7 @@ var EventsManagement = {
         var today = Date.now() - (24*3600*1000);
         user = firebase.auth().currentUser;
         var event_description = $.trim($("#e_desc").val());
-
+        var checked = $('#specialEvent').is(":checked");
         if ((EventsManagement.cs_selected_rows > 0 || EventsManagement.classroom_name == "Esterno") && EventsManagement.ne_date >= today &&  $('#event_title')[0].value != "") {
             
             $("#schedule_event_table").hide();
@@ -316,6 +321,7 @@ var EventsManagement = {
                 period : {
                     date0 : mydate.getTime()
                 },
+                special : checked,
                 readableDate : rDate,
                 teacher : user.displayName,
                 teacher_key : user.uid,
@@ -336,9 +342,10 @@ var EventsManagement = {
                     });
                 }
             }
+
+            
             
             EventsManagement.loadEventList();
-            
             alert('Nuovo evento creato\nTitolo evento:  '
             + $('#event_title')[0].value + '\nGiorno:  ' 
             + day + '/' 
