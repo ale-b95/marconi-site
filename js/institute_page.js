@@ -113,7 +113,7 @@ var DataFormFillUtility = {
                 default:
             }
             state = (state + 1) % 3;
-        }, 5000);
+        }, 10000);
     },
 
     clearBacheca : function () {
@@ -122,17 +122,16 @@ var DataFormFillUtility = {
         }
 
         for (i = 8; i < 25; i++) {
-            var index = i + 1;
             for (j = 0; j < 10 ; j++) {
                 $('#cll_'+ i + '_' + j).empty();
-                $("#bt_hid_"+i+" td:nth-child("+index+")").removeClass('reserved_lesson');
-                $("#bt_hid_"+i+" td:nth-child("+index+")").removeClass('reserved_event');   
+                $('#cll_'+ i + '_' + j).removeClass('reserved_lesson');
+                $('#cll_'+ i + '_' + j).removeClass('reserved_event');   
             }
         }
     },
 
     loadBacheca : function () {
-        //this.bachecaAutoScroll();
+        this.bachecaAutoScroll();
         this.clearBacheca();
         var date = new Date();
         firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value', () => {
@@ -238,14 +237,11 @@ var DataFormFillUtility = {
         firebase.database().ref('event/').orderByChild("date").startAt(first_hour.getTime()).endAt(last_hour.getTime()).on("value", snap => {
             $('#showcase').empty();
             snap.forEach(childSnap => {
-                special = childSnap.val().special;
                 title = childSnap.val().title;
                 description = childSnap.val().description;
-                if (special) {
-                    $('#showcase').append('<div class="jumbotron event-show">'+
-                '<h1>'+ title +'</h1>'+
-                '<p>'+ description + '</p></div>');
-                }
+                $('#showcase').append('<div class="jumbotron event-show">'+
+                    '<h1>'+ title +'</h1>'+
+                    '<p>'+ description + '</p></div>');
             });
         });
     },

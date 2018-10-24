@@ -181,9 +181,9 @@ $(function () {
 
   function logAsGuest() {
     $("#admin_btn").hide();
-    $("#schedule_btn").hide();
+    $("#croom_prenotation_btn").hide();
+    $("#search_class_btn").hide();
     $("#events_btn").hide();
-    $("#prenotations_btn").hide();
     showPage($("#institute_page"));
   }
 });
