@@ -40,6 +40,10 @@ $(function () {
         showPage($("#access_code_page"));
     });
 
+    $("#announcement_btn").on('click', () => {
+        showPage($("#announcement_page"));
+    });
+
     //----------------------------------------------------------------------------------- Behaviour buttons
     $("#add_classroom_btn").on('click', () => {
         addClassroom();
@@ -62,7 +66,6 @@ $(function () {
     });
 
     $("#download_code_btn").on('click', () => {
-        
         var code = [];
         for (var i = 0 ; i < 100; i++) {
             code[i] = SecurityCodeUtility.generateCode() + "\n";
@@ -411,11 +414,12 @@ $(function () {
     }
 
     function resetForms() {
+        //adv prenotation
         $('#adv_event_title').val('');
         $('#adv_e_desc').val('');
         $('#classroom_name').val('');
         $('#classroom_capacity').val('');
-        $('#classclass_nameroom_capacity').val('');
+        //$('#classclass_nameroom_capacity').val(''); //?????????????
         $('#n_of_students').val('');
         $('#class_name').val('');
         $('#show_code').text('CODICE');
@@ -427,10 +431,134 @@ $(function () {
         $('#adv_select_day').get(0).selectedIndex = 0;
         $('#datetimepicker4').datetimepicker('reset');
         $('#datetimepicker5').datetimepicker('reset');
+        //announcement
+        $('#announcement_title').val('');
+        $('#announcement_desc').val('');
+        $('#select_announcement_action').get(0).selectedIndex = 0;
+        $('#announcement_select').empty();
+        $('#datetimepicker7').datetimepicker('reset');
+        $('#datetimepicker8').datetimepicker('reset');
     }
-    
 
-    //----------------------------------------------------------------------------------- Functions
+    //----------------------------------------------------------------------------------- Announcements
+
+    jQuery('#datetimepicker7').datetimepicker({
+        minDate:'0',
+        timepicker:false,
+        format:'d.m.Y'
+    });
+
+    jQuery('#datetimepicker8').datetimepicker({
+        minDate:'0',
+        timepicker:false,
+        format:'d.m.Y'
+    });
+
+    $('#select_announcement_action').on('change', () => {
+        $('#announcement_datepicker').slideDown();
+
+        if ($('#select_announcement_action').val() == 0) {
+            $('#create_announcement').slideDown();
+            $('#remove_announcement').slideUp();
+        } else {
+            $('#remove_announcement').slideDown();
+            $('#create_announcement').slideUp();
+            fillAnnouncementSelectList();
+        }
+    });
+
+    $('#datetimepicker7, #datetimepicker8').on('change', () => {
+        fillAnnouncementSelectList();
+    });
+
+    $('#announcement_back_btn').on('click', () => {
+        announcement_done();
+    });
+
+    $('#send_announcement').on('click', () => {
+        var announcement_title = $('#announcement_title').val();
+        var announcement_desc = $('#announcement_desc').val();
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        var startDate = $("#datetimepicker7").datetimepicker('getValue');
+        var endDate = $("#datetimepicker8").datetimepicker('getValue');
+
+        if (startDate == null) {
+            startDate = today;
+        }
+
+        if (endDate == null) {
+            endDate = today;
+        }
+
+        if (announcement_title != '' && announcement_desc != '' && startDate.getTime() > yesterday.getTime() && endDate.getTime() > startDate.getTime()) {
+            firebase.database().ref('announcement/').push().set({
+                title : announcement_title,
+                description : announcement_desc,
+                startDate : startDate.getTime(),
+                endDate : endDate.getTime()
+            }).then(() => {
+                announcement_done();
+            });
+        } else {
+            var error_msg = '';
+            if ($('#announcement_title').val() != '') error_msg += 'Inserisci un titolo per l\'annuncio\n';
+            if ($('#announcement_desc').val() != '') error_msg += 'Inserisci una descrizione per l\'annuncio\n';
+            if (startDate.getTime() < yesterday.getTime() || endDate.getTime() < startDate.getTime()) error_msg += 'Periodo inserito non valido\n';
+            alert(error_msg);
+        }
+    });
+
+    $('#delete_announcement').on('click', snap => {
+        deleteAnnouncement();
+    });
+
+    function fillAnnouncementSelectList() {
+        $('#announcement_select').empty();
+        $('#announcement_select').append('<option value="" disabled selected>Seleziona annuncio</option>');
+        var startDate = $("#datetimepicker7").datetimepicker('getValue');
+        var endDate = $("#datetimepicker8").datetimepicker('getValue');
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (startDate == null) {
+            startDate = today;
+        }
+
+        if (endDate == null) {
+            endDate = today;
+        }
+
+        firebase.database().ref('announcement/').once('value', snap => {
+            snap.forEach(childSnap => {
+                if (childSnap.val().endDate >= startDate.getTime() && childSnap.val().startDate <= endDate.getTime()) {
+                    $('#announcement_select').append('<option value="'+childSnap.key+'">'+childSnap.val().title+'</option>')
+                }
+            });
+        });
+    }
+
+    function deleteAnnouncement() {
+        var announcement_key = $('#announcement_select').val();
+        if (announcement_key != null) {
+            firebase.database().ref('announcement/'+ announcement_key).remove();
+            announcement_done();
+        } else {
+            alert('Seleziona un annuncio da eliminare.');
+        }
+    }
+
+    function announcement_done() {
+        $('#create_announcement').hide();
+        $('#remove_announcement').hide();
+        $('#announcement_datepicker').hide();
+        resetForms();
+        showPage($("#administration_page"));
+    }
+    //-----------------------------------------------------------------------------------
 
     /*
         Fill the users table in "Roles and permission" page.

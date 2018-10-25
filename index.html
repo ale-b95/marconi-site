@@ -81,13 +81,51 @@
                     <h1 class="h3 mb-3 font-weight-normal">Amministrazione</h1>
                     <br/>
                     
+                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni Avanzate</button>
+                    <button id="announcement_btn" class="btn long-btn btn-primary btn-lg" type="button">Avvisi</button>          
                     <button id="access_code_btn" class="btn long-btn btn-primary btn-lg" type="button">Codici Accesso</button>
                     <button id="roles_and_permission_btn" class="btn long-btn btn-primary btn-lg" type="button">Ruoli e permessi</button>
                     <button id="admin_classrooms_btn" class="btn long-btn btn-primary btn-lg" type="button">Aule</button>
                     <button id="admin_classes_btn" class="btn long-btn btn-primary btn-lg" type="button">Classi</button>      
-                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni Avanzate</button>        
+                       
                     
                     <button class="btn long-btn btn-primary btn-lg institute_page_btn back_btn" type="button">Indietro</button>
+                </div>
+                <div class="col-sm-4 col-md-4"></div>
+            </div>
+        </div>
+
+        <div id="announcement_page" class="collapse admin container-fluid">
+            <div class="row">
+                <div class="col-sm-4 col-md-4"></div>
+                <div class="col-sm-4 col-md-4">
+                        <h1 class="h3 mb-3 font-weight-normal">Avvisi</h1>
+                        <br/>
+                        <select class="form-control" id="select_announcement_action" autocomplete="off">
+                            <option value="" disabled selected>Scrivi/Gestisci annunci</option>
+                            <option value="0">Scrivi annuncio</option>
+                            <option value="1">Rimuovi annunci</option>
+                        </select>
+
+                        <div id="announcement_datepicker" class="collapse">
+                            <input class="datepicker form-control" id="datetimepicker7" type="text" readonly="true" placeholder="Dal giorno" autocomplete="off">
+                            <input class="datepicker form-control" id="datetimepicker8" type="text" readonly="true" placeholder="Al giorno" autocomplete="off">
+                        </div>
+                        
+                        <div id="remove_announcement" class="collapse">
+                            <select id="announcement_select" class="form-control" autocomplete="off">
+                            </select>
+                            <br/>
+                            <button id="delete_announcement" class="btn long-btn btn-primary btn-lg" type="button">Elimina Annuncio</button>
+                        </div>
+
+                        <div id="create_announcement" class="collapse">
+                            <input id="announcement_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
+                            <textarea  id="announcement_desc" class="form-control" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
+                            <button id="send_announcement" class="btn long-btn btn-primary btn-lg" type="button">Invia Annuncio</button>
+                        </div>
+                        
+                        <button class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" id="announcement_back_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>
@@ -217,7 +255,6 @@
                         <input class="datepicker form-control" id="datetimepicker4" type="text" readonly="true" placeholder="Dal giorno" autocomplete="off">
                         <input class="datepicker form-control" id="datetimepicker5" type="text" readonly="true" placeholder="Al giorno" autocomplete="off">
                     </div>
-                    
 
                     <div id="advanced_croom_prenotation" class="collapse">
                         <select class="form-control" id="adv_croom_select" autocomplete="off">
