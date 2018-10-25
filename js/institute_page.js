@@ -59,6 +59,8 @@ var DataFormFillUtility = {
     },
 
     bachecaAutoScroll : function () {
+        var date = new Date();
+        $('#bacheca_date').text( date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
         var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13','bt_hid_14'];
         var afternoon_hours = ['bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19','bt_hid_20','bt_hid_21'];
         var night_hours = ['bt_hid_22','bt_hid_23','bt_hid_24'];
@@ -76,6 +78,8 @@ var DataFormFillUtility = {
         var state = 0;
         //start cycling the elements
         INTERVAL = setInterval(function () {
+            date = new Date();
+            $('#bacheca_date').text( date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
             switch (state) {
                 case 0:
                     for (id in afternoon_hours) {
