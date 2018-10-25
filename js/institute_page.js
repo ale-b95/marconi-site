@@ -228,20 +228,27 @@ var DataFormFillUtility = {
         }
     },
 
-    eventDisplay : function () {
+    loadShowcase : function () {
         var now = new Date();
         var first_hour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
         var last_hour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-        var title;
-        var description;
-        firebase.database().ref('event/').orderByChild("date").startAt(first_hour.getTime()).endAt(last_hour.getTime()).on("value", snap => {
-            $('#showcase').empty();
+        firebase.database().ref('announcement/').on('value', snap => {
+            $('.announcement-show').remove();
             snap.forEach(childSnap => {
-                title = childSnap.val().title;
-                description = childSnap.val().description;
+                if (childSnap.val().startDate <= last_hour.getTime() && childSnap.val().startDate >= first_hour.getTime()) {
+                    $('#showcase').append('<div class="jumbotron announcement-show">'+
+                        '<h1 class="h3 mb-3 font-weight-normal">Avviso: '+ childSnap.val().title +'</h1>'+
+                        '<p>'+ childSnap.val().description + '</p></div>');
+                }
+            });
+        });
+
+        firebase.database().ref('event/').orderByChild("date").startAt(first_hour.getTime()).endAt(last_hour.getTime()).on("value", snap => {
+            $('.event-show').remove();
+            snap.forEach(childSnap => {
                 $('#showcase').append('<div class="jumbotron event-show">'+
-                    '<h1>'+ title +'</h1>'+
-                    '<p>'+ description + '</p></div>');
+                    '<h1 class="h3 mb-3 font-weight-normal">Evento: '+ childSnap.val().title +'</h1>'+
+                    '<p>'+ childSnap.val().description + '</p></div>');
             });
         });
     },
@@ -269,9 +276,8 @@ var DataFormFillUtility = {
         for (var day = 0; day < 7; day++) {
             for (var hour = 8; hour<25; hour++) {
                 $("#"+table_body).append(
-                '<tr class="clickable-row d-'+day+' collapse d-row" id="'+table_body+'_'+hour+'_'+day+'" value="'+hour+'">'+
-                '<th>'+SPECIAL_HOURS[hour]+'</th>'+
-                '</tr>');
+                '<tr class="clickable-row d-'+day+' d-row" id="'+table_body+'_'+hour+'_'+day+' collapse" value="'+hour+'">'+
+                '<th>'+SPECIAL_HOURS[hour]+'</th><td></td></tr>');
             }
         }
     },
@@ -299,6 +305,17 @@ $(function () {
         DataFormFillUtility.loadClassSelectList("select_class");
         showPage($("#schedule_page"));
     });
+
+    $("#prenotation_back_btn").on('click', () => {
+        console.log('hello');
+        $("#class_pren_table").slideUp();
+        $('#prenotations_list').empty();
+        $('#datetimepicker2').datetimepicker('reset');
+    });
+
+    $("#select_class_pren, datetimepicker2").on('change', () => {
+        $("#class_pren_table").slideDown();
+    })
     
     $("#events_btn").on('click', () => {
         $("#schedule_event_table_body").empty();
@@ -315,7 +332,7 @@ $(function () {
 
     $("#bacheca_btn").on('click', () => {
         DataFormFillUtility.loadBacheca();
-        DataFormFillUtility.eventDisplay();
+        DataFormFillUtility.loadShowcase();
         showPage($("#big_table_page"));
         
     });

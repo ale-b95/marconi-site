@@ -62,13 +62,6 @@ td .btn {
     float: left;
 }
 
-/*.big-table tbody td{
-    float: left;
-    width: 50%;
-    height: 80px;
-}
-*/
-
 .longtable {
      height: 270px !important;
 }
@@ -101,22 +94,11 @@ td .btn {
     text-align: left;
 }
 
-#advanced_schedule_table tbody > tr > th{
-    float: left;
-    width: 100%;
-    text-align: left;
-}
-
 .table-fixed tr:after {
     content: "";
     display: block;
     visibility: hidden;
     clear: both;
-}
-
-.table-fixed tbody td,
-.table-fixed thead > tr > th {
-    float: left;
 }
 
 .big-table tbody > tr > th, 

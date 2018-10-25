@@ -102,9 +102,9 @@
                         <h1 class="h3 mb-3 font-weight-normal">Avvisi</h1>
                         <br/>
                         <select class="form-control" id="select_announcement_action" autocomplete="off">
-                            <option value="" disabled selected>Scrivi/Gestisci annunci</option>
-                            <option value="0">Scrivi annuncio</option>
-                            <option value="1">Rimuovi annunci</option>
+                            <option value="" disabled selected>Inserisci/Rimuovi avviso</option>
+                            <option value="0">Scrivi avviso</option>
+                            <option value="1">Rimuovi avviso</option>
                         </select>
 
                         <div id="announcement_datepicker" class="collapse">
@@ -284,7 +284,7 @@
                                 <option value="6">Domenica</option>
                             </select>
         
-                            <table id="advanced_schedule_table" class="table table-fixed table-sm">
+                            <table id="advanced_schedule_table" class="collapse table two-columns-table table-fixed table-sm"> 
                                 <tbody id="advanced_schedule_table_body">
                                 </tbody>
                             </table>                            
@@ -463,12 +463,12 @@
                     <ul id="prenotations_list" class="list-group center-std-element">
                     </ul>
 
-                    <table id="class_pren_table" class="table two-columns-table table-fixed table-sm">
+                    <table id="class_pren_table" class="table two-columns-table table-fixed table-sm collapse">
                         <tbody id="class_pren_body">
                         </tbody>
                     </table>
 
-                    <button class="btn long-btn btn-primary btn-lg institute_page_btn" type="button">Indietro</button>
+                    <button id="prenotation_back_btn" class="btn long-btn btn-primary btn-lg institute_page_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>
@@ -742,7 +742,7 @@
 
             var date = new Date();
             var SPECIAL_HOURS = { 8 : "8:25", 9 : "9:15", 10 : "10:15", 11 : "11:05", 12 : "11:55", 13 : "12:55" , 
-            14 : "14:00", 15 : "14:00", 14 : "15:00", 16 : "16:00", 17 : "17:00", 18 : "18:00", 19 : "19:00", 20 : "20:00",
+            14 : "14:00", 15 : "15:00", 16 : "16:00", 17 : "17:00", 18 : "18:00", 19 : "19:00", 20 : "20:00",
             21 : "21:00", 22 : "22:00", 23 : "23:00", 24 : "24:00"}
 
             function showPage(page) {

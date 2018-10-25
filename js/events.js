@@ -196,7 +196,6 @@ var EventsManagement = {
             if (event_classroom_key != null) {
                 firebase.database().ref('event/'+ event_key +'/period/').once('value', snap => {
                     snap.forEach(childSnap => {
-                        console.log(childSnap.key + ' ciao');
                         var e_date = new Date(childSnap.val());
                         var ref_prenotation = firebase.database().ref().child('prenotation/'
                         + e_date.getFullYear() + '/' 

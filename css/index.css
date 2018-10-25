@@ -16,8 +16,8 @@ body {
 }
 
 .h3 {
-    margin-top: 4%;
-    margin-bottom: 3%;
+    margin-top: 2%;
+    margin-bottom: 2%;
 }
 
 .h4 {
@@ -35,6 +35,10 @@ input {
 .link {
     text-decoration: underline !important;
     color: #007bff !important;
+}
+
+.d-row {
+    width: 100%;
 }
 
 #event_det_list_right {
@@ -73,7 +77,7 @@ input {
     padding: 1%;
 }
 
-.event-show {
+.event-show, .announcement-show {
     padding: 1%;
     background-color: lightblue !important;
 }

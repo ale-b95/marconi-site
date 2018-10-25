@@ -47,11 +47,14 @@ $(function () {
             });
 
             firebase.database().ref('class/' + class_name +'/event/').once('value', snap => {
+                $("#prenotations_list").empty();
                 var today_date = prn_date.getDate() + "-" + (prn_date.getMonth() + 1) + '-'+ prn_date.getFullYear();
                 snap.forEach(childSnap => {
                     if (childSnap.val().date == today_date) {
+                        var event_title = childSnap.val().title;
+                        var event_description = childSnap.val().description;
                         $("#prenotations_list").append('<li class="list-group-item">La classe partecipa all\'evento: ' + 
-                        childSnap.val().title+ '</li>');
+                        event_title+ '</li>');
                     }
                 });
             });

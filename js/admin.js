@@ -165,6 +165,7 @@ $(function () {
 
     $('#adv_select_day').on('change', () => {
         DataFormFillUtility.loadDayScheduleTable('advanced_schedule_table_body', proto_week_selection, parseInt($('#adv_select_day').val()));
+        $('#advanced_schedule_table').slideDown();
     }); 
     
     $('#adv_prenotation_btn').on('click', () => {
@@ -259,7 +260,7 @@ $(function () {
 
                     console.log(teacher_key+'\n'+teacher_name+'\n'+selected_classroom_name+'\n'+selected_class+'\n'+temp_date+'\n'+proto_week_selection)
                     while (temp_date <= last_day) {
-                        makePrenotation(teacher_key, teacher_name, selected_classroom_name, selected_classroom_key, selected_class, temp_date, proto_week_selection);
+                        makePrenotation(teacher_key, teacher_name, selected_classroom_name, selected_classroom_key, selected_class, temp_date.getTime(), proto_week_selection);
                         temp_date.setDate(temp_date.getDate() + 1);
                     }
                 break;
@@ -290,7 +291,8 @@ $(function () {
         }
     });
 
-    function makePrenotation(teacher_key, teacher_name, selected_classroom_name, selected_classroom_key, temp_date, week_schedule) {
+    function makePrenotation(teacher_key, teacher_name, selected_classroom_name, selected_classroom_key, selected_class, date, week_schedule) {
+        var temp_date = new Date(date);
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
         var tmp_year = temp_date.getFullYear();
@@ -404,6 +406,7 @@ $(function () {
         $('#advanced_event_creation').slideUp();
         $('#advanced_croom_prenotation').slideUp();
         $('#adv_datepicker').slideUp();
+        $('#advanced_schedule_table').slideUp();
         showPage($("#administration_page"));
 
         resetForms();
@@ -504,8 +507,8 @@ $(function () {
             });
         } else {
             var error_msg = '';
-            if ($('#announcement_title').val() != '') error_msg += 'Inserisci un titolo per l\'annuncio\n';
-            if ($('#announcement_desc').val() != '') error_msg += 'Inserisci una descrizione per l\'annuncio\n';
+            if ($('#announcement_title').val() != '') error_msg += 'Inserisci un titolo per l\'avviso\n';
+            if ($('#announcement_desc').val() != '') error_msg += 'Inserisci una descrizione per l\'avviso\n';
             if (startDate.getTime() < yesterday.getTime() || endDate.getTime() < startDate.getTime()) error_msg += 'Periodo inserito non valido\n';
             alert(error_msg);
         }
@@ -517,7 +520,7 @@ $(function () {
 
     function fillAnnouncementSelectList() {
         $('#announcement_select').empty();
-        $('#announcement_select').append('<option value="" disabled selected>Seleziona annuncio</option>');
+        $('#announcement_select').append('<option value="" disabled selected>Seleziona avviso</option>');
         var startDate = $("#datetimepicker7").datetimepicker('getValue');
         var endDate = $("#datetimepicker8").datetimepicker('getValue');
         var today = new Date();
@@ -547,7 +550,7 @@ $(function () {
             firebase.database().ref('announcement/'+ announcement_key).remove();
             announcement_done();
         } else {
-            alert('Seleziona un annuncio da eliminare.');
+            alert('Seleziona un avviso da eliminare.');
         }
     }
 
@@ -574,7 +577,7 @@ $(function () {
             Get database reference and the user reference from firebase
         */
         const USER = firebase.auth().currentUser;
-        const dbRef = firebase.database().ref('user/');
+        const dbRef = firebase.database().ref('user/').orderByChild('name');
         
         /*
             For each user added to the istitute, retrives the name, the confirmation value
@@ -674,7 +677,7 @@ $(function () {
     */
     function loadClassroomList() {
         $("#admin_classroom_table_body").empty();
-        const dbRef = firebase.database().ref('classroom/');
+        const dbRef = firebase.database().ref('classroom/').orderByChild("classroom_name");
         dbRef.once('value', snap => {
             snap.forEach(childSnap => {
                 var key =  childSnap.key;
@@ -749,7 +752,6 @@ $(function () {
                 var numberOfStudents;
                 
                 childSnap.forEach(gcSnap => {
-                    
                     if (gcSnap.key == "number_of_students") {
                         numberOfStudents = gcSnap.val();
                     }
