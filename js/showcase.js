@@ -69,6 +69,7 @@ var Showcase = {
             this.clearShowcase();
             var selected_croom = [];
             var croom_w_prenotation = [];
+            var other_croom = [];
             var bacheca_croom = [];
 
             var promises = [];
@@ -91,8 +92,19 @@ var Showcase = {
                 });
             });
 
+            var myProm_03 = firebase.database().ref('classroom/').once('value', snap => {
+                snap.forEach(childSnap => {
+                    if (!childSnap.val().isFavourite) {
+                        if (!selected_croom.includes(childSnap.key) && !other_croom.includes(childSnap.key)) {
+                            other_croom.push(childSnap.key);
+                        }
+                    }
+                });
+            });
+
             promises.push(myProm_01);
             promises.push(myProm_02);
+            promises.push(myProm_03);
 
             Promise.all(promises).then(() => {
                 //first add classrooms selected which have prenotations
@@ -115,10 +127,16 @@ var Showcase = {
                         bacheca_croom.push(selected_croom[i]);
                     }
                 }
+
+                for (i in other_croom) {
+                    if (!bacheca_croom.includes(other_croom[i])) {
+                        bacheca_croom.push(other_croom[i]);
+                    }
+                }
                 
                 for (i in bacheca_croom) {
                     var idx = parseInt(i) + 1;
-                    this.fillShowcase(croom_w_prenotation ,bacheca_croom[i], idx);
+                    this.fillShowcase(croom_w_prenotation, bacheca_croom[i], idx);
                 }
             });
         });
