@@ -81,7 +81,7 @@
                     <h1 class="h3 mb-3 font-weight-normal">Amministrazione</h1>
                     <br/>
                     
-                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazioni Avanzate</button>
+                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Operazioni Avanzate</button>
                     <button id="announcement_btn" class="btn long-btn btn-primary btn-lg" type="button">Avvisi</button>          
                     <button id="access_code_btn" class="btn long-btn btn-primary btn-lg" type="button">Codici Accesso</button>
                     <button id="roles_and_permission_btn" class="btn long-btn btn-primary btn-lg" type="button">Ruoli e permessi</button>
@@ -159,11 +159,10 @@
                 <div class="col-sm-4 col-md-4">
                         <h1 class="h3 mb-3 font-weight-normal">Ruoli e permessi</h1>
                         <br/>
-                        <table id="user_table" class="table table-fixed four-columns-table table-sm">
+                        <table id="user_table" class="table table-fixed three-columns-table table-sm">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
-                                    <th>Ospite</th>
                                     <th>Utente</th>
                                     <th>Admin</th>
                                 </tr>
@@ -676,45 +675,6 @@
                                 <td id=cll_21_8></td>
                                 <td id=cll_21_9></td>
                             </tr>
-                            <tr id="bt_hid_22" value="22">
-                                <th>22:00</th>
-                                <td id=cll_22_0></td>
-                                <td id=cll_22_1></td>
-                                <td id=cll_22_2></td>
-                                <td id=cll_22_3></td>
-                                <td id=cll_22_4></td>
-                                <td id=cll_22_5></td>
-                                <td id=cll_22_6></td>
-                                <td id=cll_22_7></td>
-                                <td id=cll_22_8></td>
-                                <td id=cll_22_9></td>
-                            </tr>
-                            <tr id="bt_hid_23" value="23">
-                                <th>23:00</th>
-                                <td id=cll_23_0></td>
-                                <td id=cll_23_1></td>
-                                <td id=cll_23_2></td>
-                                <td id=cll_23_3></td>
-                                <td id=cll_23_4></td>
-                                <td id=cll_23_5></td>
-                                <td id=cll_23_6></td>
-                                <td id=cll_23_7></td>
-                                <td id=cll_23_8></td>
-                                <td id=cll_23_9></td>
-                            </tr>
-                            <tr id="bt_hid_24" value="24">
-                                <th>24:00</th>
-                                <td id=cll_24_0></td>
-                                <td id=cll_24_1></td>
-                                <td id=cll_24_2></td>
-                                <td id=cll_24_3></td>
-                                <td id=cll_24_4></td>
-                                <td id=cll_24_5></td>
-                                <td id=cll_24_6></td>
-                                <td id=cll_24_7></td>
-                                <td id=cll_24_8></td>
-                                <td id=cll_24_9></td>
-                            </tr>
                         </tbody>
                     </table>
                     <div id="showcase" class="jumbotron">
@@ -743,7 +703,7 @@
             var date = new Date();
             var SPECIAL_HOURS = { 8 : "8:25", 9 : "9:15", 10 : "10:15", 11 : "11:05", 12 : "11:55", 13 : "12:55" , 
             14 : "14:00", 15 : "15:00", 16 : "16:00", 17 : "17:00", 18 : "18:00", 19 : "19:00", 20 : "20:00",
-            21 : "21:00", 22 : "22:00", 23 : "23:00", 24 : "24:00"}
+            21 : "21:00"}
 
             function showPage(page) {
                 if (CURRENT_PAGE != null) {
@@ -755,6 +715,9 @@
         </script>
 
         <script type="text/javascript" src="js/firebaseConfig.js"></script>
+        <script type="text/javascript" src="js/showcase.js"></script>
+        <script type="text/javascript" src="js/advancedOperations.js"></script>
+        <script type="text/javascript" src="js/announcement.js"></script>
         <script type="text/javascript" src="js/securityCodeUtility.js"></script>
         <script type="text/javascript" src="js/login.js"></script>
         <script type="text/javascript" src="js/admin.js"></script>

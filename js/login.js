@@ -154,23 +154,17 @@ $(function () {
     const USER = firebase.auth().currentUser;
     if (USER) {
       firebase.database().ref('user/' + USER.uid).once('value', snap => {
-        if (snap.val().priviledges == "3") {
+        if (snap.val().priviledges == "1") {
           showPage($("#institute_page"));
           $("#admin_btn").show();
           $("#croom_prenotation_btn").show();
           $("#events_btn").show();
           $("#search_class_btn").show();
-        } else if (snap.val().priviledges == "2") {
+        } else if (snap.val().priviledges == "0") {
           $("#admin_btn").hide();
           $("#croom_prenotation_btn").show();
           $("#events_btn").show();
           $("#search_class_btn").show();
-          showPage($("#institute_page"));
-        } else if (snap.val().priviledges == "1") {
-          $("#admin_btn").hide();
-          $("#croom_prenotation_btn").hide();
-          $("#search_class_btn").hide();
-          $("#events_btn").hide();
           showPage($("#institute_page"));
         }
       });
@@ -182,7 +176,7 @@ $(function () {
   function logAsGuest() {
     $("#admin_btn").hide();
     $("#croom_prenotation_btn").hide();
-    $("#search_class_btn").hide();
+    $("#search_class_btn").show();
     $("#events_btn").hide();
     showPage($("#institute_page"));
   }
