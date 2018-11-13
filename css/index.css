@@ -82,6 +82,15 @@ input {
     background-color: lightblue !important;
 }
 
+.event_list :first-child {
+    float: left;
+    height: 100%;
+    width: 75%;
+}
+.event_list :last-child{
+    float: right;
+}
+
 /*DATEPICKER & FORM*/
 
 .datepicker {

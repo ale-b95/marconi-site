@@ -8,6 +8,7 @@ var EventsManagement = {
     classroom_id : '',
     cs_selected_rows : 0,
     selected_hours : [],
+    selected_event : null,
 
     loadEventList : function () {
         $('#event_list').empty();
@@ -38,105 +39,118 @@ var EventsManagement = {
                 var description = childSnap.val().description;
 
                 this.selected_event_key = event_key;
+                var USER = firebase.auth().currentUser;
+                if (USER) {
+                    firebase.database().ref('user/' + USER.uid).once('value', snap => {
+                        if (snap.val().priviledges == "1" || USER.uid == teacher_key) {
+                            $('#event_list').append('<div class="list-group-item event_list"><div id="ed_'
+                            + event_key +'">'
+                            + title + ' - ' 
+                            + event_date.getDate() + '/' 
+                            + (event_date.getMonth() + 1) + '/' 
+                            + event_date.getFullYear() +'</div><button id="del_btn_'+ event_key +'" value="'+ event_key +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
 
-                $('#event_list').append('<button type="button" id="ed_'
-                + event_key +'" class="list-group-item">'
-                + title + ' - ' 
-                + event_date.getDate() + '/' 
-                + (event_date.getMonth() + 1) + '/' 
-                + event_date.getFullYear() +'</button>');
-                    /*
-                    Attach a listener for each event listed to retrive the informations about the event,
-                    add a class to partecipate or (if the user created the event or has admin privileges)
-                    remove the event.
-                    */
-                $("#ed_"+event_key+"").click(function(event) {
-                    $("#delete_event").off();
-                    $("#save_event").off();
-                    
-                    var id = event.target.id;
-                    var current_key = id.substring(id.indexOf("_") + 1);
-                    var current_date = event_date;
-                    
-                    $('#event_list').empty();
-                    $("#ed_title").text('- ' + title);
-                    $("#ed_date").text('- '
-                    + current_date.getDate() + '/' 
-                    + (current_date.getMonth() + 1 )+ '/' 
-                    + current_date.getFullYear());
-
-                    EventsManagement.printClasses(event_key);
-                    
-                    $("#ed_starting_hour").text('- '+ SPECIAL_HOURS[hour]);
-                    $("#ed_organizer").text('- '+ teacher);
-                    $("#ed_classroom").text('- '+ classroom);
-                    $('#desc_title').empty();
-                    $('#desc_text').empty();
-                    $('#desc_title').append(title);
-                    $('#desc_text').append(description);
-
-                    var user = firebase.auth().currentUser;
-
-                    firebase.database().ref('user/'+user.uid).once('value', snap => {
-                        var level = snap.val().priviledges + '';
-                        if (level == 3 || user.uid == teacher_key) {
-
-                            $("#safe_delete_event_btn").show();
-                            $("#save_event").hide();
-                            $("#event_class").show();
-                            
-                            $("#delete_event").on('click', () => {
-                                if (classroom_name != "Esterno") {
-                                    EventsManagement.deleteEvent(current_key, classroom_key);
-                                } else {
-                                    EventsManagement.deleteEvent(current_key);
-                                }
-
-                                $("#safe_delete_event_btn").text('Elimina evento');
-                                $("#delete_event").slideUp();
+                            $('.del_btn_event').click(function() {
+                                selected_event = $(this).val();
+                                $('#delete_event_modal_body').empty();
+                                $('#delete_event_modal_body').append(selected_event);
+                                $('#deleteEventModal').modal();
                             });
+                            /*
+                            Attach a listener for each event listed to retrive the informations about the event,
+                            add a class to partecipate or (if the user created the event or has admin privileges)
+                            remove the event.
+                            */
+                            $("#ed_"+event_key+"").click(function(event) {
+                                $("#delete_event").off();
+                                $("#save_event").off();
+                                
+                                var id = event.target.id;
+                                var current_key = id.substring(id.indexOf("_") + 1);
+                                var current_date = event_date;
+                                
+                                $('#event_list').empty();
+                                $("#ed_title").text('- ' + title);
+                                $("#ed_date").text('- '
+                                + current_date.getDate() + '/' 
+                                + (current_date.getMonth() + 1 )+ '/' 
+                                + current_date.getFullYear());
 
-                            $('#save_event').on('click', () => {
-                                var class_name = $("#event_class").find(':selected').text();
-                                if ($('#save_event').text() == 'Rimuovi classe') {
-                                    EventsManagement.cancelPartecipation(class_name, event_key);
-                                    EventsManagement.printClasses(event_key);
-                                    $('#save_event').text('Aggiungi classe');
-                                } else {
-                                    EventsManagement.participateEvent(class_name, current_key, event_date, title);
-                                    EventsManagement.printClasses(event_key);
-                                    $('#save_event').text('Rimuovi classe');
-                                }
-                            });
+                                EventsManagement.printClasses(event_key);
+                                
+                                $("#ed_starting_hour").text('- '+ SPECIAL_HOURS[hour]);
+                                $("#ed_organizer").text('- '+ teacher);
+                                $("#ed_classroom").text('- '+ classroom);
+                                $('#desc_title').empty();
+                                $('#desc_text').empty();
+                                $('#desc_title').append(title);
+                                $('#desc_text').append(description);
 
-                            $("#event_class").on('change', () => {
-                                var class_name = $("#event_class").find(':selected').text();
-                                if (class_name != 'Seleziona classe' && event_key != '') {
-                                    var event_classes = [];
-                                    firebase.database().ref('event/'+ event_key +'/class/').once('value', snap => {
-                                        snap.forEach(childSnap => {
-                                            event_classes.push(childSnap.key);
+                                var user = firebase.auth().currentUser;
+
+                                firebase.database().ref('user/'+user.uid).once('value', snap => {
+                                    var level = snap.val().priviledges + '';
+                                    if (level == 1 || user.uid == teacher_key) {
+
+                                        $("#safe_delete_event_btn").show();
+                                        $("#save_event").hide();
+                                        $("#event_class").show();
+                                        
+                                        $("#delete_event").on('click', () => {
+                                            if (classroom_name != "Esterno") {
+                                                EventsManagement.deleteEvent(current_key, classroom_key);
+                                            } else {
+                                                EventsManagement.deleteEvent(current_key);
+                                            }
+
+                                            $("#safe_delete_event_btn").text('Elimina evento');
+                                            $("#delete_event").slideUp();
                                         });
-                                    }).then(() => {
-                                        if (event_classes.includes(class_name)) {
-                                            $('#save_event').text('Rimuovi classe');
-                                        } else {
-                                            $('#save_event').text('Aggiungi classe');
-                                        }
-                                    });
-                                    $("#save_event").slideDown();
-                                } else {
-                                    $("#save_event").slideUp();
-                                }
+
+                                        $('#save_event').on('click', () => {
+                                            var class_name = $("#event_class").find(':selected').text();
+                                            if ($('#save_event').text() == 'Rimuovi classe') {
+                                                EventsManagement.cancelPartecipation(class_name, event_key);
+                                                EventsManagement.printClasses(event_key);
+                                                $('#save_event').text('Aggiungi classe');
+                                            } else {
+                                                EventsManagement.participateEvent(class_name, current_key, event_date, title);
+                                                EventsManagement.printClasses(event_key);
+                                                $('#save_event').text('Rimuovi classe');
+                                            }
+                                        });
+
+                                        $("#event_class").on('change', () => {
+                                            var class_name = $("#event_class").find(':selected').text();
+                                            if (class_name != 'Seleziona classe' && event_key != '') {
+                                                var event_classes = [];
+                                                firebase.database().ref('event/'+ event_key +'/class/').once('value', snap => {
+                                                    snap.forEach(childSnap => {
+                                                        event_classes.push(childSnap.key);
+                                                    });
+                                                }).then(() => {
+                                                    if (event_classes.includes(class_name)) {
+                                                        $('#save_event').text('Rimuovi classe');
+                                                    } else {
+                                                        $('#save_event').text('Aggiungi classe');
+                                                    }
+                                                });
+                                                $("#save_event").slideDown();
+                                            } else {
+                                                $("#save_event").slideUp();
+                                            }
+                                        });
+                                    } else {
+                                        $("#event_class").hide();
+                                    }
+                                });
+
+                                $('#main_events_page').hide();
+                                $('#event_details').show();
                             });
-                        } else {
-                            $("#event_class").hide();
                         }
                     });
-
-                    $('#main_events_page').hide();
-                    $('#event_details').show();
-                });
+                }
             });
         });
     },
@@ -463,4 +477,6 @@ $(function () {
     $('#modal_link_event_desk').on('click', () => {
         $('#exampleModalLong').modal();
     });
+
+    
 });

@@ -92,7 +92,7 @@ $(function () {
                     name: txtName.value,
                     surname: txtSurname.value,
                     email: USER.email,
-                    priviledges: "2",
+                    priviledges: "0",
                     code : txtCode
                   }).catch(ops => console.log('ERROR '+ops.message));
                 goUserPage();
