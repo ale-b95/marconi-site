@@ -66,6 +66,7 @@ var EventsManagement = {
                                 var id = event.target.id;
                                 var current_key = id.substring(id.indexOf("_") + 1);
                                 var current_date = event_date;
+                                selected_event = event_key;
                                 
                                 $('#event_list').empty();
                                 $("#ed_title").text('- ' + title);
@@ -81,11 +82,15 @@ var EventsManagement = {
                                 $("#ed_classroom").text('- '+ classroom);
                                 $('#desc_title').empty();
                                 $('#desc_text').empty();
-                                $('#desc_title').append(title);
-                                $('#desc_text').append(description);
+                                $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+title+'"></div>');
+                                $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+description+'</textarea></div>');
 
+                                $('#mod_event_desk').on('click', () => {
+                                    EventsManagement.modifyEvent(selected_event, $('#event_title_text').val(), $('#event_desc_txt_area').val());
+                                    $("#ed_title").text('- ' + $('#event_title_text').val());
+                                });
+                                
                                 var user = firebase.auth().currentUser;
-
                                 firebase.database().ref('user/'+user.uid).once('value', snap => {
                                     var level = snap.val().priviledges + '';
                                     if (level == 1 || user.uid == teacher_key) {
@@ -146,6 +151,13 @@ var EventsManagement = {
                     });
                 }
             });
+        });
+    },
+
+    modifyEvent(event_key, titletext, desctext) {
+        firebase.database().ref('event/'+event_key).update({
+            title : titletext,
+            description : desctext
         });
     },
 

@@ -422,8 +422,6 @@
                                     <dd id="ed_organizer">-</dd>
                                 <dt>Luogo</dt>
                                     <dd id="ed_classroom">-</dd>
-                                <dt>Descrizione</dt>
-                                    <dd>- <a id="modal_link_event_desk" class="link">Mostra descrizione</a></dd>
                                 <dt>Classi partecipanti:</dt>
                                     <dd><div id="event_classes"></div></dd>
                             </dl>
@@ -433,14 +431,17 @@
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="desc_title"></h5>
+                                        <h5 class="modal-title">Modifica evento</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <div class="modal-body" id="desc_text">
+                                    <div class="modal-body">
+                                            <div id="desc_title"></div>
+                                            <div id="desc_text"></div>
                                     </div>
                                     <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mod_event_desk">Applica modifiche</button>
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                     </div>
                                 </div>
@@ -452,8 +453,9 @@
                         </select>  
                         
                         <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
-
                         <br/>
+
+                        <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica evento</button>
 
                         <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
 
