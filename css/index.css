@@ -85,7 +85,9 @@ input {
 .event_list :first-child {
     float: left;
     height: 100%;
-    width: 75%;
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .event_list :last-child{
     float: right;

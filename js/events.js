@@ -52,8 +52,6 @@ var EventsManagement = {
 
                             $('.del_btn_event').click(function() {
                                 selected_event = $(this).val();
-                                $('#delete_event_modal_body').empty();
-                                $('#delete_event_modal_body').append(selected_event);
                                 $('#deleteEventModal').modal();
                             });
                             /*
@@ -91,20 +89,16 @@ var EventsManagement = {
                                 firebase.database().ref('user/'+user.uid).once('value', snap => {
                                     var level = snap.val().priviledges + '';
                                     if (level == 1 || user.uid == teacher_key) {
-
                                         $("#safe_delete_event_btn").show();
                                         $("#save_event").hide();
                                         $("#event_class").show();
                                         
                                         $("#delete_event").on('click', () => {
-                                            if (classroom_name != "Esterno") {
-                                                EventsManagement.deleteEvent(current_key, classroom_key);
-                                            } else {
-                                                EventsManagement.deleteEvent(current_key);
-                                            }
-
+                                            EventsManagement.deleteEvent(current_key, classroom_key);
                                             $("#safe_delete_event_btn").text('Elimina evento');
                                             $("#delete_event").slideUp();
+                                            $('#event_details').hide();
+                                            $('#main_events_page').show();
                                         });
 
                                         $('#save_event').on('click', () => {
@@ -206,6 +200,7 @@ var EventsManagement = {
             snap.forEach(childSnap => {
                 firebase.database().ref().child('class/'+ childSnap.key+'/event/'+event_key).remove();
             });
+            
         }).then(() => {
             if (event_classroom_key != null) {
                 firebase.database().ref('event/'+ event_key +'/period/').once('value', snap => {
@@ -233,14 +228,10 @@ var EventsManagement = {
                     var event_ref = firebase.database().ref().child('event/');
                     event_ref.child(event_key).remove();
                 }).then(() => {
-                    $('#event_details').hide();
-                    $('#main_events_page').show();
                     EventsManagement.loadEventList();
                 });
             }
         });
-
-        
     },
 
     loadClassroomSchedule : function () {
@@ -414,6 +405,13 @@ $(function () {
         $("#event_class").hide();
         $('#warning_event_creation').hide();
         EventsManagement.loadEventList();
+    });
+
+    $('#quick_delet_event_btn').on('click', () => {
+        firebase.database().ref('event/'+ selected_event).once('value', snap => {
+            var classroom_key = snap.val().classroom_key;
+            EventsManagement.deleteEvent(selected_event, classroom_key);
+        });
     });
     
     /************************ new event ************************/
