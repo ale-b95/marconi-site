@@ -116,3 +116,11 @@ input {
     text-align: left;
     margin-left: 10%;
 }
+
+.dropdown .mutliSelect {
+    width: 80%;
+    margin-left: 10%;
+    text-align: left;
+    max-height: 150px;
+    overflow-y: auto;
+}

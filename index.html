@@ -386,6 +386,8 @@
 
                         <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
                         
+                        <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
+                        
                         <input id="event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         
                         <textarea class="form-control" id="e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
@@ -393,12 +395,36 @@
                         <select id="select_event_classroom" class="form-control" autocomplete="off">
                         </select>
                         
-                        <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
+                        
 
                         <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
+
+                        <dl class="dropdown"> 
+                            <dt>
+                            <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
+                            </dt>
+                            <dd>
+                                <div class="mutliSelect">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <input type="checkbox" value="Apple"/> Apple</li>
+                                        <li class="list-group-item">
+                                            <input type="checkbox" value="Blackberry"/> Blackberry</li>
+                                        <li class="list-group-item">
+                                            <input type="checkbox" value="HTC"/> HTC</li>
+                                        <li class="list-group-item">
+                                            <input type="checkbox" value="Sony Ericson"/> Sony Ericson</li>
+                                        <li class="list-group-item">
+                                            <input type="checkbox" value="Motorola"/> Motorola</li>
+                                        <li class="list-group-item">
+                                            <input type="checkbox" value="Nokia"/> Nokia</li>
+                                    </ul>
+                                </div>
+                            </dd>
+                        </dl>
 
                         <div class="alert alert-warning my_alert collapse" id="warning_event_creation" role="alert">
                         </div>
@@ -745,6 +771,7 @@
         <script type="text/javascript" src="js/events.js"></script>
         <script type="text/javascript" src="js/prenotations.js"></script>
         <script type="text/javascript" src="js/institute_page.js"></script>
+        <script type="text/javascript" src="js/dropdown.js"></script>
 
         <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
         
