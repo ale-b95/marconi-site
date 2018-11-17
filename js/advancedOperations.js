@@ -2,12 +2,16 @@ var AdvancedOperations = {
     proto_week_selection : null,
     user_name : null,
     user_key : null,
+    selected_class : [],
+    newEventClassSelection : new CheckboxClassSelectDropdown("adv_new_event_dropdown"),
 
     init : function () {
+        
         this.proto_week_selection = {
             selected_rows : 0,
             selected_hours : [[],[],[],[],[],[],[]]
         };
+        
         DataFormFillUtility.createDayScheduleTable('advanced_schedule_table_body', this.proto_week_selection);
         $('#adv_prenotation_btn').on('click', () => {
             this.setupAdvancedOperations();
@@ -54,6 +58,7 @@ var AdvancedOperations = {
         $('#select_adv_prenotation').on('change', () => {
             $('#proto_week_selection').slideDown();
             $('#adv_datepicker').slideDown();
+            AdvancedOperations.selected_class = [];
     
             if ($('#select_adv_prenotation').val() == 0) {
                 $('#advanced_croom_prenotation').slideDown();
@@ -61,6 +66,7 @@ var AdvancedOperations = {
             } else {
                 $('#advanced_event_creation').slideDown();
                 $('#advanced_croom_prenotation').slideUp();
+                AdvancedOperations.newEventClassSelection.loadClasses(null);
             }
         });
     
@@ -296,6 +302,7 @@ var AdvancedOperations = {
     },
 
     createEvent : function(t_key, t_name, title, croom_name, croom_key, description, date) {
+        
         var r_date = date.getDate() + '-' + (date.getMonth()+1) + '-' + date.getFullYear();
         var event = firebase.database().ref().child('event/').push({
             title : title,
@@ -308,6 +315,7 @@ var AdvancedOperations = {
             readable_date : r_date
         });
 
+        AdvancedOperations.newEventClassSelection.applySelection(event.key, AdvancedOperations.selected_class);
         return event.key;
     },
 

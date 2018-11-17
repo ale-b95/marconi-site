@@ -263,6 +263,13 @@
                     <div id="advanced_event_creation" class="collapse">
                         <input id="adv_event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <textarea class="form-control" id="adv_e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
+                        <div class="dropdown" id="adv_new_event_dropdown"> 
+                            <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
+                            <div class="multiSelect">
+                                <ul class="list-group list-group-flush">
+                                </ul>
+                            </div>
+                        </div>
                         <select id="adv_event_croom_select" class="form-control" autocomplete="off">
                         </select>
                     </div>
@@ -282,8 +289,9 @@
                             <table id="advanced_schedule_table" class="collapse table two-columns-table table-fixed table-sm"> 
                                 <tbody id="advanced_schedule_table_body">
                                 </tbody>
-                            </table>                            
+                            </table>
                     </div>
+                    
                     <button id="adv_prenotation_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenota</button>
                     <button id="adv_prenotation_back_btn" class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
                 </div>
@@ -426,9 +434,15 @@
                                     <dd id="ed_organizer">-</dd>
                                 <dt>Luogo</dt>
                                     <dd id="ed_classroom">-</dd>
-                                <dt>Classi partecipanti:</dt>
-                                    <dd><div id="event_classes"></div></dd>
                             </dl>
+                        </div>
+
+                        <div class="dropdown" id="event_dettails_dropdown"> 
+                            <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
+                            <div class="multiSelect">
+                                <ul class="list-group list-group-flush">
+                                </ul>
+                            </div>
                         </div>
 
                         <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
@@ -714,7 +728,6 @@
         <!-- SCRIPT --> 
         <div>
         <script type='text/javascript' >
-            /*import CheckboxSelectDropdown from './showcase.js';*/
             var CURRENT_PAGE = null;
             var INTERVAL = null;
 
