@@ -4,9 +4,6 @@ var Admin = {
         $('#adv_event_title').val('');
         $('#adv_e_desc').val('');
         $('#classroom_name').val('');
-        $('#classroom_capacity').val('');
-        //$('#classclass_nameroom_capacity').val(''); //?????????????
-        $('#n_of_students').val('');
         $('#class_name').val('');
         $('#show_code').text('CODICE');
         $('#adv_event_croom_select').get(0).selectedIndex = 0;
@@ -189,31 +186,31 @@ $(function () {
         /*
             Gets values from the forms
         */
-        const classroomName = $("#classroom_name")[0];
-        const classroomCapacity = $("#classroom_capacity")[0];
-        
-        /*
-            Get the reference from the database
-        */
-        const dbRef = firebase.database().ref();
-        
-        /*
-            Check the retrived values
-        */
-        if (classroomName.value != '' && classroomCapacity.value != '') {
-            
-            /*
-                Create the new classroom based on the values from the forms
-            */
-            dbRef.child('classroom').push({
-                classroom_name : classroomName.value,
-                classroom_capacity : classroomCapacity.value
-            }).catch(error => console.log('user not updated ' + error.message)).then(() =>{
-                $("#classroom_name").val("");
-                $("#classroom_capacity").val("");
-                loadClassroomList();
-            });
-        }
+        const classroomName = $("#classroom_name")[0].value;
+
+        firebase.database().ref('classroom/').orderByChild("name").equalTo(classroomName).once('value', snap => {
+            if (snap.exists()){ 
+                return exists = true;
+            } else {
+                return exists = false;
+            }
+        }).then(() => {
+            if (!exists) {
+                if (classroomName != '') {
+                    /*
+                        Create the new classroom based on the values from the forms
+                    */
+                    firebase.database().ref('classroom/').push({
+                        name : classroomName,
+                    }).then(() =>{
+                        $("#classroom_name").val("");
+                        loadClassroomList();
+                    });
+                }
+            } else {
+                alert('Nome aula già presente');
+            }
+        });        
     }
 
     /*
@@ -224,10 +221,10 @@ $(function () {
         const dbRef = firebase.database().ref('classroom/').orderByChild("classroom_name");
         dbRef.once('value', snap => {
             snap.forEach(childSnap => {
-                var key =  childSnap.key;
+                var key = childSnap.key;
                 var name;
                 
-                name = childSnap.val().classroom_name;
+                name = childSnap.val().name;
                 isFavourite = childSnap.val().isFavourite;
 
                 var my_btn = '<tr><td>'+name+'</td>'+'<td><input class="favourite_croom" id="croom_'+key+'" type="checkbox" value="'+key+'""></td>'+
@@ -254,7 +251,7 @@ $(function () {
 
                 $("#"+key).on('click', () => {
                     $("#admin_classroom_table_body").empty();
-                    dbRef.child(key).remove();
+                    firebase.database().ref('classroom/'+key).remove();
                     loadClassroomList();
                 });
             });
@@ -266,20 +263,27 @@ $(function () {
     */
     function addClassToDb() {
         var className = $("#class_name")[0].value;
-        var nOfStudents = $("#n_of_students")[0].value;
-        
-        if (className && className != '' && nOfStudents) {
-            
-            firebase.database().ref('class/'+className).set({
-                number_of_students : nOfStudents
-            }).catch(error => console.log(error.message)).then(() =>{
-                $("#class_name").val("");
-                $("#n_of_students").val("");
-                loadClassList();
-            });
-        } else {
-            console.log('wrong form compilation');
-        }
+
+        firebase.database().ref('class/').orderByChild("name").equalTo(className).once('value', snap => {
+            if (snap.exists()){ 
+                return exists = true;
+            } else {
+                return exists = false;
+            }
+        }).then(() => {
+            if (!exists) {
+                if (className && className != '') {
+                    firebase.database().ref('class/').push({
+                        name : className
+                    }).then(() =>{
+                        $("#class_name").val("");
+                        loadClassList();
+                    });
+                }
+            } else {
+                alert('Nome classe già presente');
+            }
+        });
     }
 
     /*
@@ -287,29 +291,22 @@ $(function () {
     */
     function loadClassList() {
         $("#admin_classes_table_body").empty();
-        const dbRef = firebase.database().ref('class/');
+        const dbRef = firebase.database().ref('class/').orderByChild('name');
         
         dbRef.once('value', snap => {
-            
             snap.forEach(childSnap => {
-                var className = childSnap.key;
-                var numberOfStudents;
-                
-                childSnap.forEach(gcSnap => {
-                    if (gcSnap.key == "number_of_students") {
-                        numberOfStudents = gcSnap.val();
-                    }
-                });
+                var classKey = childSnap.key;
+                var className = childSnap.val().name;
                 
                 /*
                     For each row created add a buttom to remove the lass from the database
                 */
-                var tableRow = '<tr><td>'+className+'</td><td>'+numberOfStudents+'</td>'+'<td><button id="'+ className +'" class="btn btn-primary btn-sm" type="button">X</button></td></tr>';
+                var tableRow = '<tr><td>'+className+'</td><td><button id="'+ classKey +'" class="btn btn-primary btn-sm" type="button">X</button></td></tr>';
                 $("#admin_classes_table_body").append(tableRow);
                 
-                $("#"+className).on('click', () => {
+                $("#"+classKey).on('click', () => {
                     $("#admin_class_table_body").empty();
-                    dbRef.child(className).remove();
+                    firebase.database().ref('class/'+classKey).remove();
                     loadClassList();
                 });
             })

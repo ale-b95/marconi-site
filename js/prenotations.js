@@ -1,5 +1,5 @@
 $(function () {
-    var class_name;
+    var class_key;
     var prn_date;
 
     jQuery('#datetimepicker2').datetimepicker({
@@ -12,13 +12,13 @@ $(function () {
         $("#class_pren_body").empty();
         prn_date = $("#datetimepicker2").datetimepicker('getValue');
         if (classroom_name != 'Seleziona aula') {
-            class_name = $("#select_class_pren").find(':selected').text();
+            class_key = $("#select_class_pren").find(':selected').val();
 
             var occupied_h = [];
             var occupied_cls = [];
     
             firebase.database().ref('class/'
-            + class_name
+            + class_key
             + '/prenotation/'
             + prn_date.getDate() + "-"
             + (prn_date.getMonth() + 1) + '-'
@@ -44,19 +44,6 @@ $(function () {
                     '<th>'+SPECIAL_HOURS[hour]+'</th><td>'+ class_info +'</td>'+
                     '</tr>');
                 }
-            });
-
-            firebase.database().ref('class/' + class_name +'/event/').once('value', snap => {
-                $("#prenotations_list").empty();
-                var today_date = prn_date.getDate() + "-" + (prn_date.getMonth() + 1) + '-'+ prn_date.getFullYear();
-                snap.forEach(childSnap => {
-                    if (childSnap.val().date == today_date) {
-                        var event_title = childSnap.val().title;
-                        var event_description = childSnap.val().description;
-                        $("#prenotations_list").append('<li class="list-group-item">La classe partecipa all\'evento: ' + 
-                        event_title+ '</li>');
-                    }
-                });
             });
         }
     });

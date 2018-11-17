@@ -1,5 +1,3 @@
-
-
 var Announcement = {
     init : function () {
         jQuery('#datetimepicker7').datetimepicker({

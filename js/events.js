@@ -1,14 +1,12 @@
-/*const MonthsEnum = {GENNAIO : 1, FEBBRAIO : 2, MARZO : 3, APRILE : 4, MAGGIO : 5, GIUGNO : 6, LUGLIO : 7, AGOSTO : 8, SETTEMBRE : 9, OTTOBRE : 10, NOVEMBRE : 11, DICEMBRE : 12, properties : {
-    1 : {name: 'Gennaio'}, 2 : {name: 'Febbraio'}, 3 : {name: 'Marzo'}, 4 : {name: 'Aprile'}, 5 : {name: 'Maggio'}, 6 : {name: 'Giugno'}, 7 : {name: 'Luglio'}, 8 : {name: 'Agosto'}, 9 : {name: 'Settembre'},  10 : {name: 'Ottobre'}, 11 : {name: 'Novembre'}, 12 : {name: 'Dicembre'}
-}};*/
-
 var EventsManagement = {
     ne_date : '',
     classroom_name : '',
     classroom_id : '',
     cs_selected_rows : 0,
     selected_hours : [],
+    selected_class : [],
     selected_event : null,
+    classSelection : new CheckboxClassSelectDropdown("new_event_dropdown"),
 
     loadEventList : function () {
         $('#event_list').empty();
@@ -96,8 +94,6 @@ var EventsManagement = {
                                     if (level == 1 || user.uid == teacher_key) {
                                         $("#safe_delete_event_btn").show();
                                         $("#save_event").hide();
-                                        $("#event_class").show();
-                                        
                                         $("#delete_event").on('click', () => {
                                             EventsManagement.deleteEvent(current_key, classroom_key);
                                             $("#safe_delete_event_btn").text('Elimina evento');
@@ -105,42 +101,6 @@ var EventsManagement = {
                                             $('#event_details').hide();
                                             $('#main_events_page').show();
                                         });
-
-                                        $('#save_event').on('click', () => {
-                                            var class_name = $("#event_class").find(':selected').text();
-                                            if ($('#save_event').text() == 'Rimuovi classe') {
-                                                EventsManagement.cancelPartecipation(class_name, event_key);
-                                                EventsManagement.printClasses(event_key);
-                                                $('#save_event').text('Aggiungi classe');
-                                            } else {
-                                                EventsManagement.participateEvent(class_name, current_key, event_date, title);
-                                                EventsManagement.printClasses(event_key);
-                                                $('#save_event').text('Rimuovi classe');
-                                            }
-                                        });
-
-                                        $("#event_class").on('change', () => {
-                                            var class_name = $("#event_class").find(':selected').text();
-                                            if (class_name != 'Seleziona classe' && event_key != '') {
-                                                var event_classes = [];
-                                                firebase.database().ref('event/'+ event_key +'/class/').once('value', snap => {
-                                                    snap.forEach(childSnap => {
-                                                        event_classes.push(childSnap.key);
-                                                    });
-                                                }).then(() => {
-                                                    if (event_classes.includes(class_name)) {
-                                                        $('#save_event').text('Rimuovi classe');
-                                                    } else {
-                                                        $('#save_event').text('Aggiungi classe');
-                                                    }
-                                                });
-                                                $("#save_event").slideDown();
-                                            } else {
-                                                $("#save_event").slideUp();
-                                            }
-                                        });
-                                    } else {
-                                        $("#event_class").hide();
                                     }
                                 });
 
@@ -163,9 +123,9 @@ var EventsManagement = {
 
     printClasses : function (event_key) {
         var classes = [];
-        firebase.database().ref('event/' + event_key + '/class').once('value', snap => {
+        firebase.database().ref('event/' + event_key + '/class').orderByValue().once('value', snap => {
             snap.forEach(childSnap => {
-                classes.push(childSnap.key);
+                classes.push(childSnap.val());
             });
         }).then(() => {
             var str_classes = '';
@@ -181,30 +141,22 @@ var EventsManagement = {
         });
     },
 
-    participateEvent : function (class_name, event_key, event_date, event_title) {
-        if (class_name != 'Seleziona classe') {
-            var date = event_date.getDate() + '-' + (event_date.getMonth() + 1) + '-' + event_date.getFullYear();
-            firebase.database().ref().child('class/'+class_name+'/event/'+event_key).update({
-                date : date,
-                title : event_title
+    participateEvent : function (class_key, event_key, event_title) {
+        firebase.database().ref().child('class/'+class_key+'/event/'+event_key).update({
+            title : event_title
+        });
+        firebase.database().ref().child('class/'+class_key).once('value', snap => {
+            return class_name = snap.val().name;
+        }).then(() => {
+            firebase.database().ref().child('event/'+event_key+'/class').update({
+                class_key : class_name
             });
-
-            var number_of_students;
-            firebase.database().ref().child('class/'+class_name).once('value', snap => {
-               return number_of_students = snap.val().number_of_students;
-            }).then(() => {
-                firebase.database().ref().child('event/'+event_key+'/class').update({
-                    [class_name] : number_of_students
-                });
-            });
-        } else {
-            alert ('Seleziona una classe');
-        }
+        });
     },
 
-    cancelPartecipation : function (class_name, event_key)  {
-        firebase.database().ref('event/'+ event_key +'/class/'+class_name).remove();
-        firebase.database().ref('class/'+class_name+'/event/'+event_key).remove();
+    cancelPartecipation : function (class_key, event_key)  {
+        firebase.database().ref('event/'+ event_key +'/class/'+class_key).remove();
+        firebase.database().ref('class/'+class_key+'/event/'+event_key).remove();
     },
 
     deleteEvent : function (event_key, event_classroom_key) {
@@ -262,11 +214,10 @@ var EventsManagement = {
         
         var pRef = firebase.database().ref().child('/prenotation/'+year+'/'+month+'/'+day+'/'+EventsManagement.classroom_id+'/');
         pRef.once('value', snap => {
-            
             snap.forEach(childSnap => {
                 var hour = childSnap.key;
                 var teacher_name = childSnap.val().teacher;
-                var class_name = childSnap.val().class;
+                var class_name = childSnap.val().class_name;
                 var event_title = childSnap.val().event;
                 var teacher_id = childSnap.val().teacher_key;
                 var event_key = childSnap.val().event_key;
@@ -352,7 +303,7 @@ var EventsManagement = {
                 }
             }
 
-            
+            EventsManagement.classSelection.applySelection(event_prenotation.key, this.selected_class);
             
             EventsManagement.loadEventList();
             alert('Nuovo evento creato\nTitolo evento:  '
@@ -360,7 +311,7 @@ var EventsManagement = {
             + day + '/' 
             + month + '/' 
             + year + '\nAula:  ' 
-            + EventsManagement.selected_hours[0] + ':00');
+            + EventsManagement.classroom_name);
             
             EventsManagement.selected_hours = [];
             EventsManagement.cs_selected_rows = 0;
@@ -384,8 +335,24 @@ var EventsManagement = {
             }
             $('#warning_event_creation').slideDown();
         }
+    },
+
+    addElem : function (elem) {
+        if (!this.selected_class.includes(elem)) {
+            this.selected_class.push(elem);
+        }
+    },
+
+    removeElem : function  (elem) {
+        if (this.selected_class.includes(elem)) {
+            var index = this.selected_class.indexOf(elem);
+            if (index > -1) {
+                this.selected_class.splice(index, 1);
+            }
+        }
     }
 }
+
 
 $(function () {
     /************************ show events ************************/
@@ -427,6 +394,7 @@ $(function () {
     });
     
     /************************ new event ************************/
+    
     jQuery('#datetimepicker3').datetimepicker({
         minDate:'0',
         timepicker:false,
@@ -444,6 +412,7 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
+        EventsManagement.classSelection.loadClasses(null);
         $('#main_events_page').hide();
         $('#new_event_page').show();
         $('#event_title').text('');
@@ -490,3 +459,11 @@ $(function () {
 
     
 });
+
+function onClickHandler(cb) {
+    if (cb.checked) {
+        EventsManagement.addElem($(cb).val());
+    } else {
+        EventsManagement.removeElem($(cb).val());
+    }
+}

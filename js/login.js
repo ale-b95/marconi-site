@@ -1,7 +1,5 @@
 $(function () {
 
-  /*HOST - 1, USER - 2, ADMIN - 3 */
-
   $(".collapse").hide();
 
   $("#signup_link").on('click',() => {

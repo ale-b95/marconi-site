@@ -12,6 +12,7 @@ $(function () {
     var sc_date;
     var classroom_name = "Seleziona aula";
     var classroom_id;
+    var class_key;
     var class_name;
     
     /*
@@ -110,13 +111,14 @@ $(function () {
             for (var i = 0; i < selected_hours.length; i++) {
                 var hour = selected_hours[i];
                 firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+hour+'/').set({
-                class : class_name,
+                class_key : class_key,
+                class_name : class_name,
                 classroom : classroom_name,
                 teacher : user.displayName,
                 teacher_key : user.uid
                 });
 
-                firebase.database().ref('class/'+class_name+'/prenotation/'+sc_date.getDate()+"-"+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/').update({
+                firebase.database().ref('class/'+class_key+'/prenotation/'+sc_date.getDate()+"-"+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/').update({
                     [hour] : classroom_name
                 });
             }
@@ -139,14 +141,14 @@ $(function () {
             for (i in selected_hours) {
                 var hour = selected_hours[i];
                 var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', function(snap) {
-                    if (class_hour.hasOwnProperty(snap.val().class+"")) {
-                        var arr = class_hour[snap.val().class];
+                    if (class_hour.hasOwnProperty(snap.val().class_key+"")) {
+                        var arr = class_hour[snap.val().class_key];
                         arr.push(this.h);
-                        class_hour[snap.val().class] = arr;
+                        class_hour[snap.val().class_key] = arr;
                     } else {
                         var arr = [];
                         arr.push(this.h);
-                        class_hour[snap.val().class] = arr;
+                        class_hour[snap.val().class_key] = arr;
                     }
                 }.bind({h : hour}));
                 promises.push(my_prom);
@@ -219,7 +221,7 @@ $(function () {
             snap.forEach(childSnap => {
                 var hour = childSnap.key;
                 var teacher_name = childSnap.val().teacher;
-                var class_name = childSnap.val().class;
+                var class_name = childSnap.val().class_name;
                 var event_title = childSnap.val().event;
                 var event_key = childSnap.val().event_key;
                 var teacher_id = childSnap.val().teacher_key;
@@ -264,16 +266,17 @@ $(function () {
 
     function update_class_references() {
         class_name = $("#select_class").find(':selected').text();
+        class_key = $("#select_class").find(':selected').val();
 
         occupied_h = [];
         occupied_cr = [];
 
         firebase.database().ref('class/'
-        +class_name
-        +'/prenotation/'
-        +sc_date.getDate()+"-"
-        +(sc_date.getMonth() + 1)+'-'
-        +sc_date.getFullYear()+'/').once('value', snap => {
+        + class_key
+        + '/prenotation/'
+        + sc_date.getDate()+"-"
+        + (sc_date.getMonth() + 1)+'-'
+        + sc_date.getFullYear()+'/').once('value', snap => {
             snap.forEach(childSnap => {
                 occupied_h.push(childSnap.key);
                 occupied_cr.push(childSnap.val());

@@ -197,7 +197,6 @@
                     
                     <form id="add_classroom_form">
                         <input id="classroom_name"  class="form-control" type="text" placeholder="Nome aula" autocomplete="off">
-                        <input id="classroom_capacity"  class="form-control"  type="number"  min="1" placeholder="Capacità aula" autocomplete="off">
                         <button id="add_classroom_btn" type="button" class="btn long-btn btn-primary btn-lg">Aggiungi Aula</button>
                     </form>
                     
@@ -213,11 +212,10 @@
                 <div class="col-sm-4 col-md-4">
                     <h1 class="h3 mb-3 font-weight-normal">Classi</h1>
 
-                    <table id="admin_classes_table" class="table three-columns-table table-fixed table-sm">
+                    <table id="admin_classes_table" class="table two-columns-table table-fixed table-sm">
                         <thead>
                             <tr>
                                 <th>Classe</th>
-                                <th>Studenti</th>
                                 <th>Rimuovi</th>
                             </tr>
                         </thead>
@@ -226,9 +224,7 @@
                     </table>
                     
                     <form id="add_class_form">
-                        
                         <input id="class_name"  class="form-control" type="text" placeholder="nome classe" autocomplete="off">
-                        <input id="n_of_students"  class="form-control"  type="number"  min="1" placeholder="numero studenti" autocomplete="off">
                         <button id="add_class_btn" type="button" class="btn long-btn btn-primary btn-lg">Aggiungi classe</button>
                     </form>
                     
@@ -395,36 +391,18 @@
                         <select id="select_event_classroom" class="form-control" autocomplete="off">
                         </select>
                         
-                        
-
                         <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
 
-                        <dl class="dropdown"> 
-                            <dt>
+                        <div class="dropdown" id="new_event_dropdown"> 
                             <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
-                            </dt>
-                            <dd>
-                                <div class="mutliSelect">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">
-                                            <input type="checkbox" value="Apple"/> Apple</li>
-                                        <li class="list-group-item">
-                                            <input type="checkbox" value="Blackberry"/> Blackberry</li>
-                                        <li class="list-group-item">
-                                            <input type="checkbox" value="HTC"/> HTC</li>
-                                        <li class="list-group-item">
-                                            <input type="checkbox" value="Sony Ericson"/> Sony Ericson</li>
-                                        <li class="list-group-item">
-                                            <input type="checkbox" value="Motorola"/> Motorola</li>
-                                        <li class="list-group-item">
-                                            <input type="checkbox" value="Nokia"/> Nokia</li>
-                                    </ul>
-                                </div>
-                            </dd>
-                        </dl>
+                            <div class="multiSelect">
+                                <ul class="list-group list-group-flush">
+                                </ul>
+                            </div>
+                        </div>
 
                         <div class="alert alert-warning my_alert collapse" id="warning_event_creation" role="alert">
                         </div>
@@ -474,9 +452,6 @@
                             </div>
                         </div>
                         <br/>
-
-                        <select class="form-control" id="event_class" autocomplete="off">
-                        </select>  
                         
                         <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
                         <br/>
@@ -504,9 +479,6 @@
                     </select>
 
                     <input class="datepicker form-control" id="datetimepicker2" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
-
-                    <ul id="prenotations_list" class="list-group center-std-element">
-                    </ul>
 
                     <table id="class_pren_table" class="table two-columns-table table-fixed table-sm collapse">
                         <tbody id="class_pren_body">
@@ -742,7 +714,7 @@
         <!-- SCRIPT --> 
         <div>
         <script type='text/javascript' >
-            
+            /*import CheckboxSelectDropdown from './showcase.js';*/
             var CURRENT_PAGE = null;
             var INTERVAL = null;
 
@@ -760,6 +732,7 @@
             }
         </script>
 
+        <script type="text/javascript" src="js/dropdown.js"></script>
         <script type="text/javascript" src="js/firebaseConfig.js"></script>
         <script type="text/javascript" src="js/showcase.js"></script>
         <script type="text/javascript" src="js/advancedOperations.js"></script>
@@ -771,7 +744,7 @@
         <script type="text/javascript" src="js/events.js"></script>
         <script type="text/javascript" src="js/prenotations.js"></script>
         <script type="text/javascript" src="js/institute_page.js"></script>
-        <script type="text/javascript" src="js/dropdown.js"></script>
+        
 
         <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
         

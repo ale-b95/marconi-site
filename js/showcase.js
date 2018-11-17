@@ -156,7 +156,7 @@ var Showcase = {
                     if (event_title) {
                         text = event_title;
                     } else {
-                        text = childSnap.val().class + ' ' + childSnap.val().teacher;
+                        text = childSnap.val().class_name + ' ' + childSnap.val().teacher;
                     }
 
                     $("#th_"+idx).text(childSnap.val().classroom);
@@ -172,7 +172,7 @@ var Showcase = {
             });
         } else {
             firebase.database().ref('classroom/'+classroom_name).once('value', snap => {
-                $("#th_"+idx).text(snap.val().classroom_name);
+                $("#th_"+idx).text(snap.val().name);
             });
         }
     },

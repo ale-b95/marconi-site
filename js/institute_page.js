@@ -3,8 +3,8 @@ var DataFormFillUtility = {
         fill the specified select list with the classrooms loaded from the database
         is possible to personalize the first option field adding a default message
     */
-    loadClassroomSelectList : function (select_classroom, defaultmsg, selectable) {
-        $('#'+select_classroom).empty();
+    loadClassroomSelectList : function (form, defaultmsg, selectable) {
+        $('#'+form).empty();
         /*
             check whether or not is specified a custom message, if not uses the premade one
         */
@@ -13,22 +13,22 @@ var DataFormFillUtility = {
         }
 
         if (selectable) {
-            $('#'+select_classroom).append('<option value="" selected>'+ defaultmsg +'</option>');
+            $('#'+form).append('<option value="" selected>'+ defaultmsg +'</option>');
         } else {
-            $('#'+select_classroom).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
+            $('#'+form).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
         }
         
         /*
             get the reference to the database to obtain the list of the classrooms
         */
-        firebase.database().ref('classroom/').orderByChild('classroom_name').once('value', snap => {
+        firebase.database().ref('classroom/').orderByChild('name').once('value', snap => {
             /*
                 generate the html code for each classroom found on the database
             */
             snap.forEach(childSnap => {
-                var name = childSnap.child('/classroom_name').val();
+                var name = childSnap.child('/name').val();
                 var key = childSnap.key;
-                $('#'+select_classroom).append('<option value="'+key+'">'+name+ '</option>');
+                $('#'+form).append('<option value="'+key+'">'+name+ '</option>');
             });
         });
     },
@@ -37,23 +37,23 @@ var DataFormFillUtility = {
         fill the specified select list with the classes loaded from the database
         is possible to personalize the first option field adding a default message
     */
-    loadClassSelectList : function (select_class, defaultmsg) {
-        $('#'+select_class).empty();
+    loadClassSelectList : function (form, defaultmsg) {
+        $('#'+form).empty();
         /*
             check whether or not is specified a custom message, if not uses the premade one
         */
         if (defaultmsg == null) {
             defaultmsg = "Seleziona classe";
         }
-        $('#'+select_class).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
+        $('#'+form).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
 
         /*
             get the reference to the database to obtain the list of classes
             and generate the html code for each class found on the database
         */
-        firebase.database().ref('class/').orderByKey().once('value', snap => {
+        firebase.database().ref('class/').orderByChild('name').once('value', snap => {
             snap.forEach(childSnap => {
-                $('#'+select_class).append('<option>'+childSnap.key+'</option>');
+                $('#'+form).append('<option value="'+childSnap.key+'">'+childSnap.val().name+'</option>');
             });
         });
     },
