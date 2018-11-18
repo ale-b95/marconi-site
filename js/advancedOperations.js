@@ -6,7 +6,6 @@ var AdvancedOperations = {
     newEventClassSelection : new CheckboxClassSelectDropdown("adv_new_event_dropdown"),
 
     init : function () {
-        
         this.proto_week_selection = {
             selected_rows : 0,
             selected_hours : [[],[],[],[],[],[],[]]
@@ -66,7 +65,7 @@ var AdvancedOperations = {
             } else {
                 $('#advanced_event_creation').slideDown();
                 $('#advanced_croom_prenotation').slideUp();
-                AdvancedOperations.newEventClassSelection.loadClasses(null);
+                AdvancedOperations.newEventClassSelection.loadClasses(null, null);
             }
         });
     
@@ -316,11 +315,27 @@ var AdvancedOperations = {
         });
 
         AdvancedOperations.newEventClassSelection.applySelection(event.key, AdvancedOperations.selected_class);
+        AdvancedOperations.selected_class = [];
         return event.key;
     },
 
     wellFilledForm : function(form) {
         return ($('#'+form).val() != null);
+    },
+
+    addElem : function (elem) {
+        if (!this.selected_class.includes(elem)) {
+            this.selected_class.push(elem);
+        }
+    },
+
+    removeElem : function  (elem) {
+        if (this.selected_class.includes(elem)) {
+            var index = this.selected_class.indexOf(elem);
+            if (index > -1) {
+                this.selected_class.splice(index, 1);
+            }
+        }
     },
 
     advancedOperationDone : function() {

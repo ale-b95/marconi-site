@@ -58,12 +58,12 @@ var EventsManagement = {
                             remove the event.
                             */
                             $("#ed_"+event_key+"").click(function(event) {
-                                EventsManagement.selected_class = [];
                                 EventsManagement.selected_event = event_key;
-                                EventsManagement.dettailsEventClassSelection.loadClasses(event_key);
+                                EventsManagement.dettailsEventClassSelection.loadClasses(event_key, EventsManagement.selected_class);
 
                                 $("#back_to_main_event").on('click', () => {
                                     EventsManagement.dettailsEventClassSelection.applySelection(EventsManagement.selected_event, EventsManagement.selected_class);
+                                    EventsManagement.selected_class = [];
                                 });
                                 
                                 $("#delete_event").off();
@@ -272,7 +272,8 @@ var EventsManagement = {
             }
 
             EventsManagement.newEventClassSelection.applySelection(event_prenotation.key, EventsManagement.selected_class);
-            
+            EventsManagement.selected_class = [];
+
             EventsManagement.loadEventList();
             alert('Nuovo evento creato\nTitolo evento:  '
             + $('#event_title')[0].value + '\nGiorno:  ' 
@@ -381,7 +382,7 @@ $(function () {
     
     $('#new_event_btn').on('click', () => {
         EventsManagement.selected_class = [];
-        EventsManagement.newEventClassSelection.loadClasses(null);
+        EventsManagement.newEventClassSelection.loadClasses(null, null);
         $('#main_events_page').hide();
         $('#new_event_page').show();
         $('#event_title').text('');
@@ -432,7 +433,9 @@ $(function () {
 function onClickHandler(cb) {
     if (cb.checked) {
         EventsManagement.addElem($(cb).val());
+        AdvancedOperations.addElem($(cb).val());
     } else {
         EventsManagement.removeElem($(cb).val());
+        AdvancedOperations.removeElem($(cb).val());
     }
 }

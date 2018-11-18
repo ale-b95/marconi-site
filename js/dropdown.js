@@ -15,7 +15,7 @@ class CheckboxClassSelectDropdown {
         });
     }
 
-    loadClasses (eventKey) {
+    loadClasses (eventKey, checkedElements) {
         $('#'+this.dropdownId + ' div ul').empty();
         if (eventKey == null) {
             firebase.database().ref('class/').orderByChild('name').once('value', snap => {
@@ -27,13 +27,11 @@ class CheckboxClassSelectDropdown {
                 });
             });
         } else {
-            var checkedElements = [];
             firebase.database().ref('event/'+eventKey+'/class').once('value', snap => {
                 snap.forEach(childSnap => {
                     checkedElements.push(childSnap.key);
                 });
             }).then(() => {
-            
                 firebase.database().ref('class/').orderByChild('name').once('value', snap => {
                     snap.forEach(childSnap => {
                         var checked = "";
@@ -51,7 +49,6 @@ class CheckboxClassSelectDropdown {
     }
 
     applySelection(eventKey, checkedElements) {
-        console.log(eventKey + ' ' + checkedElements);
         var eventClasses = [];
         firebase.database().ref('event/'+eventKey+'/class').once('value', snap => {
             snap.forEach(childSnap => {
