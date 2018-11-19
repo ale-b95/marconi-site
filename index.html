@@ -252,11 +252,7 @@
                     </div>
 
                     <div id="advanced_croom_prenotation" class="collapse">
-                        <select class="form-control" id="adv_croom_select" autocomplete="off">
-                        </select>
                         <select class="form-control" id="adv_class_select" autocomplete="off">
-                        </select>
-                        <select class="form-control" id="adv_user_select" autocomplete="off">
                         </select>
                     </div>
 
@@ -270,11 +266,13 @@
                                 </ul>
                             </div>
                         </div>
-                        <select id="adv_event_croom_select" class="form-control" autocomplete="off">
-                        </select>
                     </div>
 
                     <div id="proto_week_selection" class="collapse">
+                        <select class="form-control" id="adv_croom_select" autocomplete="off">
+                        </select>
+                        <select class="form-control" id="adv_user_select" autocomplete="off">
+                        </select>
                         <select class="form-control" id="adv_select_day" autocomplete="off">
                                 <option value="" disabled selected>Giorno della settimana</option>
                                 <option value="0">Lunedì</option>
@@ -294,6 +292,29 @@
                     
                     <button id="adv_prenotation_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenota</button>
                     <button id="adv_prenotation_back_btn" class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
+
+
+                    <div class="modal fade" id="prenotationOverrideAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Attenzione!</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>L'operazione andrà a sovrascrivere alcune prenotazioni già presenti.</p>
+                                        <div id="overrideDetails"></div>
+                                        <p>Continuare?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="prenotation_override_btn">Sovrascrivi</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="abort_override_btn">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>

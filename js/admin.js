@@ -6,7 +6,6 @@ var Admin = {
         $('#classroom_name').val('');
         $('#class_name').val('');
         $('#show_code').text('CODICE');
-        $('#adv_event_croom_select').get(0).selectedIndex = 0;
         $('#select_adv_prenotation').get(0).selectedIndex = 0;
         $('#adv_croom_select').get(0).selectedIndex = 0;
         $('#adv_class_select').get(0).selectedIndex = 0;

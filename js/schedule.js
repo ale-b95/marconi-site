@@ -194,7 +194,7 @@ $(function () {
         var idx;
         var class_info = "";
 
-        for (var hour = 8; hour<25; hour++) {
+        for (var hour = 8; hour<22; hour++) {
             clickable = true;
             idx = occupied_h.indexOf(hour+"");
             if (idx != -1) {
