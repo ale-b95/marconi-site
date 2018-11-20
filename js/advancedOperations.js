@@ -1,4 +1,6 @@
 var AdvancedOperations = {
+    selected_event : null,
+    selected_classroom : null,
     proto_week_selection : null,
     user_name : null,
     user_key : null,
@@ -169,7 +171,6 @@ var AdvancedOperations = {
                 AdvancedOperations.user_key = user.uid;
             }
 
-            console.log(AdvancedOperations.user_key);
             var temp_date = first_day;
             
             switch (parseInt($('#select_adv_prenotation').val())) {
@@ -203,15 +204,56 @@ var AdvancedOperations = {
                 break;
                 default:
             }
-
-            this.advancedOperationDone();
         } else {
             console.log('ERRORE: prenotazione non eseguita');
         }
     },
 
+    checkPrenotationCompatibility : function (week_schedule, temp_date, classroom_key) {
+        var tmp_day = temp_date.getDate();
+        var tmp_month = temp_date.getMonth() + 1;
+        var tmp_year = temp_date.getFullYear();
+        var day = temp_date.getDay() - 1;
+        if (day < 0) day = 6;
+
+        var promises_select = [];
+        var toRemove = {class_name:[], hour:[], date:[]};
+
+        for (i in week_schedule.selected_hours[day]) {
+            var hour = week_schedule.selected_hours[day][i];
+            var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+classroom_key+'/'+hour).once('value', function(snap)  {
+                if (snap.exists()) {
+                    toRemove.date.push(tmp_day+'/'+tmp_month+'/'+tmp_year);
+                    toRemove.class_name.push(snap.val().class_name);
+                    toRemove.hour.push(this.h);
+                }
+            }.bind({h : hour}));
+            promises_select.push(my_prom);
+        }
+
+        Promise.all(promises_select).then(() => {
+            if (toRemove.hour.length > 0) {
+                var dettailTxt = "";
+                for (i = 0; i < toRemove.hour.length; i++) {
+                    dettailTxt += 'Giorno: ' + toRemove.date[i] + ' Ora: '+ toRemove.hour[i] + ' Classe: ' + toRemove.class_name[i] + '<br/>';
+                }
+                $('#overrideDetails').empty();
+                $('#overrideDetails').append(dettailTxt);
+                $('#prenotation_override_btn').hide();
+                $('#prenotationOverrideAlertModal').modal('show');
+
+                $('#abort_override_btn').on('click',() => {
+                    this.advancedOperationDone();
+                    showPage($("#admin_prenotation_page"));
+                });
+            } else {
+                this.advancedOperationDone();
+            }
+        });
+    },
+
     makePrenotation : function (teacher_key, teacher_name, selected_classroom_name, selected_classroom_key, selected_class, selected_class_name, date, week_schedule) {
-        console.log('make prenot');
+        //AdvancedOperations.checkPrenotationCompatibility(week_schedule, new Date(date), selected_classroom_key);
         var temp_date = new Date(date);
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
@@ -222,84 +264,45 @@ var AdvancedOperations = {
         var promises_select = [];
         var promise_remove = [];
 
-        var toRemove = {class_name:[], hour:[], date:[]};
+        var toRemove = {class_name:[], hour:[]};
         for (i in week_schedule.selected_hours[day]) {
             var hour = week_schedule.selected_hours[day][i];
             var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom_key+'/'+hour).once('value', function(snap)  {
                 if (snap.exists()) {
-                    toRemove.date.push(tmp_day+'/'+tmp_month+'/'+tmp_year);
-                    toRemove.class_name.push(snap.val().class);
+                    toRemove.class_name.push(snap.val().class_key);
                     toRemove.hour.push(this.h);
                 }
             }.bind({h : hour}));
             promises_select.push(my_prom);
         }
 
-        if (toRemove.length > 0) {
-            var dettailTxt = "";
-            for (i = 0; i < toRemove.length; i++) {
-                dettailTxt += 'Giorno: ' + toRemove.date[i] + ' Aula: '+ toRemove.date[i] + ' Classe: ' + toRemove.class_name[i] + '\n';
+        Promise.all(promises_select).then(() => {
+            for (i in week_schedule.selected_hours[day]) {
+                var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
+                promise_remove.push(my_prom);
             }
 
-            $('#overrideDetails').append(dettailTxt);
-
-            $('#abort_override_btn').on('click',() => {
-                //do nothing
-            });
-
-            $('#prenotation_override_btn').on('click', () => {
-                Promise.all(promises_select).then(() => {
-                    for (i in week_schedule.selected_hours[day]) {
-                        var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
-                        promise_remove.push(my_prom);
-                    }
-        
-                    Promise.all(promise_remove).then(() => {
-                        for (i in week_schedule.selected_hours[day]){
-                            var hour = week_schedule.selected_hours[day][i];
-                            firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom_key+'/'+hour+'/').set({
-                                class_key : selected_class,
-                                class_name : selected_class_name,
-                                classroom : selected_classroom_name,
-                                teacher : teacher_name,
-                                teacher_key : teacher_key
-                            });
-                            firebase.database().ref('class/'+selected_class+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/').update({
-                                [hour] : selected_classroom_name
-                            });
-                        }
+            Promise.all(promise_remove).then(() => {
+                for (i in week_schedule.selected_hours[day]){
+                    var hour = week_schedule.selected_hours[day][i];
+                    firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom_key+'/'+hour+'/').set({
+                        class_key : selected_class,
+                        class_name : selected_class_name,
+                        classroom : selected_classroom_name,
+                        teacher : teacher_name,
+                        teacher_key : teacher_key
                     });
-                });
-            });
-
-            $('#prenotationOverrideAlertModal').modal();
-        } else {
-            Promise.all(promises_select).then(() => {
-                for (i in week_schedule.selected_hours[day]) {
-                    var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
-                    promise_remove.push(my_prom);
+                    firebase.database().ref('class/'+selected_class+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/').update({
+                        [hour] : selected_classroom_name
+                    });
                 }
-    
-                Promise.all(promise_remove).then(() => {
-                    for (i in week_schedule.selected_hours[day]){
-                        var hour = week_schedule.selected_hours[day][i];
-                        firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom_key+'/'+hour+'/').set({
-                            class_key : selected_class,
-                            class_name : selected_class_name,
-                            classroom : selected_classroom_name,
-                            teacher : teacher_name,
-                            teacher_key : teacher_key
-                        });
-                        firebase.database().ref('class/'+selected_class+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/').update({
-                            [hour] : selected_classroom_name
-                        });
-                    }
-                });
             });
-        }
+            this.advancedOperationDone();
+        });
     },
 
     eventPrenotation : function (title, e_key, selected_classroom_name, selected_classroom_key, temp_date, week_schedule) {
+        AdvancedOperations.checkPrenotationCompatibility(week_schedule, new Date(date), selected_classroom_key);
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
         var tmp_year = temp_date.getFullYear();
@@ -326,7 +329,6 @@ var AdvancedOperations = {
                 var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
                 promise_remove.push(my_prom);
             }
-
             Promise.all(promise_remove).then(() => {
                 for (i in week_schedule.selected_hours[day]){
                     var hour = week_schedule.selected_hours[day][i];
@@ -337,6 +339,7 @@ var AdvancedOperations = {
                     });
                 }
             });
+            this.advancedOperationDone();
         });
     },
 

@@ -101,6 +101,7 @@ var EventsManagement = {
                                         $("#save_event").hide();
                                         $("#delete_event").on('click', () => {
                                             EventsManagement.deleteEvent(current_key, classroom_key);
+                                            EventsManagement.loadEventList();
                                             $("#safe_delete_event_btn").text('Elimina evento');
                                             $("#delete_event").slideUp();
                                             $('#event_details').hide();
@@ -158,9 +159,7 @@ var EventsManagement = {
                 }).then(() => {
                     var event_ref = firebase.database().ref().child('event/');
                     event_ref.child(event_key).remove();
-                }).then(() => {
-                    EventsManagement.loadEventList();
-                });
+                })
             }
         });
     },
@@ -359,6 +358,7 @@ $(function () {
         firebase.database().ref('event/'+ selected_event).once('value', snap => {
             var classroom_key = snap.val().classroom_key;
             EventsManagement.deleteEvent(selected_event, classroom_key);
+            EventsManagement.loadEventList();
         });
     });
     

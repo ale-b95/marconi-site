@@ -234,21 +234,26 @@ $(function () {
                 }
 
                 $("#s_hid_"+hour).empty();
-                $("#s_hid_"+hour).append('<th>'+hour+':00</th><td>'+ second_column +'</td>');
+                $("#s_hid_"+hour).append('<th>'+SPECIAL_HOURS[hour]+'</th><td>'+ second_column +'</td>');
                 
                 if (event_title) {
                     $("#s_hid_"+hour).addClass('event_prenotation');
                     $("#s_hid_"+hour).val(event_key);              
                 } else {
                     var user = firebase.auth().currentUser;
-                
-                    if (user.uid == teacher_id){
-                        $("#s_hid_"+hour).addClass('mybook');
-                        $("#s_hid_"+hour).addClass('clickable-row');
-                    } else {
-                        $("#s_hid_"+hour).addClass('booked');
-                        $("#s_hid_"+hour).removeClass('clickable-row');
-                    }
+                    var priviledges;
+
+                    firebase.database().ref('user/'+user.uid+'/priviledges').once('value', snap => {
+                        priviledges = snap.val();
+                    }).then(() => {
+                        if (user.uid == teacher_id || priviledges == 1){
+                            $("#s_hid_"+hour).addClass('mybook');
+                            $("#s_hid_"+hour).addClass('clickable-row');
+                        } else {
+                            $("#s_hid_"+hour).addClass('booked');
+                            $("#s_hid_"+hour).removeClass('clickable-row');
+                        }
+                    });
                 }
             });
         });
@@ -265,6 +270,7 @@ $(function () {
     }
 
     function update_class_references() {
+        if (sc_date == null) sc_date = new Date ();
         class_name = $("#select_class").find(':selected').text();
         class_key = $("#select_class").find(':selected').val();
 
