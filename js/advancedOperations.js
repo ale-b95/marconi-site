@@ -302,7 +302,7 @@ var AdvancedOperations = {
     },
 
     eventPrenotation : function (title, e_key, selected_classroom_name, selected_classroom_key, temp_date, week_schedule) {
-        AdvancedOperations.checkPrenotationCompatibility(week_schedule, new Date(date), selected_classroom_key);
+        //AdvancedOperations.checkPrenotationCompatibility(week_schedule, new Date(date), selected_classroom_key);
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
         var tmp_year = temp_date.getFullYear();
@@ -317,7 +317,7 @@ var AdvancedOperations = {
             var hour = week_schedule.selected_hours[day][i];
             var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom_key+'/'+hour).once('value', function(snap)  {
                 if (snap.exists()) {
-                    toRemove.class_name.push(snap.val().class);
+                    toRemove.class_name.push(snap.val().class_key);
                     toRemove.hour.push(this.h);
                 }
             }.bind({h : hour}));

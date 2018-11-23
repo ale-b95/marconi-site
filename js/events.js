@@ -132,7 +132,6 @@ var EventsManagement = {
             snap.forEach(childSnap => {
                 firebase.database().ref().child('class/'+ childSnap.key+'/event/'+event_key).remove();
             });
-            
         }).then(() => {
             if (event_classroom_key != null) {
                 firebase.database().ref('event/'+ event_key +'/period/').once('value', snap => {
@@ -159,7 +158,9 @@ var EventsManagement = {
                 }).then(() => {
                     var event_ref = firebase.database().ref().child('event/');
                     event_ref.child(event_key).remove();
-                })
+                }).then(() => {
+                    EventsManagement.loadEventList();
+                });
             }
         });
     },
@@ -358,8 +359,8 @@ $(function () {
         firebase.database().ref('event/'+ selected_event).once('value', snap => {
             var classroom_key = snap.val().classroom_key;
             EventsManagement.deleteEvent(selected_event, classroom_key);
-            EventsManagement.loadEventList();
-        });
+            
+        })
     });
     
     /************************ new event ************************/
