@@ -180,27 +180,14 @@ var AdvancedOperations = {
                     var selected_class = $('#adv_class_select').val();
                     var selected_class_name = $("#adv_class_select option:selected").text();
                     while (temp_date <= last_day) {
-                        this.makePrenotation(AdvancedOperations.user_key, AdvancedOperations.user_name, selected_classroom_name, selected_classroom_key, selected_class, selected_class_name, temp_date.getTime(), this.proto_week_selection);
+                        parameters = [AdvancedOperations.user_key, AdvancedOperations.user_name, selected_classroom_name, selected_classroom_key, selected_class, selected_class_name, temp_date.getTime(), this.proto_week_selection];
+                        this.checkPrenotationCompatibility(this.proto_week_selection, temp_date, selected_classroom_key, 0, parameters)
                         temp_date.setDate(temp_date.getDate() + 1);
                     }
                 break;
                 case 1: //event
-                    var selected_classroom_name = $('#adv_croom_select').find(':selected').text();
-                    var selected_classroom_key = $('#adv_croom_select').val();
-                    var title = $('#adv_event_title').val();
-                    var desc = $('#adv_e_desc').val();
-
-                    var event_key = this.createEvent(AdvancedOperations.user_key, AdvancedOperations.user_name, title, selected_classroom_name, selected_classroom_key, desc, temp_date);
-                    var cnt = 0;
-                    while (temp_date <= last_day) {
-                        var datename = 'date-' + cnt;
-                        firebase.database().ref('event/'+event_key+'/period').update({
-                            [datename] : temp_date.getTime()
-                        });
-                        this.eventPrenotation(title, event_key, selected_classroom_name, selected_classroom_key, temp_date, this.proto_week_selection);
-                        temp_date.setDate(temp_date.getDate() + 1);
-                        cnt++;
-                    }
+                    parameters = [this.proto_week_selection];
+                    this.checkPrenotationCompatibility(this.proto_week_selection, temp_date, selected_classroom_key, 1, parameters);
                 break;
                 default:
             }
@@ -209,7 +196,7 @@ var AdvancedOperations = {
         }
     },
 
-    checkPrenotationCompatibility : function (week_schedule, temp_date, classroom_key) {
+    checkPrenotationCompatibility : function (week_schedule, temp_date, classroom_key, prenotaionType, parameters) {
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
         var tmp_year = temp_date.getFullYear();
@@ -239,21 +226,73 @@ var AdvancedOperations = {
                 }
                 $('#overrideDetails').empty();
                 $('#overrideDetails').append(dettailTxt);
-                $('#prenotation_override_btn').hide();
                 $('#prenotationOverrideAlertModal').modal('show');
 
                 $('#abort_override_btn').on('click',() => {
                     this.advancedOperationDone();
                     showPage($("#admin_prenotation_page"));
                 });
+
+                $('#prenotation_override_btn').on('click', () => {
+                    // 0 : make prenotation, 1 : event prenotation
+                    if (prenotaionType == 0) {
+                        this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
+                    } else {
+                        var selected_classroom_name = $('#adv_croom_select').find(':selected').text();
+                        var selected_classroom_key = $('#adv_croom_select').val();
+                        var title = $('#adv_event_title').val();
+                        var desc = $('#adv_e_desc').val();
+                        var first_day = temp_date;
+                        var last_day = $("#datetimepicker5").datetimepicker('getValue');
+                        if (last_day == null) {
+                            last_day = new Date();
+                        }
+
+                        var event_key = this.createEvent(AdvancedOperations.user_key, AdvancedOperations.user_name, title, selected_classroom_name, selected_classroom_key, desc, temp_date);
+                        this.eventPrenotation(title, event_key, selected_classroom_name, selected_classroom_key, temp_date, parameters[0]);
+                        var cnt = 0;
+                        while (first_day <= last_day) {
+                            var datename = 'date-' + cnt;
+                            firebase.database().ref('event/'+e_key+'/period').update({
+                                [datename] : first_day.getTime()
+                            });
+                            first_day.setDate(first_day.getDate() + 1);
+                            cnt++;
+                        }                      
+                    }
+                });
             } else {
+                if (prenotaionType == 0) {
+                    this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
+                } else if (prenotaionType == 1){
+                    var selected_classroom_name = $('#adv_croom_select').find(':selected').text();
+                    var selected_classroom_key = $('#adv_croom_select').val();
+                    var title = $('#adv_event_title').val();
+                    var desc = $('#adv_e_desc').val();
+                    var first_day = temp_date;
+                    var last_day = $("#datetimepicker5").datetimepicker('getValue');
+                    if (last_day == null) {
+                        last_day = new Date();
+                    }
+
+                    var event_key = this.createEvent(AdvancedOperations.user_key, AdvancedOperations.user_name, title, selected_classroom_name, selected_classroom_key, desc, temp_date);
+                    this.eventPrenotation(title, event_key, selected_classroom_name, selected_classroom_key, temp_date, parameters[0]);
+                    var cnt = 0;
+                    while (first_day <= last_day) {
+                        var datename = 'date-' + cnt;
+                        firebase.database().ref('event/'+e_key+'/period').update({
+                            [datename] : first_day.getTime()
+                        });
+                        first_day.setDate(first_day.getDate() + 1);
+                        cnt++;
+                    }      
+                }
                 this.advancedOperationDone();
             }
         });
     },
 
     makePrenotation : function (teacher_key, teacher_name, selected_classroom_name, selected_classroom_key, selected_class, selected_class_name, date, week_schedule) {
-        //AdvancedOperations.checkPrenotationCompatibility(week_schedule, new Date(date), selected_classroom_key);
         var temp_date = new Date(date);
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
@@ -301,8 +340,9 @@ var AdvancedOperations = {
         });
     },
 
-    eventPrenotation : function (title, e_key, selected_classroom_name, selected_classroom_key, temp_date, week_schedule) {
-        //AdvancedOperations.checkPrenotationCompatibility(week_schedule, new Date(date), selected_classroom_key);
+    eventPrenotation : function (title, e_key, selected_classroom_name, selected_classroom_key, date, week_schedule) {
+        //date.setDate(date.getDate() - 1);
+        var temp_date = new Date(date);
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
         var tmp_year = temp_date.getFullYear();
@@ -313,6 +353,8 @@ var AdvancedOperations = {
         var promise_remove = [];
 
         var toRemove = {class_name:[], hour:[]};
+        console.log(day);
+        console.log(week_schedule.selected_hours);
         for (i in week_schedule.selected_hours[day]) {
             var hour = week_schedule.selected_hours[day][i];
             var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+selected_classroom_key+'/'+hour).once('value', function(snap)  {
@@ -343,13 +385,13 @@ var AdvancedOperations = {
         });
     },
 
-    createEvent : function(t_key, t_name, title, croom_name, croom_key, description, date) {
-        var r_date = date.getDate() + '-' + (date.getMonth()+1) + '-' + date.getFullYear();
+    createEvent : function(t_key, t_name, title, croom_name, croom_key, description, temp_date) {
+        var r_date = temp_date.getDate() + '-' + (temp_date.getMonth()+1) + '-' + temp_date.getFullYear();
         var event = firebase.database().ref().child('event/').push({
             title : title,
             classroom : croom_name,
             classroom_key : croom_key,
-            date : date.getTime(),
+            date : temp_date.getTime(),
             teacher : t_name,
             teacher_key : t_key,
             description : description,
