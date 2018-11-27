@@ -1,4 +1,5 @@
 var Admin = {
+    selected_user : null,
     resetForms : function() {
         //adv prenotation
         $('#adv_event_title').val('');
@@ -108,6 +109,16 @@ $(function () {
         document.body.appendChild(a);
         a.click();
     });
+
+    $('#user_dell_btn').on('click', () => {
+        firebase.database().ref('user/'+Admin.selected_user).update({
+            priviledges : "-1"
+        });
+
+        $('#user_dell_btn').slideUp();
+
+        loadUsersList();
+    });
     
     //-----------------------------------------------------------------------------------
 
@@ -131,7 +142,7 @@ $(function () {
             For each user added to the istitute, retrives the name, the confirmation value
             and the admin value and insert this values in a table row.
         */
-        dbRef.on('value', snap => {
+        dbRef.once('value', snap => {
             snap.forEach(childSnap => {
                 if (USER.uid != childSnap.key) {
                     var name;
@@ -152,14 +163,22 @@ $(function () {
                         case "0" :
                             $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
                             '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="0" checked></td>'+
-                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td></form></tr>');
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1"></td></form>'+
+                            '<td><button class="btn btn-primary btn-sm usr_dell" id="dell-btn-'+childSnap.key+'" value="'+childSnap.key+'">X</td></tr>');
                         break;
                         case "1" :
                             $("#user_table_body").append('<tr><td>'+name+' '+surname+'</td>'+
                             '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="0"></td>'+
-                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1" checked></td></form></tr>');
+                            '<td><input class="radio-'+childSnap.key+'" type="radio" name="'+childSnap.key+'" value="1" checked></td></form>'+
+                            '<td><button class="btn btn-primary btn-sm usr_dell" id="dell-btn-'+childSnap.key+'" value="'+childSnap.key+'">X</td></tr>');
                         break;
                     }
+
+                    $('#dell-btn-'+childSnap.key).on('click', () => {
+                        Admin.selected_user = childSnap.key;
+                        user_dell_btn
+                        $('#user_dell_btn').slideDown();
+                    });
 
                     /*
                         Attach listeners to modifty privileges.

@@ -158,12 +158,15 @@ $(function () {
           $("#croom_prenotation_btn").show();
           $("#events_btn").show();
           $("#search_class_btn").show();
+          cleanDB.removeOldPrenotations();
         } else if (snap.val().priviledges == "0") {
           $("#admin_btn").hide();
           $("#croom_prenotation_btn").show();
           $("#events_btn").show();
           $("#search_class_btn").show();
           showPage($("#institute_page"));
+        }  else if (snap.val().priviledges == "-1") {
+          logAsGuest();
         }
       });
     } else {

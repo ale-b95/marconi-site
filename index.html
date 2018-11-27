@@ -159,18 +159,19 @@
                 <div class="col-sm-4 col-md-4">
                         <h1 class="h3 mb-3 font-weight-normal">Ruoli e permessi</h1>
                         <br/>
-                        <table id="user_table" class="table table-fixed three-columns-table table-sm">
+                        <table id="user_table" class="table table-fixed four-columns-table table-sm">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
                                     <th>Utente</th>
                                     <th>Admin</th>
+                                    <th>Elimina</th>
                                 </tr>
                             </thead>
                             <tbody id="user_table_body" class="longtable">
                             </tbody>
                         </table>
-                        
+                        <button id="user_dell_btn" class="btn long-btn btn-danger btn-lg back_btn collapse" type="button">Elimina</button>
                         <button class="btn long-btn btn-primary btn-lg administration_page_btn back_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -770,6 +771,7 @@
         <script type="text/javascript" src="js/securityCodeUtility.js"></script>
         <script type="text/javascript" src="js/login.js"></script>
         <script type="text/javascript" src="js/admin.js"></script>
+        <script type="text/javascript" src="js/cleanDB.js"></script>
         <script type="text/javascript" src="js/schedule.js"></script>
         <script type="text/javascript" src="js/events.js"></script>
         <script type="text/javascript" src="js/advancedOperations.js"></script>
