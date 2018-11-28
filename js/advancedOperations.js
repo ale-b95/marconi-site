@@ -317,7 +317,7 @@ var AdvancedOperations = {
 
         Promise.all(promises_select).then(() => {
             for (i in week_schedule.selected_hours[day]) {
-                var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
+                var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_year+"-"+tmp_month+'-'+tmp_day+'/'+toRemove.hour[i]+'/').remove();
                 promise_remove.push(my_prom);
             }
 
@@ -331,7 +331,7 @@ var AdvancedOperations = {
                         teacher : teacher_name,
                         teacher_key : teacher_key
                     });
-                    firebase.database().ref('class/'+selected_class+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/').update({
+                    firebase.database().ref('class/'+selected_class+'/prenotation/'+tmp_year+"-"+tmp_month+'-'+tmp_day+'/').update({
                         [hour] : selected_classroom_name
                     });
                 }
@@ -368,7 +368,7 @@ var AdvancedOperations = {
 
         Promise.all(promises_select).then(() => {
             for (i in week_schedule.selected_hours[day]) {
-                var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_day+"-"+tmp_month+'-'+tmp_year+'/'+toRemove.hour[i]+'/').remove();
+                var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_year+"-"+tmp_month+'-'+tmp_day+'/'+toRemove.hour[i]+'/').remove();
                 promise_remove.push(my_prom);
             }
             Promise.all(promise_remove).then(() => {
@@ -392,6 +392,7 @@ var AdvancedOperations = {
             classroom : croom_name,
             classroom_key : croom_key,
             date : temp_date.getTime(),
+            bacheca : $('#check_adv_event_creation').is(':checked'),
             teacher : t_name,
             teacher_key : t_key,
             description : description,

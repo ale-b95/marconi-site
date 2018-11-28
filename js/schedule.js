@@ -159,7 +159,7 @@ $(function () {
                 for (x in classes) {
                     var arr = class_hour[classes[x]];
                     for (y in arr) {
-                        firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getDate()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/'+arr[y]).remove();
+                        firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/'+arr[y]).remove();
                         firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+arr[y]).remove();
                     }
                 }

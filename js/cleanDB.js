@@ -1,6 +1,5 @@
 var cleanDB = {
     today : new Date(),
-
     removeOldPrenotations : function () {
         firebase.database().ref('prenotation/').once('value', snap => {
             snap.forEach(childSnap => {
@@ -25,5 +24,25 @@ var cleanDB = {
                 }
             });
         });
+
+        firebase.database().ref('class/').once('value', snap => {
+            snap.forEach(childSnap => {
+                childSnap.forEach(gcSnap => {
+                    if (gcSnap.key == 'prenotation') {
+                        gcSnap.forEach(ggcSnap => {
+                            var prenotationDate = cleanDB.parseDate(ggcSnap.key);
+                            if (prenotationDate <  this.today) {
+                                firebase.database().ref(snap.key+'/'+childSnap.key+'/'+gcSnap.key+'/'+ggcSnap.key).remove();
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    },
+
+    parseDate : function (date) {
+        var fields = date.split('-');
+        return new Date(fields[0], fields[1] - 1, fields[2]);
     }
 }

@@ -1,7 +1,6 @@
 $(function () {
-
   $(".collapse").hide();
-
+  
   $("#signup_link").on('click',() => {
     showPage($("#signup"));
   });
@@ -129,7 +128,6 @@ $(function () {
   show user data (name and password) on the user page
 */
   function goUserPage() {
-    
     const USER = firebase.auth().currentUser;
     if (USER) {
       $("#user_info").empty();
@@ -144,6 +142,22 @@ $(function () {
   show institute info on institute page
 */
   function goInstitutePage () {
+    firebase.database().ref('last_update').once('value', snap => {
+      if (snap.val() == 'x') {
+        firebase.database().ref().update({
+          last_update : new Date().getTime()
+        });
+      } else {
+        var now = new Date().getTime();
+        var lastUpdate = snap.val();
+        if (lastUpdate < (now - 1000*60*60*24)) {
+          firebase.database().ref().update({
+            last_update : now
+          });
+          cleanDB.removeOldPrenotations();
+        }
+      }
+    }); 
     /*
       load institute info
     */
@@ -157,8 +171,7 @@ $(function () {
           $("#admin_btn").show();
           $("#croom_prenotation_btn").show();
           $("#events_btn").show();
-          $("#search_class_btn").show();
-          cleanDB.removeOldPrenotations();
+          $("#search_class_btn").show();          
         } else if (snap.val().priviledges == "0") {
           $("#admin_btn").hide();
           $("#croom_prenotation_btn").show();

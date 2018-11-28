@@ -36,6 +36,7 @@ var EventsManagement = {
                 var classroom = childSnap.val().classroom;
                 var classroom_key = childSnap.val().classroom_key; 
                 var description = childSnap.val().description;
+                var inBacheca = childSnap.val().bacheca;
                 var USER = firebase.auth().currentUser;
 
                 if (USER) {
@@ -87,10 +88,16 @@ var EventsManagement = {
                                 $('#desc_text').empty();
                                 $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+title+'"></div>');
                                 $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+description+'</textarea></div>');
-
+                                $('#check_event_det').prop("checked", inBacheca);
                                 $('#mod_event_desk').on('click', () => {
                                     EventsManagement.modifyEvent(selected_event, $('#event_title_text').val(), $('#event_desc_txt_area').val());
                                     $("#ed_title").text('- ' + $('#event_title_text').val());
+                                });
+
+                                $('#check_event_det').on('change', () => {
+                                    firebase.database().ref('event/'+EventsManagement.selected_event).update({
+                                        bacheca : $('#check_event_det').is(':checked')
+                                    });
                                 });
                                 
                                 var user = firebase.auth().currentUser;
@@ -237,9 +244,7 @@ var EventsManagement = {
         var event_description = $.trim($("#e_desc").val());
         user = firebase.auth().currentUser;
         if ((EventsManagement.cs_selected_rows > 0 || EventsManagement.classroom_name == "Esterno") && EventsManagement.ne_date >= today &&  event_title != "") {
-            
             $("#schedule_event_table").hide();
-            
             var mydate = EventsManagement.ne_date;
             var rDate = mydate.getDate() + '-' + (mydate.getMonth()+1) + '-' + mydate.getFullYear();
             var event_prenotation = firebase.database().ref().child('event/').push({
@@ -250,6 +255,7 @@ var EventsManagement = {
                 period : {
                     date0 : mydate.getTime()
                 },
+                bacheca : $('#check_event_creation').is(':checked'),
                 readableDate : rDate,
                 teacher : user.displayName,
                 teacher_key : user.uid,
@@ -359,7 +365,6 @@ $(function () {
         firebase.database().ref('event/'+ selected_event).once('value', snap => {
             var classroom_key = snap.val().classroom_key;
             EventsManagement.deleteEvent(selected_event, classroom_key);
-            
         })
     });
     
