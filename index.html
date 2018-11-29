@@ -241,13 +241,8 @@
                 <div class="col-sm-4 col-md-4">
                     <h1 class="h3 mb-3 font-weight-normal">Prenotazioni Avanzate</h1>
                     <br/>
-                    <select class="form-control" id="select_adv_prenotation" autocomplete="off">
-                        <option value="" disabled selected>Prenota Aula/Organizza Evento</option>
-                        <option value="0">Prenota Aula</option>
-                        <option value="1">Organizza Evento</option>
-                    </select>
 
-                    <div id="adv_datepicker" class="collapse">
+                    <div id="adv_datepicker">
                         <input class="datepicker form-control" id="datetimepicker4" type="text" readonly="true" placeholder="Dal giorno" autocomplete="off">
                         <input class="datepicker form-control" id="datetimepicker5" type="text" readonly="true" placeholder="Al giorno" autocomplete="off">
                     </div>
@@ -273,11 +268,12 @@
                         </div>
                     </div>
 
-                    <div id="advanced_croom_prenotation" class="collapse">
+                    <div id="advanced_croom_prenotation">
                         <select class="form-control" id="adv_class_select" autocomplete="off">
                         </select>
                     </div>
 
+                    <!--
                     <div id="advanced_event_creation" class="collapse">
                         <input id="adv_event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <textarea class="form-control" id="adv_e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
@@ -292,8 +288,9 @@
                             </div>
                         </div>
                     </div>                  
+                    -->
 
-                    <div id="proto_week_selection" class="collapse">
+                    <div id="proto_week_selection">
                         <select class="form-control" id="adv_croom_select" autocomplete="off">
                         </select>
                         <select class="form-control" id="adv_user_select" autocomplete="off">

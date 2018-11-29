@@ -2,12 +2,9 @@ var Admin = {
     selected_user : null,
     resetForms : function() {
         //adv prenotation
-        $('#adv_event_title').val('');
-        $('#adv_e_desc').val('');
         $('#classroom_name').val('');
         $('#class_name').val('');
         $('#show_code').text('CODICE');
-        $('#select_adv_prenotation').get(0).selectedIndex = 0;
         $('#adv_croom_select').get(0).selectedIndex = 0;
         $('#adv_class_select').get(0).selectedIndex = 0;
         $('#adv_user_select').get(0).selectedIndex = 0;
@@ -63,6 +60,9 @@ $(function () {
 
     $("#advanced_prenotations_btn").on('click', () => {
         showPage($("#admin_prenotation_page"));
+        DataFormFillUtility.loadClassroomSelectList('adv_croom_select');
+        DataFormFillUtility.loadClassSelectList('adv_class_select');
+        DataFormFillUtility.loadUserSelectList('adv_user_select');
     });
 
     $("#access_code_btn").on('click', () => {
