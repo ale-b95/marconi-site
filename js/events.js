@@ -325,9 +325,150 @@ var EventsManagement = {
                 this.selected_class.splice(index, 1);
             }
         }
+    },
+
+    newEvent : function (title, description, date, teacher) {
+        
     }
 }
 
+class Event {
+    constructor(title, description, organizer) {
+        this.title = title;
+        this.description = description;
+        this.organizer = organizer;
+        this.date = [];
+    }
+
+    /**
+     *  date_1 : {
+     *      class : {
+     *          class_id_1 : class_name_1,
+     *          class_id_2 : class_name_2,
+     *          ...
+     *          ...
+     *      },
+     *      place : {   
+     *                  type : internal / external
+     *                  classroom_id : classroom_id,
+     *                  classroom_name : classroom_name,
+     *                              or
+     *                  place_name : place_name
+     *      },
+     *      hour : [8, 9, 10, ...]
+     *  }
+     */
+    addDate(date) {
+        this.date.push(date);
+    }
+
+    getJsonObj() {
+        var jobj = '{' +
+        '"title" : '+ this.title+',' + 
+        '"description" : "'+ this.description+ '",' + 
+        '"organizer" : { id : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
+        '"date" : {';
+
+        this.date.forEach(eventDate => {
+            jobj += '"'+eventDate.date.date+'"' + ': { "class" : [';
+            eventDate.classes.forEach(eventClass => {
+                jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
+            });
+            jobj = jobj.substring(0, jobj.length - 1);
+            jobj += '], "place" : { "internal" : '+ eventDate.place.isInternal()+', ';
+            if (eventDate.place.isInternal()) {
+                jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.id +'"},';
+            } else {
+                jobj +='"name" : "' + eventDate.place.place +'"},';
+            }
+            jobj += '"hour : ["';
+            eventDate.hours.forEach(hour => {
+                jobj += '"' + hour + '", ';
+            });
+            jobj = jobj.substring(0, jobj.length - 1);
+            jobj += ']},'
+        });
+        jobj = jobj.substring(0, jobj.length - 1);
+        jobj += '}}';
+
+        return jobj;
+
+        /*
+        {
+            "title" : EventTestTitle,
+            "description" : "EventTestDescription",
+            "organizer" : { id : "007", "name" : "James Bond"},
+            "date" : {
+                "undefined": { 
+                    "class" : ["001" : "1A","002" : "1B"],
+                    "place" : { "internal" : false, "name" : "Milano"},
+                    "hour : [""8", "9", "10", "11",]
+                }
+            }
+        }
+        */
+    }
+}
+
+class EventDate {
+    constructor(date, classes, place, hours) {
+        this.date = date;
+        this.classes = classes;
+        this.place = place;
+        this.hours = hours;
+    }
+
+    addClass(InstituteClass) {
+        /*ToDo:
+            check whether the class is already present by id and
+            add it if not.
+        */
+    }
+
+    removeClass(InstituteClass) {
+        /*ToDo:
+            check whether the class is already present by id and
+            remove it is.
+        */
+    }
+}
+
+class EventPlace {
+    constructor(classroom, placeName) {
+        if (placeName === undefined) {
+            this.type = "INT"
+            this.place = classroom;
+        } else if (classroom === undefined) {
+            this.type = "EXT"
+            this.place = placeName;
+        }
+    }
+
+    isInternal() {
+        return (this.type == 'INT');
+    }
+}
+
+class Teacher {
+    constructor(teacher_id, teacher_name) {
+        this.id = teacher_id;
+        this.name = teacher_name;
+    }
+}
+
+class Classroom {
+    constructor(classroom_id, classroom_name) {
+        this.id = classroom_id;
+        this.name = classroom_name;
+    }
+}
+
+class InstituteClass {
+    constructor(class_id, class_name) {
+        this.id = class_id;
+        this.name = class_name;
+    }
+}
 
 $(function () {
     /************************ show events ************************/
@@ -387,11 +528,15 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
+        var event = new Event('EventTestTitle', 'EventTestDescription', new Teacher('007', 'James Bond'));
+        event.addDate(new EventDate(new Date().getTime(), [new Classroom("001", "1A"), new Classroom("002", "1B")], new EventPlace(undefined, "Milano"), [8, 9, 10, 11]));
+        console.log(event.getJsonObj());
+        /*
         EventsManagement.selected_class = [];
         EventsManagement.newEventClassSelection.loadClasses(null, null);
         $('#main_events_page').hide();
         $('#new_event_page').show();
-        $('#event_title').text('');
+        $('#event_title').text('');*/
     });
     
     $('#schedule_event_table').on('click', '.clickable-row', function(event) {

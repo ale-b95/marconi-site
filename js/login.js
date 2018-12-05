@@ -154,7 +154,7 @@ $(function () {
           firebase.database().ref().update({
             last_update : now
           });
-          cleanDB.removeOldPrenotations();
+          cleanDB.removeOldPrenotations();          
         }
       }
     }); 
