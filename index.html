@@ -319,6 +319,8 @@
 
         </div>
 
+        </div>
+
         <!-- MAIN APP -->
         <div>
         <div id="institute_page" class="collapse admin container-fluid">
@@ -403,110 +405,107 @@
                     
                         <button class="btn long-btn btn-primary btn-lg institute_page_btn" type="button">Indietro</button>
                     </div>
-                        
-                    <div id="new_event_page" class="collapse">
-
-                        <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
-                        
-                        <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
-                        
-                        <input id="event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
-                        
-                        <textarea class="form-control" id="e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
-                        
-                        <select id="select_event_classroom" class="form-control" autocomplete="off">
-                        </select>
-                        
-                        <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
-                            <tbody id="schedule_event_table_body">
-                            </tbody>
-                        </table>
-
-                        <div class="checkbox">
-                            <label><input id="check_event_creation" type="checkbox" value="">Mostra evento in bacheca.</label>
-                        </div>
-
-                        <div class="dropdown" id="new_event_dropdown"> 
-                            <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
-                            <div class="multiSelect">
-                                <ul class="list-group list-group-flush ">
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-warning my_alert collapse" id="warning_event_creation" role="alert">
-                        </div>
-
-                        <br/>
-                        <button id="create_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Evento</button>
-                        
-                        <button id="abort_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Annulla</button>
-                    </div>
-                        
-                    <div id="event_details" class="collapse">
-                        <br/>
-                        <div class="container">
-                            <h1 class="h3 mb-3 font-weight-normal">Dettagli evento</h1>
-                            <dl id="event_det_list_left" class="event_det_list">
-                                <dt>Titolo</dt>
-                                    <dd id="ed_title">-</dd>
-                                <dt>Data</dt>
-                                    <dd id="ed_date">-</dd>
-                                <dt>Organizzatore</dt>
-                                    <dd id="ed_organizer">-</dd>
-                                <dt>Luogo</dt>
-                                    <dd id="ed_classroom">-</dd>
-                            </dl>
-                        </div>
-
-                        <div class="checkbox">
-                            <label><input id="check_event_det" type="checkbox" value="">Mostra evento in bacheca.</label>
-                        </div>
-
-                        <div class="dropdown" id="event_dettails_dropdown"> 
-                            <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
-                            <div class="multiSelect">
-                                <ul class="list-group list-group-flush">
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Modifica evento</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                            <div id="desc_title"></div>
-                                            <div id="desc_text"></div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mod_event_desk">Applica modifiche</button>
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <br/>
-                        
-                        <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
-                        <br/>
-
-                        <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica evento</button>
-
-                        <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
-
-                        <button id="delete_event" class="btn long-btn btn-danger btn-lg collapse" type="button">Conferma</button>
-                        
-                        <button id="back_to_main_event" class="btn long-btn btn-primary btn-lg" type="button">Indietro</button>
-                    </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
             </div>
+        </div>
+
+        <div id="new_event_page" class="collapse">
+            <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
+            <br>
+            <!--Titolo-->
+            <input id="event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
+            <!--Descrizione-->
+            <textarea class="form-control" id="e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
+            <br>
+            <!--Aggiungi data-->
+            <button id="new_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Aggiungi Data</button>
+            <br>
+            <br>
+            <button id="create_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Evento</button>
+            <button id="abort_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Annulla</button>
+        </div>
+
+        <div id="new_event_date_page" class="collapse">
+            <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
+            <br>
+            <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
+            <select id="select_event_classroom" class="form-control" autocomplete="off">
+            </select>
+            <input id="event_place" class="form-control" type="text" placeholder="Nome luogo evento" autocomplete="off">
+            <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
+                <tbody id="schedule_event_table_body">
+                </tbody>
+            </table>
+            <div class="dropdown" id="new_event_dropdown"> 
+                <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
+                <div class="multiSelect">
+                    <ul class="list-group list-group-flush ">
+                    </ul>
+                </div>
+            </div>
+            <div class="checkbox">
+                <label><input id="check_event_creation" type="checkbox" value="">Mostra evento in bacheca.</label>
+            </div>
+
+            <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
+            <button id="abort_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Annulla</button>
+        </div>
+            
+        <div id="event_details_page" class="collapse">
+            <br/>
+            <div class="container">
+                <h1 class="h3 mb-3 font-weight-normal">Dettagli evento</h1>
+                    <span id="ed_title">-</span>
+                    <span id="ed_date">-</span>
+                    <span id="ed_organizer">-</span>
+                    <span id="ed_classroom">-</spanspan>
+            </div>
+
+            <div class="checkbox">
+                <label><input id="check_event_det" type="checkbox" value="">Mostra evento in bacheca.</label>
+            </div>
+
+            <div class="dropdown" id="event_dettails_dropdown"> 
+                <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
+                <div class="multiSelect">
+                    <ul class="list-group list-group-flush">
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modifica evento</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                                <div id="desc_title"></div>
+                                <div id="desc_text"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mod_event_desk">Applica modifiche</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            
+            <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
+            <br/>
+
+            <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica evento</button>
+
+            <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
+
+            <button id="delete_event" class="btn long-btn btn-danger btn-lg collapse" type="button">Conferma</button>
+            
+            <button id="back_to_main_event" class="btn long-btn btn-primary btn-lg" type="button">Indietro</button>
         </div>
 
         <div id="prenotations_page" class="collapse mainApp container-fluid">
@@ -755,6 +754,7 @@
         <div>
         <script type='text/javascript' >
             var CURRENT_PAGE = null;
+            var PREVIOUS_PAGES = [];
             var INTERVAL = null;
 
             var date = new Date();
@@ -765,8 +765,15 @@
             function showPage(page) {
                 if (CURRENT_PAGE != null) {
                     CURRENT_PAGE.hide();
+                    PREVIOUS_PAGE.push(CURRENT_PAGE);
                 }
                 CURRENT_PAGE = page;
+                CURRENT_PAGE.show();
+            }
+
+            function backPage() {
+                CURRENT_PAGE.hide();
+                CURRENT_PAGE = PREVIOUS_PAGES.pop();
                 CURRENT_PAGE.show();
             }
         </script>

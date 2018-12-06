@@ -294,21 +294,16 @@ var EventsManagement = {
             $('#new_event_page').hide();
             $('#main_events_page').show();
             $("#schedule_event_table_body").empty();
-            $('#warning_event_creation').hide();
         } else if (EventsManagement.ne_date < today) {
-            $('#warning_event_creation').slideDown();
-            $('#warning_event_creation').text('Non possono essere effettuate modifiche per la data selezionata.');
+            console.log('Non possono essere effettuate modifiche per la data selezionata.');
         } else if ($('#event_title')[0].value == "") {
-            $('#warning_event_creation').slideDown();
-            $('#warning_event_creation').text('Inserisci un titolo per l\'evento.');
+            console.log('Inserisci un titolo per l\'evento.');
         } else if ($("#select_event_classroom").find(':selected').text() == 'Seleziona aula') {
-            $('#warning_event_creation').slideDown();
-            $('#warning_event_creation').text('Seleziona il luogo dove si svolgerà l\'evento.');
+            console.log('Seleziona il luogo dove si svolgerà l\'evento.');
         } else if (EventsManagement.cs_selected_rows == 0) {
             if ($("#select_event_classroom").find(':selected').text() != 'Esterno') {
-                $('#warning_event_creation').text('Seleziona l\'orario.');
+                console.log('Seleziona l\'orario.');
             }
-            $('#warning_event_creation').slideDown();
         }
     },
 
@@ -364,26 +359,26 @@ class Event {
 
     getJsonObj() {
         var jobj = '{' +
-        '"title" : '+ this.title+',' + 
+        '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
-        '"organizer" : { id : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
+        '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
         '"date" : {';
 
         this.date.forEach(eventDate => {
-            jobj += '"'+eventDate.date.date+'"' + ': { "class" : [';
+            jobj += '"'+eventDate.date+'"' + ': { "class" : {';
             eventDate.classes.forEach(eventClass => {
                 jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
             });
             jobj = jobj.substring(0, jobj.length - 1);
-            jobj += '], "place" : { "internal" : '+ eventDate.place.isInternal()+', ';
+            jobj += '}, "place" : { "internal" : '+ eventDate.place.isInternal()+', ';
             if (eventDate.place.isInternal()) {
                 jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.id +'"},';
             } else {
                 jobj +='"name" : "' + eventDate.place.place +'"},';
             }
-            jobj += '"hour : ["';
+            jobj += '"hour" : [';
             eventDate.hours.forEach(hour => {
-                jobj += '"' + hour + '", ';
+                jobj += '"' + hour + '",';
             });
             jobj = jobj.substring(0, jobj.length - 1);
             jobj += ']},'
@@ -391,22 +386,7 @@ class Event {
         jobj = jobj.substring(0, jobj.length - 1);
         jobj += '}}';
 
-        return jobj;
-
-        /*
-        {
-            "title" : EventTestTitle,
-            "description" : "EventTestDescription",
-            "organizer" : { id : "007", "name" : "James Bond"},
-            "date" : {
-                "undefined": { 
-                    "class" : ["001" : "1A","002" : "1B"],
-                    "place" : { "internal" : false, "name" : "Milano"},
-                    "hour : [""8", "9", "10", "11",]
-                }
-            }
-        }
-        */
+        return JSON.parse(jobj);
     }
 }
 
@@ -481,6 +461,8 @@ $(function () {
         EventsManagement.loadEventList();
     });
     
+
+    
     $("#safe_delete_event_btn").on('click', () => {
         if ($("#safe_delete_event_btn").text() == "Elimina evento") {
             $("#delete_event").slideDown();
@@ -498,7 +480,6 @@ $(function () {
         $("#delete_event").hide();
         $("#save_event").hide();
         $("#event_class").hide();
-        $('#warning_event_creation').hide();
         EventsManagement.loadEventList();
     });
 
@@ -510,6 +491,11 @@ $(function () {
     });
     
     /************************ new event ************************/
+
+    /*New event date*/
+    $('#new_event_date_btn').on('click', () => {
+        showPage($('#new_event_date_page'));
+    });
     
     jQuery('#datetimepicker3').datetimepicker({
         minDate:'0',
@@ -528,15 +514,14 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
-        var event = new Event('EventTestTitle', 'EventTestDescription', new Teacher('007', 'James Bond'));
+        /*var event = new Event('EventTestTitle', 'EventTestDescription', new Teacher('007', 'James Bond'));
         event.addDate(new EventDate(new Date().getTime(), [new Classroom("001", "1A"), new Classroom("002", "1B")], new EventPlace(undefined, "Milano"), [8, 9, 10, 11]));
-        console.log(event.getJsonObj());
-        /*
+        firebase.database().ref('event').push(event.getJsonObj());*/
+        
         EventsManagement.selected_class = [];
         EventsManagement.newEventClassSelection.loadClasses(null, null);
-        $('#main_events_page').hide();
-        $('#new_event_page').show();
-        $('#event_title').text('');*/
+        showPage($('#new_event_page'));
+        $('#event_title').text('');
     });
     
     $('#schedule_event_table').on('click', '.clickable-row', function(event) {
@@ -570,8 +555,6 @@ $(function () {
         EventsManagement.cs_selected_rows = 0;
         $('#event_title').trigger('reset');
         $('#e_desc').trigger('reset');
-        $('#warning_event_creation').hide();
-        
     });
 
     $('#modal_link_event_desk').on('click', () => {
