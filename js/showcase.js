@@ -18,7 +18,7 @@ var Showcase = {
         //start cycling the elements
         INTERVAL = setInterval(function () {
             date = new Date();
-            $('#bacheca_date').text( date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
+            $('#bacheca_date').text(date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
             switch (STATE) {
                 case 'morning':
                     for (id in afternoon_hours) {

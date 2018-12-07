@@ -118,7 +118,7 @@ $(function () {
                 teacher_key : user.uid
                 });
 
-                firebase.database().ref('class/'+class_key+'/prenotation/'+sc_date.getDate()+"-"+(sc_date.getMonth() + 1)+'-'+sc_date.getFullYear()+'/').update({
+                firebase.database().ref('class/'+class_key+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/').update({
                     [hour] : classroom_name
                 });
             }
@@ -177,13 +177,14 @@ $(function () {
         update_class_references();
     });
 
-    $('.cs_back_btn').on('click', () => {
+    /*$('.back_btn').on('click', () => {
+        console.log('TODO: set reset function in schedule page');
         cs_selected_rows = 0;
         mb_selected_rows = 0;
         $('#book_prenotation_btn').text('Prenota');
         selected_hours = [];
         $("#schedule_table_body").empty();
-    });
+    });*/
     
     /*
        Insert the rows with the prenotation for the selected day and the selected classroom
@@ -277,12 +278,7 @@ $(function () {
         occupied_h = [];
         occupied_cr = [];
 
-        firebase.database().ref('class/'
-        + class_key
-        + '/prenotation/'
-        + sc_date.getDate()+"-"
-        + (sc_date.getMonth() + 1)+'-'
-        + sc_date.getFullYear()+'/').once('value', snap => {
+        firebase.database().ref('class/'+class_key+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/').once('value', snap => {
             snap.forEach(childSnap => {
                 occupied_h.push(childSnap.key);
                 occupied_cr.push(childSnap.val());

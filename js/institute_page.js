@@ -111,11 +111,12 @@ $(function () {
         showPage($("#schedule_page"));
     });
 
-    $("#prenotation_back_btn").on('click', () => {
+    /*$(".back_btn").on('click', () => {
+        console.log('TODO: set reset function in institute page');
         $("#class_pren_table").slideUp();
         $('#prenotations_list').empty();
         $('#datetimepicker2').datetimepicker('reset');
-    });
+    });*/
 
     $("#select_class_pren, datetimepicker2").on('change', () => {
         $("#class_pren_table").slideDown();
@@ -130,18 +131,18 @@ $(function () {
     });
     
     $("#search_class_btn").on('click', () => {
-        DataFormFillUtility.loadClassSelectList("select_class_pren");
-        showPage($("#prenotations_page"));
+        /*DataFormFillUtility.loadClassSelectList("select_class_pren");
+        showPage($("#prenotations_page"));*/
     });
 
     $("#bacheca_btn").on('click', () => {
-        Showcase.loadShowcase();
+        /*Showcase.loadShowcase();
         Showcase.loadEventShowcase();
-        showPage($("#big_table_page"));
-        
+        showPage($("#big_table_page"));*/
     });
 
-    $('#bacheca_back_btn').on('click', () => {
-        clearInterval(INTERVAL);
+    $(".back_btn").on('click', () => {
+        AdvancedOperations.advancedOperationDone();
+        backPage();
     });
 });

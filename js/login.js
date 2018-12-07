@@ -3,14 +3,12 @@ $(function () {
   
   $("#signup_link").on('click',() => {
     showPage($("#signup"));
+    PREVIOUS_PAGES = [];
   });
 
   $(".login_page_btn").on('click',() => {
     showPage($("#login"));
-  });
-
-  $(".user_page_btn").on('click', () => {
-    goUserPage();
+    PREVIOUS_PAGES = [];
   });
 
   $(".institute_page_btn").on('click', () => {
@@ -28,10 +26,6 @@ $(function () {
   $("#logout_button").on('click', () => {
     logOut();
     history.go(0);
-  });
-
-  $("#log_institute_button").on('click', () => {
-    goInstitutePage();
   });
 
   $("#guest_button").on('click', () => {
@@ -65,11 +59,8 @@ $(function () {
     var available = true;
 
     if (SecurityCodeUtility.readCode(txtCode)) {
-      
       if (txtPswd.value == txtPswdRep.value) {
-        
         var dispName = txtName.value + " " + txtSurname.value;
-         
         var dbRef = firebase.database().ref();
         dbRef.child('user/').once('value', snap => {
           snap.forEach(chidsnap => {
@@ -84,16 +75,16 @@ $(function () {
               firebase.auth().currentUser.updateProfile({
                 displayName: dispName
               }).catch(updateUser => console.log('user not updated ' + updateUser.message))}).then(() => {
-                  const USER = firebase.auth().currentUser;
-                  dbRef.child('user/' + USER.uid).set({
-                    name: txtName.value,
-                    surname: txtSurname.value,
-                    email: USER.email,
-                    priviledges: "0",
-                    code : txtCode
-                  }).catch(ops => console.log('ERROR '+ops.message));
-                goUserPage();
-              }).catch(createUser => console.log('error during user creation ' + createUser.message));
+                const USER = firebase.auth().currentUser;
+                dbRef.child('user/' + USER.uid).set({
+                  name: txtName.value,
+                  surname: txtSurname.value,
+                  email: USER.email,
+                  priviledges: "0",
+                  code : txtCode
+                }).catch(ops => console.log('ERROR '+ops.message));
+                goInstitutePage();
+            }).catch(createUser => console.log('error during user creation ' + createUser.message));
           }
         });
       } else {
@@ -122,20 +113,6 @@ $(function () {
   function logOut() {
     firebase.auth().signOut();
     showPage($("#login"));
-  }
-
-/*
-  show user data (name and password) on the user page
-*/
-  function goUserPage() {
-    const USER = firebase.auth().currentUser;
-    if (USER) {
-      $("#user_info").empty();
-      $("#user_info").append("<p>User: "+ USER.displayName + '<br/>Email: ' + USER.email + '</p>');
-      showPage($("#user_page"));
-    } else {
-      showPage($("#login"));
-    }
   }
 
 /*
@@ -171,7 +148,7 @@ $(function () {
           $("#admin_btn").show();
           $("#croom_prenotation_btn").show();
           $("#events_btn").show();
-          $("#search_class_btn").show();          
+          $("#search_class_btn").show();
         } else if (snap.val().priviledges == "0") {
           $("#admin_btn").hide();
           $("#croom_prenotation_btn").show();

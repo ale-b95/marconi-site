@@ -66,10 +66,6 @@ var AdvancedOperations = {
             }
         });
     
-        $('#adv_prenotation_back_btn').on('click', () => {
-            this.advancedOperationDone();
-        });
-    
         $('#adv_select_day').on('change', () => {
             DataFormFillUtility.loadDayScheduleTable('advanced_schedule_table_body', this.proto_week_selection, parseInt($('#adv_select_day').val()));
             $('#advanced_schedule_table').slideDown();
@@ -80,28 +76,22 @@ var AdvancedOperations = {
         var prenotation_ok = false;
         var first_day = $("#datetimepicker4").datetimepicker('getValue');
         var last_day = $("#datetimepicker5").datetimepicker('getValue');
-
         if (first_day == null) {
             first_day = new Date();
         }
-
         if (last_day == null) {
             last_day = new Date();
         }
-
         if (this.wellFilledForm('adv_croom_select') && this.wellFilledForm('adv_class_select')) {
             prenotation_ok = true;
         } else {
             var error_msg = "";
-
-            if (!wellFilledForm('adv_croom_select')) {
+            if (!this.wellFilledForm('adv_croom_select')) {
                 error_msg += 'Seleziona un\'aula.\n';
             }
-
             if (!this.wellFilledForm('adv_class_select')) {
                 error_msg += 'Seleziona una classe.\n';
             }
-
             alert(error_msg);
             prenotation_ok = false;
         }        
@@ -112,15 +102,12 @@ var AdvancedOperations = {
                 alert('Seleziona l\'orario per la prenotazione');
                 prenotation_ok = false;
             }
-
             if ((AdvancedOperations.user_name == null) || (AdvancedOperations.user_key == null)) {
                 var user = firebase.auth().currentUser;
                 AdvancedOperations.user_name = user.displayName;
                 AdvancedOperations.user_key = user.uid;
             }
-
             var temp_date = first_day;
-            
             var selected_classroom_name = $('#adv_croom_select').find(':selected').text();
             var selected_classroom_key = $('#adv_croom_select').val();
             var selected_class = $('#adv_class_select').val();
@@ -141,10 +128,8 @@ var AdvancedOperations = {
         var tmp_year = temp_date.getFullYear();
         var day = temp_date.getDay() - 1;
         if (day < 0) day = 6;
-
         var promises_select = [];
         var toRemove = {class_name:[], hour:[], date:[]};
-
         for (i in week_schedule.selected_hours[day]) {
             var hour = week_schedule.selected_hours[day][i];
             var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+classroom_key+'/'+hour).once('value', function(snap)  {
@@ -166,12 +151,9 @@ var AdvancedOperations = {
                 $('#overrideDetails').empty();
                 $('#overrideDetails').append(dettailTxt);
                 $('#prenotationOverrideAlertModal').modal('show');
-
                 $('#abort_override_btn').on('click',() => {
                     this.advancedOperationDone();
-                    showPage($("#admin_prenotation_page"));
                 });
-
                 $('#prenotation_override_btn').on('click', () => {
                     this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
                 });
@@ -189,10 +171,8 @@ var AdvancedOperations = {
         var tmp_year = temp_date.getFullYear();
         var day = temp_date.getDay() - 1;
         if (day < 0) day = 6;
-
         var promises_select = [];
         var promise_remove = [];
-
         var toRemove = {class_name:[], hour:[]};
         for (i in week_schedule.selected_hours[day]) {
             var hour = week_schedule.selected_hours[day][i];
@@ -204,13 +184,11 @@ var AdvancedOperations = {
             }.bind({h : hour}));
             promises_select.push(my_prom);
         }
-
         Promise.all(promises_select).then(() => {
             for (i in week_schedule.selected_hours[day]) {
                 var my_prom = firebase.database().ref('class/'+toRemove.class_name[i]+'/prenotation/'+tmp_year+"-"+tmp_month+'-'+tmp_day+'/'+toRemove.hour[i]+'/').remove();
                 promise_remove.push(my_prom);
             }
-
             Promise.all(promise_remove).then(() => {
                 for (i in week_schedule.selected_hours[day]){
                     var hour = week_schedule.selected_hours[day][i];
@@ -251,7 +229,8 @@ var AdvancedOperations = {
 
     advancedOperationDone : function() {
         $(".d-row").removeClass('selected_row');
-        showPage($("#administration_page"));
+        $("#advanced_schedule_table").hide();
+        backPage();
 
         Admin.resetForms();
         this.proto_week_selection = {

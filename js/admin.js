@@ -31,14 +31,6 @@ $(function () {
     */
 
     //----------------------------------------------------------------------------------- Navigation buttons   
-    /*
-        This listener hadble all 'back' buttons that allow the user to return to
-        the admin page
-    */
-     $(".administration_page_btn").on('click', () => {
-        showPage($("#administration_page"));
-    })
-    
     $("#admin_btn").on('click', () => {
         showPage($("#administration_page"));
     });
@@ -80,10 +72,6 @@ $(function () {
 
     $("#add_class_btn").on('click', () => {
         addClassToDb();
-    });
-
-    $(".administration_page_btn").on('click', () => {
-        Admin.resetForms();
     });
 
     $("#get_code_btn").on('click', () => {

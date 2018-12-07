@@ -29,10 +29,6 @@ var Announcement = {
             this.fillAnnouncementSelectList();
         });
     
-        $('#announcement_back_btn').on('click', () => {
-            this.announcement_done();
-        });
-    
         $('#send_announcement').on('click', () => {
             this.writeAnnouncement();
             

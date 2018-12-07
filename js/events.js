@@ -111,14 +111,9 @@ var EventsManagement = {
                                             EventsManagement.loadEventList();
                                             $("#safe_delete_event_btn").text('Elimina evento');
                                             $("#delete_event").slideUp();
-                                            $('#event_details').hide();
-                                            $('#main_events_page').show();
                                         });
                                     }
                                 });
-
-                                $('#main_events_page').hide();
-                                $('#event_details').show();
                             });
                         }
                     });
@@ -290,9 +285,6 @@ var EventsManagement = {
             
             EventsManagement.selected_hours = [];
             EventsManagement.cs_selected_rows = 0;
-            
-            $('#new_event_page').hide();
-            $('#main_events_page').show();
             $("#schedule_event_table_body").empty();
         } else if (EventsManagement.ne_date < today) {
             console.log('Non possono essere effettuate modifiche per la data selezionata.');
@@ -461,8 +453,6 @@ $(function () {
         EventsManagement.loadEventList();
     });
     
-
-    
     $("#safe_delete_event_btn").on('click', () => {
         if ($("#safe_delete_event_btn").text() == "Elimina evento") {
             $("#delete_event").slideDown();
@@ -473,15 +463,21 @@ $(function () {
         }
     });   
     
-    $("#back_to_main_event").on('click', () => {
-        $('#event_details').hide();
-        $('#main_events_page').show();
+    /*$(".back_btn").on('click', () => {
+        console.log('TODO: set reset function in events page');
         $("#safe_delete_event_btn").hide();
         $("#delete_event").hide();
         $("#save_event").hide();
         $("#event_class").hide();
         EventsManagement.loadEventList();
-    });
+        $("#schedule_event_table_body").empty();
+        $("#schedule_event_table").hide();
+        EventsManagement.loadEventList();
+        EventsManagement.selected_hours = [];
+        EventsManagement.cs_selected_rows = 0;
+        $('#event_title').trigger('reset');
+        $('#e_desc').trigger('reset');
+    });*/
 
     $('#quick_delet_event_btn').on('click', () => {
         firebase.database().ref('event/'+ selected_event).once('value', snap => {
@@ -545,23 +541,9 @@ $(function () {
         $('#e_desc').trigger('reset');
     });
 
-    $('#abort_event_btn').on('click', () => {
-        $('#new_event_page').hide();
-        $('#main_events_page').show();
-        $("#schedule_event_table_body").empty();
-        $("#schedule_event_table").hide();
-        EventsManagement.loadEventList();
-        EventsManagement.selected_hours = [];
-        EventsManagement.cs_selected_rows = 0;
-        $('#event_title').trigger('reset');
-        $('#e_desc').trigger('reset');
-    });
-
     $('#modal_link_event_desk').on('click', () => {
         $('#exampleModalLong').modal();
     });
-
-    
 });
 
 function onClickHandler(cb) {
