@@ -230,7 +230,6 @@ var AdvancedOperations = {
     advancedOperationDone : function() {
         $(".d-row").removeClass('selected_row');
         $("#advanced_schedule_table").hide();
-        backPage();
 
         Admin.resetForms();
         this.proto_week_selection = {

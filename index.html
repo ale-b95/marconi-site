@@ -364,7 +364,7 @@
                             </div>
                         </div>
                         <button id="new_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Nuovo Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Indietro</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -382,13 +382,10 @@
                         <input id="event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <!--Descrizione-->
                         <textarea class="form-control" id="e_desc" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
-                        <br>
                         <!--Aggiungi data-->
                         <button id="new_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Aggiungi Data</button>
-                        <br>
-                        <br>
                         <button id="create_event_btn" class="btn long-btn btn-primary btn-lg back_btn" type="button">Crea Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -410,6 +407,9 @@
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
+                        <div class="checkbox">
+                            <label><input id="check_event_creation" type="checkbox" value=""> Mostra evento in bacheca.</label>
+                        </div>
                         <div class="dropdown" id="new_event_dropdown"> 
                             <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
                             <div class="multiSelect">
@@ -417,11 +417,8 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="checkbox">
-                            <label><input id="check_event_creation" type="checkbox" value="">Mostra evento in bacheca.</label>
-                        </div>
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -745,8 +742,6 @@
                 }
                 CURRENT_PAGE = page;
                 CURRENT_PAGE.show();
-                console.log(CURRENT_PAGE[0]);
-                console.log(PREVIOUS_PAGES);
             }
 
             function backPage() {
@@ -755,8 +750,6 @@
                     CURRENT_PAGE = PREVIOUS_PAGES.pop();
                     CURRENT_PAGE.show();
                 }
-                console.log(CURRENT_PAGE[0]);
-                console.log(PREVIOUS_PAGES);
             }
         </script>
 

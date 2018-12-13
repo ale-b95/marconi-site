@@ -3,7 +3,7 @@ var DataFormFillUtility = {
         fill the specified select list with the classrooms loaded from the database
         is possible to personalize the first option field adding a default message
     */
-    loadClassroomSelectList : function (form, defaultmsg, selectable) {
+    loadClassroomSelectList : function (form, defaultmsg, extraOption) {
         $('#'+form).empty();
         /*
             check whether or not is specified a custom message, if not uses the premade one
@@ -11,11 +11,12 @@ var DataFormFillUtility = {
         if (defaultmsg == null) {
             defaultmsg = "Seleziona un'aula";
         }
+            
+        $('#'+form).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
+        
 
-        if (selectable) {
-            $('#'+form).append('<option value="" selected>'+ defaultmsg +'</option>');
-        } else {
-            $('#'+form).append('<option value="" disabled selected>'+ defaultmsg +'</option>');
+        if (extraOption != null) {
+            $('#'+form).append('<option>'+extraOption+'</option>');
         }
         
         /*
@@ -124,7 +125,8 @@ $(function () {
     
     $("#events_btn").on('click', () => {
         $("#schedule_event_table_body").empty();
-        DataFormFillUtility.loadClassroomSelectList("select_event_classroom", "Esterno", true);
+        $("#event_place").hide();
+        DataFormFillUtility.loadClassroomSelectList("select_event_classroom", null, "Inserisci nuovo luogo");
         DataFormFillUtility.loadClassSelectList("event_class");
         EventsManagement.loadEventList();
         showPage($("#events_page"));

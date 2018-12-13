@@ -238,7 +238,7 @@ var EventsManagement = {
         var event_title = $('#event_title')[0].value;
         var event_description = $.trim($("#e_desc").val());
         user = firebase.auth().currentUser;
-        if ((EventsManagement.cs_selected_rows > 0 || EventsManagement.classroom_name == "Esterno") && EventsManagement.ne_date >= today &&  event_title != "") {
+        if ((EventsManagement.cs_selected_rows > 0 || EventsManagement.classroom_name == "Inserisci nuovo luogo") && EventsManagement.ne_date >= today &&  event_title != "") {
             $("#schedule_event_table").hide();
             var mydate = EventsManagement.ne_date;
             var rDate = mydate.getDate() + '-' + (mydate.getMonth()+1) + '-' + mydate.getFullYear();
@@ -506,16 +506,22 @@ $(function () {
     });
 
     $('#select_event_classroom').on('change', () => {
-        $("#schedule_event_table").slideDown();
+        if (EventsManagement.classroom_name == "Inserisci nuovo luogo") {
+            $("#schedule_event_table").hide();
+            $("#event_place").show();
+        } else {
+            $("#schedule_event_table").show();
+            $("#event_place").hide();
+        }
     });
     
     $('#new_event_btn').on('click', () => {
         /*var event = new Event('EventTestTitle', 'EventTestDescription', new Teacher('007', 'James Bond'));
         event.addDate(new EventDate(new Date().getTime(), [new Classroom("001", "1A"), new Classroom("002", "1B")], new EventPlace(undefined, "Milano"), [8, 9, 10, 11]));
         firebase.database().ref('event').push(event.getJsonObj());*/
-        
-        EventsManagement.selected_class = [];
-        EventsManagement.newEventClassSelection.loadClasses(null, null);
+
+        /*EventsManagement.selected_class = [];
+        EventsManagement.newEventClassSelection.loadClasses(null, null);*/
         showPage($('#new_event_page'));
         $('#event_title').text('');
     });
