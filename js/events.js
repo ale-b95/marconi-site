@@ -1,13 +1,14 @@
 var EventsManagement = {
+    newEvent : null,
     ne_date : '',
     classroom_name : '',
     classroom_id : '',
+
     cs_selected_rows : 0,
     selected_hours : [],
     selected_class : [],
     selected_event : null,
     newEventClassSelection : new CheckboxClassSelectDropdown("new_event_dropdown"),
-    dettailsEventClassSelection : new CheckboxClassSelectDropdown("event_dettails_dropdown"),
 
     loadEventList : function () {
         $('#event_list').empty();
@@ -122,49 +123,16 @@ var EventsManagement = {
         });
     },
 
-    modifyEvent(event_key, titletext, desctext) {
-        firebase.database().ref('event/'+event_key).update({
-            title : titletext,
-            description : desctext
-        });
+    changeEventTitle : function () {
+        //TODO
     },
 
-    deleteEvent : function (event_key, event_classroom_key) {
-        firebase.database().ref().child('event/'+event_key+'/class/').once('value', snap => {
-            snap.forEach(childSnap => {
-                firebase.database().ref().child('class/'+ childSnap.key+'/event/'+event_key).remove();
-            });
-        }).then(() => {
-            if (event_classroom_key != null) {
-                firebase.database().ref('event/'+ event_key +'/period/').once('value', snap => {
-                    snap.forEach(childSnap => {
-                        var e_date = new Date(childSnap.val());
-                        var ref_prenotation = firebase.database().ref().child('prenotation/'
-                        + e_date.getFullYear() + '/' 
-                        + (e_date.getMonth() + 1) + '/' 
-                        + e_date.getDate() + '/' 
-                        + event_classroom_key + '/');
-            
-                        ref_prenotation.once('value', sbSnap => {
-                            sbSnap.forEach(sbChildSnap => {
-                                sbChildSnap.forEach(gcSnap => {
-                                    if (gcSnap.key == 'event_key') {
-                                        if (event_key == gcSnap.val()) {
-                                            ref_prenotation.child(sbChildSnap.key).remove();
-                                        }
-                                    }
-                                });
-                            });
-                        });
-                    });
-                }).then(() => {
-                    var event_ref = firebase.database().ref().child('event/');
-                    event_ref.child(event_key).remove();
-                }).then(() => {
-                    EventsManagement.loadEventList();
-                });
-            }
-        });
+    changeEventDescription : function () {
+        //TODO
+    },
+
+    deleteEvent : function (event_key) {
+        //TODO
     },
 
     loadClassroomSchedule : function () {
@@ -234,68 +202,22 @@ var EventsManagement = {
     },
 
     createEvent : function () {
-        var today = Date.now() - (24*3600*1000);
-        var event_title = $('#event_title')[0].value;
-        var event_description = $.trim($("#e_desc").val());
-        user = firebase.auth().currentUser;
-        if ((EventsManagement.cs_selected_rows > 0 || EventsManagement.classroom_name == "Inserisci nuovo luogo") && EventsManagement.ne_date >= today &&  event_title != "") {
-            $("#schedule_event_table").hide();
-            var mydate = EventsManagement.ne_date;
-            var rDate = mydate.getDate() + '-' + (mydate.getMonth()+1) + '-' + mydate.getFullYear();
-            var event_prenotation = firebase.database().ref().child('event/').push({
-                title : event_title,
-                classroom : EventsManagement.classroom_name,
-                classroom_key : EventsManagement.classroom_id,
-                date : mydate.getTime(),
-                period : {
-                    date0 : mydate.getTime()
-                },
-                bacheca : $('#check_event_creation').is(':checked'),
-                readableDate : rDate,
-                teacher : user.displayName,
-                teacher_key : user.uid,
-                description : event_description
+        var user = firebase.auth().currentUser;
+        this.newEvent.setOrganizer(new Teacher(user.uid, user.displayName));
+        this.newEvent.setTitle($('#event_title')[0].value);
+        this.newEvent.setDescription($('#event_description')[0].value);
+
+        if (this.newEvent.getTitle() == '' || this.newEvent.getTitle() == null) {
+            alert('Inserire Titolo');
+        } else if (this.newEvent.getDescription() == '' || this.newEvent.getDescription() == null) {
+            alert('Inserire Descrizione');
+        } else {
+            firebase.database().ref('event').push(this.newEvent.getJsonObj()).then(() => {
+                this.newEvent = new InstituteEvent();
+                backPage();
             });
 
-            if (EventsManagement.classroom_name != "Esterno") {
-                for (var i = 0; i < EventsManagement.selected_hours.length; i++) {            
-                    firebase.database().ref().child('prenotation/'
-                    + year+'/'
-                    + month+'/'
-                    + day+'/'
-                    + EventsManagement.classroom_id+'/'
-                    + EventsManagement.selected_hours[i]+'/').set({
-                    event_key : event_prenotation.key,
-                    event : event_title,
-                    classroom : EventsManagement.classroom_name
-                    });
-                }
-            }
-
-            EventsManagement.newEventClassSelection.applySelection(event_prenotation.key, EventsManagement.selected_class);
-            EventsManagement.selected_class = [];
-
-            EventsManagement.loadEventList();
-            alert('Nuovo evento creato\nTitolo evento:  '
-            + $('#event_title')[0].value + '\nGiorno:  ' 
-            + day + '/' 
-            + month + '/' 
-            + year + '\nAula:  ' 
-            + EventsManagement.classroom_name);
-            
-            EventsManagement.selected_hours = [];
-            EventsManagement.cs_selected_rows = 0;
-            $("#schedule_event_table_body").empty();
-        } else if (EventsManagement.ne_date < today) {
-            console.log('Non possono essere effettuate modifiche per la data selezionata.');
-        } else if ($('#event_title')[0].value == "") {
-            console.log('Inserisci un titolo per l\'evento.');
-        } else if ($("#select_event_classroom").find(':selected').text() == 'Seleziona aula') {
-            console.log('Seleziona il luogo dove si svolgerà l\'evento.');
-        } else if (EventsManagement.cs_selected_rows == 0) {
-            if ($("#select_event_classroom").find(':selected').text() != 'Esterno') {
-                console.log('Seleziona l\'orario.');
-            }
+            //console.log(this.newEvent.getJsonObj());
         }
     },
 
@@ -312,19 +234,39 @@ var EventsManagement = {
                 this.selected_class.splice(index, 1);
             }
         }
-    },
-
-    newEvent : function (title, description, date, teacher) {
-        
     }
 }
 
-class Event {
-    constructor(title, description, organizer) {
-        this.title = title;
-        this.description = description;
-        this.organizer = organizer;
+class InstituteEvent {
+    constructor() {
+        this.title = null;
+        this.description = null;
+        this.organizer = null;
         this.date = [];
+    }
+
+    setTitle(title) {
+        this.title = title;
+    }
+
+    setDescription(description) {
+        this.description = description;
+    }
+
+    setOrganizer(organizer) {
+        this.organizer = organizer;
+    }
+
+    getTitle() {
+        return this.title;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    getOrganizer() {
+        return this.organizer;
     }
 
     /**
@@ -354,7 +296,7 @@ class Event {
         '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
         '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
-        '"date" : {';
+        '"date" : [';
 
         this.date.forEach(eventDate => {
             jobj += '"'+eventDate.date+'"' + ': { "class" : {';
@@ -375,33 +317,42 @@ class Event {
             jobj = jobj.substring(0, jobj.length - 1);
             jobj += ']},'
         });
-        jobj = jobj.substring(0, jobj.length - 1);
-        jobj += '}}';
+        if (jobj.substring(jobj.length-1) == ",") {
+            jobj = jobj.substring(0, jobj.length - 1);
+        }
+        jobj += ']}';
 
         return JSON.parse(jobj);
     }
 }
 
 class EventDate {
-    constructor(date, classes, place, hours) {
+    constructor(date) {
         this.date = date;
-        this.classes = classes;
-        this.place = place;
-        this.hours = hours;
+        this.classes = [];
+        this.hours = [];
     }
 
     addClass(InstituteClass) {
-        /*ToDo:
+        /*TODO:
             check whether the class is already present by id and
             add it if not.
         */
     }
 
     removeClass(InstituteClass) {
-        /*ToDo:
+        /*TODO:
             check whether the class is already present by id and
             remove it is.
         */
+    }
+
+    setPlace(place) {
+        this.place = place;
+    }
+
+    setHours(hours) {
+        this.hours = hours;
     }
 }
 
@@ -418,6 +369,22 @@ class EventPlace {
 
     isInternal() {
         return (this.type == 'INT');
+    }
+
+    getPlaceName() {
+        if (this.type == 'INT') {
+            return this.place.name;
+        } else if (this.type == 'EXT') {
+            return this.place.placeName;
+        }
+    }
+
+    getClassroomId() {
+        if (this.type == 'INT') {
+            return this.place.id;
+        } else if (this.type == 'EXT') {
+            console.log('The place is not internal.')
+;        }
     }
 }
 
@@ -516,12 +483,9 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
-        /*var event = new Event('EventTestTitle', 'EventTestDescription', new Teacher('007', 'James Bond'));
-        event.addDate(new EventDate(new Date().getTime(), [new Classroom("001", "1A"), new Classroom("002", "1B")], new EventPlace(undefined, "Milano"), [8, 9, 10, 11]));
-        firebase.database().ref('event').push(event.getJsonObj());*/
-
         /*EventsManagement.selected_class = [];
         EventsManagement.newEventClassSelection.loadClasses(null, null);*/
+        EventsManagement.newEvent = new InstituteEvent();
         showPage($('#new_event_page'));
         $('#event_title').text('');
     });
