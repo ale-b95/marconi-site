@@ -8,10 +8,10 @@ var EventsManagement = {
     selected_hours : [],
     selected_class : [],
     selected_event : null,
-    newEventClassSelection : new CheckboxClassSelectDropdown("new_event_dropdown"),
+    newEventClassSelection : null,
 
     loadEventList : function () {
-        $('#event_list').empty();
+        /*$('#event_list').empty();
         var tmp_date = $("#datetimepicker6").datetimepicker('getValue');
 
         if (tmp_date == null) {
@@ -54,11 +54,11 @@ var EventsManagement = {
                                 selected_event = $(this).val();
                                 $('#deleteEventModal').modal();
                             });
-                            /*
+                            
                             Attach a listener for each event listed to retrive the informations about the event,
                             add a class to partecipate or (if the user created the event or has admin privileges)
                             remove the event.
-                            */
+                            
                             $("#ed_"+event_key+"").click(function(event) {
                                 EventsManagement.selected_event = event_key;
                                 EventsManagement.dettailsEventClassSelection.loadClasses(event_key, EventsManagement.selected_class);
@@ -121,6 +121,7 @@ var EventsManagement = {
                 }
             });
         });
+        */
     },
 
     changeEventTitle : function () {
@@ -142,7 +143,7 @@ var EventsManagement = {
 
         $("#schedule_event_table_body").empty();
         
-        for (var hour = 8; hour<25; hour++) {
+        for (var hour = 8; hour<22; hour++) {
             $("#schedule_event_table_body").append(
             '<tr class="clickable-row" id="ev_hid_'+hour+'" value="'+hour+'">'+
             '<th>'+SPECIAL_HOURS[hour]+'</th><td></td>'+
@@ -216,8 +217,6 @@ var EventsManagement = {
                 this.newEvent = new InstituteEvent();
                 backPage();
             });
-
-            //console.log(this.newEvent.getJsonObj());
         }
     },
 
@@ -296,10 +295,10 @@ class InstituteEvent {
         '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
         '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
-        '"date" : [';
+        '"date" : ';
 
         this.date.forEach(eventDate => {
-            jobj += '"'+eventDate.date+'"' + ': { "class" : {';
+            jobj += '{"eventDate" : "'+eventDate.date+'", "class" : {';
             eventDate.classes.forEach(eventClass => {
                 jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
             });
@@ -320,8 +319,9 @@ class InstituteEvent {
         if (jobj.substring(jobj.length-1) == ",") {
             jobj = jobj.substring(0, jobj.length - 1);
         }
-        jobj += ']}';
+        jobj += '}';
 
+        console.log(jobj);
         return JSON.parse(jobj);
     }
 }
@@ -333,18 +333,8 @@ class EventDate {
         this.hours = [];
     }
 
-    addClass(InstituteClass) {
-        /*TODO:
-            check whether the class is already present by id and
-            add it if not.
-        */
-    }
-
-    removeClass(InstituteClass) {
-        /*TODO:
-            check whether the class is already present by id and
-            remove it is.
-        */
+    setClasses(classes) {
+        this.classes = classes;
     }
 
     setPlace(place) {
@@ -383,8 +373,8 @@ class EventPlace {
         if (this.type == 'INT') {
             return this.place.id;
         } else if (this.type == 'EXT') {
-            console.log('The place is not internal.')
-;        }
+            console.log('The place is not internal.');        
+        }
     }
 }
 
@@ -459,6 +449,23 @@ $(function () {
     $('#new_event_date_btn').on('click', () => {
         showPage($('#new_event_date_page'));
     });
+
+    $('#create_event_date_btn').on('click', () => {
+        var eventDate = $('#datetimepicker3').datetimepicker('getValue');
+        var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
+        var eventDate = new EventDate(dateString);
+        if (EventsManagement.classroom_name == 'Inserisci nuovo luogo') {
+            var eventPlace = new EventPlace(null, $('#event_place').val());
+        } else {
+            var eventPlace = new EventPlace(new Classroom(EventsManagement.classroom_id, EventsManagement.classroom_name));
+        }
+        eventDate.setClasses(EventsManagement.selected_class);
+        eventDate.setHours(EventsManagement.selected_hours);
+        eventDate.setPlace(eventPlace);
+        EventsManagement.newEvent.addDate(eventDate);
+        backPage();
+
+    });
     
     jQuery('#datetimepicker3').datetimepicker({
         minDate:'0',
@@ -474,7 +481,7 @@ $(function () {
 
     $('#select_event_classroom').on('change', () => {
         if (EventsManagement.classroom_name == "Inserisci nuovo luogo") {
-            $("#schedule_event_table").hide();
+            $("#schedule_event_table").show();
             $("#event_place").show();
         } else {
             $("#schedule_event_table").show();
@@ -483,8 +490,9 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
-        /*EventsManagement.selected_class = [];
-        EventsManagement.newEventClassSelection.loadClasses(null, null);*/
+        EventsManagement.selected_class = [];
+        EventsManagement.newEventClassSelection = new CheckboxClassSelectDropdown("new_event_dropdown")
+        EventsManagement.newEventClassSelection.loadClasses(null, null);
         EventsManagement.newEvent = new InstituteEvent();
         showPage($('#new_event_page'));
         $('#event_title').text('');
