@@ -295,7 +295,7 @@ class InstituteEvent {
         '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
         '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
-        '"date" : ';
+        '"date" : [';
 
         this.date.forEach(eventDate => {
             jobj += '{"eventDate" : "'+eventDate.date+'", "class" : {';
@@ -305,7 +305,7 @@ class InstituteEvent {
             jobj = jobj.substring(0, jobj.length - 1);
             jobj += '}, "place" : { "internal" : '+ eventDate.place.isInternal()+', ';
             if (eventDate.place.isInternal()) {
-                jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.id +'"},';
+                jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.place.id +'"},';
             } else {
                 jobj +='"name" : "' + eventDate.place.place +'"},';
             }
@@ -319,7 +319,7 @@ class InstituteEvent {
         if (jobj.substring(jobj.length-1) == ",") {
             jobj = jobj.substring(0, jobj.length - 1);
         }
-        jobj += '}';
+        jobj += ']}';
 
         console.log(jobj);
         return JSON.parse(jobj);
@@ -348,10 +348,10 @@ class EventDate {
 
 class EventPlace {
     constructor(classroom, placeName) {
-        if (placeName === undefined) {
+        if (placeName === undefined || placeName == null) {
             this.type = "INT"
             this.place = classroom;
-        } else if (classroom === undefined) {
+        } else if (classroom === undefined || classroom == null) {
             this.type = "EXT"
             this.place = placeName;
         }
@@ -418,23 +418,7 @@ $(function () {
             $("#safe_delete_event_btn").text('Elimina evento');
             $("#delete_event").slideUp();
         }
-    });   
-    
-    /*$(".back_btn").on('click', () => {
-        console.log('TODO: set reset function in events page');
-        $("#safe_delete_event_btn").hide();
-        $("#delete_event").hide();
-        $("#save_event").hide();
-        $("#event_class").hide();
-        EventsManagement.loadEventList();
-        $("#schedule_event_table_body").empty();
-        $("#schedule_event_table").hide();
-        EventsManagement.loadEventList();
-        EventsManagement.selected_hours = [];
-        EventsManagement.cs_selected_rows = 0;
-        $('#event_title').trigger('reset');
-        $('#e_desc').trigger('reset');
-    });*/
+    });
 
     $('#quick_delet_event_btn').on('click', () => {
         firebase.database().ref('event/'+ selected_event).once('value', snap => {
@@ -454,17 +438,18 @@ $(function () {
         var eventDate = $('#datetimepicker3').datetimepicker('getValue');
         var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
         var eventDate = new EventDate(dateString);
+        
         if (EventsManagement.classroom_name == 'Inserisci nuovo luogo') {
             var eventPlace = new EventPlace(null, $('#event_place').val());
         } else {
-            var eventPlace = new EventPlace(new Classroom(EventsManagement.classroom_id, EventsManagement.classroom_name));
+            var eventPlace = new EventPlace(new Classroom(EventsManagement.classroom_id, EventsManagement.classroom_name), null);
         }
+
         eventDate.setClasses(EventsManagement.selected_class);
         eventDate.setHours(EventsManagement.selected_hours);
         eventDate.setPlace(eventPlace);
         EventsManagement.newEvent.addDate(eventDate);
         backPage();
-
     });
     
     jQuery('#datetimepicker3').datetimepicker({
@@ -525,11 +510,11 @@ $(function () {
 });
 
 function onClickHandler(cb) {
+    cls = $(cb).val().split(',');
+    var classroom = new InstituteClass(cls[0], cls[1]);
     if (cb.checked) {
-        EventsManagement.addElem($(cb).val());
-        AdvancedOperations.addElem($(cb).val());
+        EventsManagement.addElem(classroom);
     } else {
-        EventsManagement.removeElem($(cb).val());
-        AdvancedOperations.removeElem($(cb).val());
+        EventsManagement.removeElem(classroom);
     }
 }

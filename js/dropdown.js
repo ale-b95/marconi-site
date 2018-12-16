@@ -22,7 +22,7 @@ class CheckboxClassSelectDropdown {
                 snap.forEach(childSnap => {
                     $('#'+this.dropdownId + ' div ul').append(
                         '<li class="list-group-item">'+
-                            '<input onclick="onClickHandler(this)" type="checkbox" value="'+childSnap.key+'"/>  '+childSnap.val().name+
+                            '<input onclick="onClickHandler(this)" type="checkbox" value="'+childSnap.key+','+childSnap.val().name+'"/>  '+childSnap.val().name+
                         '</li>');
                 });
             });
@@ -40,7 +40,7 @@ class CheckboxClassSelectDropdown {
                         }
                         $('#'+this.dropdownId + ' div ul').append(
                             '<li class="list-group-item">'+
-                                '<input onclick="onClickHandler(this)" type="checkbox" '+checked+' value="'+childSnap.key+'"/>  '+childSnap.val().name+
+                                '<input onclick="onClickHandler(this)" type="checkbox" '+checked+' value="'+childSnap.key+','+childSnap.val().name+'"/>  '+childSnap.val().name+
                             '</li>');
                     });
                 });
