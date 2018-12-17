@@ -367,6 +367,8 @@
                         <textarea  id="event_description" class="form-control" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
                         <!--Aggiungi data-->
                         <button id="new_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Aggiungi Data</button>
+                        <div id="event_date_list" class="list-group center-std-element" autocomplete="off">
+                        </div>
                         <br>
                         <button id="create_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
@@ -713,8 +715,8 @@
             var CURRENT_PAGE = null;
             var PREVIOUS_PAGES = [];
             var INTERVAL = null;
-
-            var date = new Date();
+            
+            var DATE = new Date();
             var SPECIAL_HOURS = { 8 : "8:25", 9 : "9:15", 10 : "10:15", 11 : "11:05", 12 : "11:55", 13 : "12:55" , 
             14 : "14:00", 15 : "15:00", 16 : "16:00", 17 : "17:00", 18 : "18:00", 19 : "19:00", 20 : "20:00",
             21 : "21:00"}
@@ -727,7 +729,7 @@
                 CURRENT_PAGE = page;
                 CURRENT_PAGE.show();
             }
-
+                
             function backPage() {
                 if (PREVIOUS_PAGES[0] != undefined) {
                     CURRENT_PAGE.hide();
@@ -736,8 +738,8 @@
                 }
             }
         </script>
-
         <script type="text/javascript" src="js/dropdown.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="js/firebaseConfig.js"></script>
         <script type="text/javascript" src="js/showcase.js"></script>
         <script type="text/javascript" src="js/announcement.js"></script>
@@ -750,7 +752,7 @@
         <script type="text/javascript" src="js/advancedOperations.js"></script>
         <script type="text/javascript" src="js/prenotations.js"></script>
         <script type="text/javascript" src="js/institute_page.js"></script>
-        
+       
 
         <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
         
