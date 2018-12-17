@@ -124,12 +124,13 @@ $(function () {
     })
     
     $("#events_btn").on('click', () => {
-        $("#schedule_event_table_body").empty();
-        $("#event_place").hide();
         DataFormFillUtility.loadClassroomSelectList("select_event_classroom", null, "Inserisci nuovo luogo");
         DataFormFillUtility.loadClassSelectList("event_class");
+        EventsManagement.init();
         //EventsManagement.loadEventList();
         showPage($("#events_page"));
+        $("#schedule_event_table_body").empty();
+        $("#event_place").hide();
     });
     
     $("#search_class_btn").on('click', () => {
