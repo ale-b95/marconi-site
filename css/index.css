@@ -32,6 +32,21 @@ input {
     text-align: left;
 }
 
+#event_date_list {
+    margin-bottom: 6%;
+    margin-top: 1% !important;
+}
+
+#new_event_date_btn {
+    margin-bottom: 0% !important;
+}
+
+#event_list {
+    margin-bottom: 6%;
+    width: 80%;
+    margin-left: 10%;
+}
+
 .link {
     text-decoration: underline !important;
     color: #007bff !important;

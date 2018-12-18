@@ -137,9 +137,27 @@ var EventsManagement = {
         */
     },
 
-    loadEventDateList : function (date) {
-        $('#event_date_list').append('<div class="list-group-item event_date_list"><div id="edl_'
-        + date +'">'+ date+'</div><button id="del_ed_btn_'+ date +'" value="'+ date +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
+    loadEventDateList : function () {
+        $('#event_date_list').empty();
+
+        EventsManagement.newEvent.getDate().forEach(date => {
+            var dateName = date.date+ ' ' + date.place.getPlaceName();
+            $('#event_date_list').append('<div class="list-group-item event_list"><div id="'
+            + date.id +'">'+ dateName +'</div><button id="date_'
+            + date.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
+
+            $('#date_'+ date.id).on('click', () => {
+                EventsManagement.newEvent.getDate().forEach(selectedDate => {
+                    if (date.id == selectedDate.id) {
+                        var index = EventsManagement.newEvent.getDate().indexOf(selectedDate);
+                        if (index > -1) {
+                            EventsManagement.newEvent.getDate().splice(index, 1);
+                        }
+                    }
+                });
+                EventsManagement.loadEventDateList();
+            });
+        });
     },
 
     changeEventTitle : function () {
@@ -283,26 +301,45 @@ $(function () {
     });
 
     $('#create_event_date_btn').on('click', () => {
+        var check = true;
         var eventDate = $('#datetimepicker3').datetimepicker('getValue');
         if (eventDate == null) eventDate = new Date();
         var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
         var eventDate = new EventDate(dateString);
-        
-        if (EventsManagement.classroomName == 'Inserisci nuovo luogo') {
-            var eventPlace = new EventPlace(null, $('#event_place').val());
-        } else {
-            var eventPlace = new EventPlace(new Classroom(EventsManagement.classroomId, EventsManagement.classroomName), null);
+
+        if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
+            alert('Seleziona un luogo per l\'evento');
+            check = false;
         }
 
-        eventDate.setClasses(EventsManagement.selectedClasses);
-        eventDate.setHours(EventsManagement.selectedHours);
-        eventDate.setPlace(eventPlace);
-        EventsManagement.newEvent.addDate(eventDate);
-        EventsManagement.eventDateResetForms();
-        EventsManagement.newEvent.getDate().forEach(date => {
-            EventsManagement.loadEventDateList(date);
-        })
-        backPage();
+        if (check) {
+            if (EventsManagement.selectedHours.length == 0) {
+                alert('Seleziona un orario per l\'evento');
+                check = false;
+            }
+        }
+
+        if (check) {
+            if (EventsManagement.selectedClasses.length == 0) {
+                alert('Seleziona classi partecipanti');
+                check = false;
+            }
+        }
+
+        if (check) {
+            if ($('#event_place').val() != '' && EventsManagement.classroomName == 'Inserisci nuovo luogo') {
+                var eventPlace = new EventPlace(null, $('#event_place').val());
+            } else {
+                var eventPlace = new EventPlace(new Classroom(EventsManagement.classroomId, EventsManagement.classroomName), null);
+            }
+            eventDate.setClasses(EventsManagement.selectedClasses);
+            eventDate.setHours(EventsManagement.selectedHours);
+            eventDate.setPlace(eventPlace);
+            EventsManagement.newEvent.addDate(eventDate);
+            EventsManagement.eventDateResetForms();
+            EventsManagement.loadEventDateList();
+            backPage();
+        }
     });
     
     jQuery('#datetimepicker3').datetimepicker({

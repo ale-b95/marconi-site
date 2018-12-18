@@ -97,6 +97,7 @@ class EventDate {
         this.date = date;
         this.classes = [];
         this.hours = [];
+        this.id = SecurityCodeUtility.randomCode(6);
     }
 
     setClasses(classes) {
@@ -131,7 +132,7 @@ class EventPlace {
         if (this.type == 'INT') {
             return this.place.name;
         } else if (this.type == 'EXT') {
-            return this.place.placeName;
+            return this.place;
         }
     }
 

@@ -58,13 +58,14 @@
                 <div class="col-sm-4 col-md-4">
                     <h1 class="h3 mb-3 font-weight-normal">Amministrazione</h1>
                     <br>
-                    <button id="advanced_prenotations_btn" class="btn long-btn btn-primary btn-lg" type="button">Operazioni Avanzate</button>
-                    <button id="announcement_btn" class="btn long-btn btn-primary btn-lg" type="button">Avvisi</button>          
-                    <button id="access_code_btn" class="btn long-btn btn-primary btn-lg" type="button">Codici Accesso</button>
-                    <button id="roles_and_permission_btn" class="btn long-btn btn-primary btn-lg" type="button">Ruoli e permessi</button>
-                    <button id="admin_classrooms_btn" class="btn long-btn btn-primary btn-lg" type="button">Aule</button>
-                    <button id="admin_classes_btn" class="btn long-btn btn-primary btn-lg" type="button">Classi</button>      
-                       
+                    <button id="advanced_prenotations_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Operazioni Avanzate</button>
+                    <button id="announcement_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Avvisi</button>          
+                    <button id="access_code_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Codici Accesso</button>
+                    <button id="roles_and_permission_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Ruoli e permessi</button>
+                    <button id="admin_classrooms_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Aule</button>
+                    <button id="admin_classes_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Classi</button>      
+                    <br>
+                    <br>
                     <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -287,11 +288,13 @@
                 <div class="col-sm-4 col-md-4">
                     <h1 id="institute_info" class="h3 mb-3 font-weight-normal">Istituto</h1>
                     <br/>
-                    <button id="croom_prenotation_btn" class="btn long-btn btn-primary btn-lg" type="button">Prenotazione Aula</button>
-                    <button id="search_class_btn" class="btn long-btn btn-primary btn-lg" type="button">Ricerca Classe</button>
-                    <button id="events_btn" class="btn long-btn btn-primary btn-lg" type="button">Eventi</button>
-                    <button id="bacheca_btn" class="btn long-btn btn-primary btn-lg" type="button">Bacheca</button>
-                    <button id="admin_btn" class="btn long-btn btn-primary btn-lg collapse" type="button">Amministrazione</button> 
+                    <button id="croom_prenotation_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Prenotazione Aula</button>
+                    <button id="search_class_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Ricerca Classe</button>
+                    <button id="events_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Eventi</button>
+                    <button id="bacheca_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Bacheca</button>
+                    <button id="admin_btn" class="btn long-btn btn-outline-primary btn-lg collapse" type="button">Amministrazione</button> 
+                    <br>
+                    <br>
                     <button id="logout_button" class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button> 
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -346,7 +349,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button id="new_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Nuovo Evento</button>
+                        <button id="new_event_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Nuovo Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Indietro</button>
                     </div>
                 </div>
@@ -366,10 +369,9 @@
                         <!--Descrizione-->
                         <textarea  id="event_description" class="form-control" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
                         <!--Aggiungi data-->
-                        <button id="new_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Aggiungi Data</button>
+                        <button id="new_event_date_btn" class="btn long-btn btn-lg btn-outline-primary" type="button">Aggiungi Data</button>
                         <div id="event_date_list" class="list-group center-std-element" autocomplete="off">
                         </div>
-                        <br>
                         <button id="create_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
                     </div>
@@ -393,16 +395,17 @@
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
-                        <div class="checkbox">
+                        <!--<div class="checkbox">
                             <label><input id="check_event_creation" type="checkbox" value=""> Mostra in bacheca.</label>
-                        </div>
+                        </div>-->
                         <div class="dropdown" id="new_event_dropdown"> 
-                            <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
+                            <button class="btn long-btn btn-outline-primary btn-lg" type="button"> Classi</button>
                             <div class="multiSelect">
                                 <ul class="list-group list-group-flush ">
                                 </ul>
                             </div>
                         </div>
+                        <br>
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
                     </div>
