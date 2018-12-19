@@ -368,6 +368,9 @@
                         <input id="event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <!--Descrizione-->
                         <textarea  id="event_description" class="form-control" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
+                        <div class="checkbox">
+                            <label><input id="check_event_creation" type="checkbox" value=""> Mostra in bacheca.</label>
+                        </div>
                         <!--Aggiungi data-->
                         <button id="new_event_date_btn" class="btn long-btn btn-lg btn-outline-primary" type="button">Aggiungi Data</button>
                         <div id="event_date_list" class="list-group center-std-element" autocomplete="off">
@@ -395,9 +398,6 @@
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
-                        <!--<div class="checkbox">
-                            <label><input id="check_event_creation" type="checkbox" value=""> Mostra in bacheca.</label>
-                        </div>-->
                         <div class="dropdown" id="new_event_dropdown"> 
                             <button class="btn long-btn btn-outline-primary btn-lg" type="button"> Classi</button>
                             <div class="multiSelect">
@@ -408,6 +408,23 @@
                         <br>
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-4"></div>
+            </div>
+        </div>
+
+        <div id="event_date_detail_page" class="collapse mainApp container-fluid">
+            <div class="row">
+                <div class="col-sm-4 col-md-4"></div>
+                <div class="col-sm-4 col-md-4">
+                    <div>
+                        <h1 class="h5 mb-3 font-weight-normal">Dettagli prenotazione evento</h1>
+                        <br>
+                        <div id="event_date_details"></div>
+                        <br>
+                        <button id="delete_current_event_date" button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Elimina</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Indietro</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>

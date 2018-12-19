@@ -47,6 +47,20 @@ input {
     margin-left: 10%;
 }
 
+#event_date_details {
+    margin-left:auto; 
+    margin-right:auto;
+    text-align: left;
+}
+
+#event_date_details table {
+    border-collapse: collapse;
+}
+  
+#event_date_details table, #event_date_details th, #event_date_details td {
+    border: 1px solid rgba(49, 97, 255, 0.288);
+}
+
 .link {
     text-decoration: underline !important;
     color: #007bff !important;

@@ -144,7 +144,30 @@ var EventsManagement = {
             var dateName = date.date+ ' ' + date.place.getPlaceName();
             $('#event_date_list').append('<div class="list-group-item event_list"><div id="'
             + date.id +'">'+ dateName +'</div><button id="date_'
-            + date.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
+            + date.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
+
+            $('#'+date.id).on('click', () => {
+                var str = '<table><tdody><tr><th>Giorno</th><td>'+date.date+'</td></tr><tr><th>Luogo</th><td>'+date.place.getPlaceName()+'</td></tr><tr><th>Orario</th><td><ul>';
+                date.hours.forEach(h => {
+                    str += '<li>'+SPECIAL_HOURS[h] +'</li>';
+                });
+                str +='</ul></td></tr><tr><th>Classi presenti</th><td><ul>';
+                date.classes.forEach(c => {
+                    str +='<li>'+c.name+'</li>';
+                });
+                str +='</ul></td></tr></tdody></table>';
+                $('#event_date_details').empty();
+                $('#event_date_details').append(str);
+                showPage($('#event_date_detail_page'));
+
+                $('#delete_current_event_date').on('click', () => {
+                    var index = EventsManagement.newEvent.getDate().indexOf(date);
+                    if (index > -1) {
+                        EventsManagement.newEvent.getDate().splice(index, 1);
+                    }
+                    EventsManagement.loadEventDateList();
+                });
+            });
 
             $('#date_'+ date.id).on('click', () => {
                 EventsManagement.newEvent.getDate().forEach(selectedDate => {
@@ -245,6 +268,8 @@ var EventsManagement = {
             alert('Inserire Descrizione');
         } else {
             firebase.database().ref('event').push(this.newEvent.getJsonObj()).then(() => {
+                EventsManagement.newEvent.date = [];
+                EventsManagement.loadEventDateList();
                 backPage();
             });
         }
@@ -307,9 +332,18 @@ $(function () {
         var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
         var eventDate = new EventDate(dateString);
 
-        if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
-            alert('Seleziona un luogo per l\'evento');
-            check = false;
+        EventsManagement.newEvent.date.forEach(registeredEventDate => {
+            if (registeredEventDate.date == dateString) {
+                alert('E\' già presente un\'altra prenotazine per questo evento nella data selezionata.');
+                check = false;
+            }
+        });
+
+        if (check) {
+            if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
+                alert('Seleziona un luogo per l\'evento');
+                check = false;
+            }
         }
 
         if (check) {

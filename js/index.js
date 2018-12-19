@@ -33,25 +33,7 @@ class InstituteEvent {
     getDate() {
         return this.date;
     }
-
-    /**
-     *  date_1 : {
-     *      class : {
-     *          class_id_1 : class_name_1,
-     *          class_id_2 : class_name_2,
-     *          ...
-     *          ...
-     *      },
-     *      place : {   
-     *                  type : internal / external
-     *                  classroomId : classroomId,
-     *                  classroomName : classroomName,
-     *                              or
-     *                  place_name : place_name
-     *      },
-     *      hour : [8, 9, 10, ...]
-     *  }
-     */
+    
     addDate(date) {
         this.date.push(date);
     }
