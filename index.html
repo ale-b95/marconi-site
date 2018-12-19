@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="css/index.css"/>
         <link rel="stylesheet" type="text/css" href="css/tables.css"/>
+        <link rel="stylesheet" type="text/css" href="css/buttons.css"/>
         
         <title>Marconi</title>
         
@@ -328,9 +329,11 @@
                 <div class="col-sm-4 col-md-4">
                     <div>
                         <h1 class="h3 mb-3 font-weight-normal">Eventi</h1>
+                        <hr>
                         <input class="datepicker form-control" id="datetimepicker6" type="text" readonly="true" autocomplete="off" placeholder="Seleziona mese">
                         <div id="event_list" class="list-group center-std-element" autocomplete="off">
                         </div>
+                        <hr>
                         <div class="modal fade" id="deleteEventModal" tabindex="-1" role="dialog" aria-labelledby="deleteEventModalLongTitle" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -350,7 +353,7 @@
                             </div>
                         </div>
                         <button id="new_event_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Nuovo Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Indietro</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -363,20 +366,22 @@
                 <div class="col-sm-4 col-md-4">
                     <div>
                         <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
-                        <br>
+                        <hr>
                         <!--Titolo-->
                         <input id="event_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                         <!--Descrizione-->
                         <textarea  id="event_description" class="form-control" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
+                        <hr>
                         <div class="checkbox">
                             <label><input id="check_event_creation" type="checkbox" value=""> Mostra in bacheca.</label>
                         </div>
+                        <hr>
                         <!--Aggiungi data-->
                         <button id="new_event_date_btn" class="btn long-btn btn-lg btn-outline-primary" type="button">Aggiungi Data</button>
-                        <div id="event_date_list" class="list-group center-std-element" autocomplete="off">
-                        </div>
-                        <button id="create_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
+                        <div id="event_date_list" class="list-group center-std-element" autocomplete="off"></div>
+                        <hr>
+                        <button id="create_event_btn" class="btn long-btn btn-lg btn-primary" type="button">Crea Evento</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -389,8 +394,9 @@
                 <div class="col-sm-4 col-md-4">
                     <div>
                         <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
-                        <br>
+                        <hr>
                         <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
+                        <hr>
                         <select id="select_event_classroom" class="form-control" autocomplete="off">
                         </select>
                         <input id="event_place" class="form-control" type="text" placeholder="Nome luogo evento" autocomplete="off">
@@ -398,6 +404,7 @@
                             <tbody id="schedule_event_table_body">
                             </tbody>
                         </table>
+                        <hr>
                         <div class="dropdown" id="new_event_dropdown"> 
                             <button class="btn long-btn btn-outline-primary btn-lg" type="button"> Classi</button>
                             <div class="multiSelect">
@@ -405,9 +412,9 @@
                                 </ul>
                             </div>
                         </div>
-                        <br>
+                        <hr>
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Annulla</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
@@ -423,8 +430,8 @@
                         <br>
                         <div id="event_date_details"></div>
                         <br>
-                        <button id="delete_current_event_date" button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Elimina</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn menu-btn" type="button">Indietro</button>
+                        <button id="delete_current_event_date" button class="btn long-btn btn-primary btn-lg back_btn" type="button">Elimina</button>
+                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>

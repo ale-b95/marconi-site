@@ -139,7 +139,6 @@ var EventsManagement = {
 
     loadEventDateList : function () {
         $('#event_date_list').empty();
-
         EventsManagement.newEvent.getDate().forEach(date => {
             var dateName = date.date+ ' ' + date.place.getPlaceName();
             $('#event_date_list').append('<div class="list-group-item event_list"><div id="'
@@ -261,13 +260,20 @@ var EventsManagement = {
     createEvent : function () {
         this.newEvent.setTitle($('#event_title')[0].value);
         this.newEvent.setDescription($('#event_description')[0].value);
-
+        this.newEvent.setOnShowcase($('#check_event_creation').is(":checked"));
         if (this.newEvent.getTitle() == '' || this.newEvent.getTitle() == null) {
             alert('Inserire Titolo');
         } else if (this.newEvent.getDescription() == '' || this.newEvent.getDescription() == null) {
             alert('Inserire Descrizione');
         } else {
-            firebase.database().ref('event').push(this.newEvent.getJsonObj()).then(() => {
+            firebase.database().ref('event').push(this.newEvent.getJsonObj()).then((snap) => {
+
+                this.newEvent.getDate().forEach(d => {
+                    if (d.place.isInternal()) {
+                        Marconi.eventHourPrenotation(d.date, d.place, d.hours, this.newEvent.getTitle(), snap.key);
+                    }
+                });
+                
                 EventsManagement.newEvent.date = [];
                 EventsManagement.loadEventDateList();
                 backPage();

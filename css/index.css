@@ -37,10 +37,6 @@ input {
     margin-top: 1% !important;
 }
 
-#new_event_date_btn {
-    margin-bottom: 0% !important;
-}
-
 #event_list {
     margin-bottom: 6%;
     width: 80%;
@@ -50,6 +46,10 @@ input {
 #event_date_details {
     margin-left:auto; 
     margin-right:auto;
+    text-align: left;
+}
+
+#check_event_creation {
     text-align: left;
 }
 
@@ -83,17 +83,9 @@ input {
     margin-left: 10%;
 }
 
-.long-btn {
+hr {
     width: 80%;
-    margin-bottom: 3%;
-}
-
-.menu-btn {
-    margin-top: 6%;
-}
-
-.update-button {
-    width: 39%; 
+    margin-left: 10%;
 }
 
 #showcase {

@@ -145,7 +145,6 @@ $(function () {
     });
 
     $(".back_btn").on('click', () => {
-        AdvancedOperations.advancedOperationDone();
         backPage();
     });
 });

@@ -4,6 +4,7 @@ class InstituteEvent {
         this.description = null;
         this.organizer = null;
         this.date = [];
+        this.onShowcase = false;
     }
 
     setTitle(title) {
@@ -12,6 +13,10 @@ class InstituteEvent {
 
     setDescription(description) {
         this.description = description;
+    }
+
+    setOnShowcase(show) {
+        this.onShowcase = show;
     }
 
     setOrganizer(organizer) {
@@ -42,6 +47,7 @@ class InstituteEvent {
         var jobj = '{' +
         '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
+        '"onShowcase" : "'+ this.onShowcase+ '",' + 
         '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
         '"date" : [';
 
@@ -68,8 +74,6 @@ class InstituteEvent {
             jobj = jobj.substring(0, jobj.length - 1);
         }
         jobj += ']}';
-
-        console.log(jobj);
         return JSON.parse(jobj);
     }
 }
@@ -145,5 +149,27 @@ class InstituteClass {
     constructor(class_id, class_name) {
         this.id = class_id;
         this.name = class_name;
+    }
+}
+
+var Marconi = {
+    eventHourPrenotation : function (dateStr, classroom, hour, eventTitle, eventKey) {
+        if (place.isInternal) {
+            var str = 'prenotation/'+dateStr.split('-')[0]+'/'+dateStr.split('-')[1]+'/'+dateStr.split('-')[2]+'/'+place.getClassroomId();
+        }
+        console.log(str);
+        hour.forEach(h => {
+            firebase.database().ref(str).set({
+                [h] : {
+                    event : eventTitle,
+                    event_key : eventKey,
+                    classroom : classroom
+                }
+            });
+        });
+    },
+    
+    classroomHourPrenotation : function() {
+
     }
 }
