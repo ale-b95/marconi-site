@@ -267,11 +267,11 @@ var EventsManagement = {
             alert('Inserire Descrizione');
         } else {
             firebase.database().ref('event').push(this.newEvent.getJsonObj()).then((snap) => {
-
                 this.newEvent.getDate().forEach(d => {
                     if (d.place.isInternal()) {
                         Marconi.eventHourPrenotation(d.date, d.place, d.hours, this.newEvent.getTitle(), snap.key);
                     }
+                    Marconi.classEventPrenotation(snap.key, this.newEvent.getTitle(), d);
                 });
                 
                 EventsManagement.newEvent.date = [];
@@ -411,7 +411,7 @@ $(function () {
             $(this).removeClass('selected_row');
             idx = EventsManagement.selectedHours.indexOf($(this).attr('value'));
             if (idx >= 0) EventsManagement.selectedHours.splice(idx, 1);
-            nSelectedRows--;
+            EventsManagement.nSelectedRows--;
         } else if (!$(this).hasClass('selected_row') && !$(this).hasClass('mybook') && !$(this).hasClass('event_prenotation')) {
             $(this).addClass('selected_row');
             EventsManagement.selectedHours.push($(this).attr('value'));

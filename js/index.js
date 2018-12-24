@@ -83,6 +83,7 @@ class EventDate {
         this.date = date;
         this.classes = [];
         this.hours = [];
+        this.place = '';
         this.id = SecurityCodeUtility.randomCode(6);
     }
 
@@ -153,23 +154,40 @@ class InstituteClass {
 }
 
 var Marconi = {
-    eventHourPrenotation : function (dateStr, classroom, hour, eventTitle, eventKey) {
+    eventHourPrenotation : function (dateStr, place, hour, eventTitle, eventKey) {
         if (place.isInternal) {
             var str = 'prenotation/'+dateStr.split('-')[0]+'/'+dateStr.split('-')[1]+'/'+dateStr.split('-')[2]+'/'+place.getClassroomId();
-        }
-        console.log(str);
-        hour.forEach(h => {
-            firebase.database().ref(str).set({
-                [h] : {
-                    event : eventTitle,
-                    event_key : eventKey,
-                    classroom : classroom
-                }
+            hour.forEach(h => {
+                firebase.database().ref(str).update({
+                    [h] : {
+                        event : eventTitle,
+                        event_key : eventKey,
+                        classroom : place.getPlaceName()
+                    }
+                });
             });
-        });
+        }
     },
     
     classroomHourPrenotation : function() {
+    },
 
+    classEventPrenotation : function(eventId, eventTitle, date) {
+        date.classes.forEach(c => {
+            var str = 'class/'+c.id+'/event/'+eventId;
+            firebase.database().ref(str).update({
+                title : eventTitle
+            });
+            
+            firebase.database().ref(str+'/date/').update({
+                [date.date] : date.place.getPlaceName()
+            });
+    
+            date.hours.forEach(h => {
+                firebase.database().ref('class/'+c.id+'/prenotations/'+date.date).update({
+                    [h] : eventKey
+                });
+            });
+        });   
     }
 }
