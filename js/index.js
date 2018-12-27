@@ -48,34 +48,11 @@ class InstituteEvent {
         '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
         '"onShowcase" : "'+ this.onShowcase+ '",' + 
-        '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"},'+
-        '"date" : [';
-
-        this.date.forEach(eventDate => {
-            jobj += '{"eventDate" : "'+eventDate.date+'", "class" : {';
-            eventDate.classes.forEach(eventClass => {
-                jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
-            });
-            jobj = jobj.substring(0, jobj.length - 1);
-            jobj += '}, "place" : { "internal" : '+ eventDate.place.isInternal()+', ';
-            if (eventDate.place.isInternal()) {
-                jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.place.id +'"},';
-            } else {
-                jobj +='"name" : "' + eventDate.place.place +'"},';
-            }
-            jobj += '"hour" : [';
-            eventDate.hours.forEach(hour => {
-                jobj += '"' + hour + '",';
-            });
-            jobj = jobj.substring(0, jobj.length - 1);
-            jobj += ']},'
-        });
-        if (jobj.substring(jobj.length-1) == ",") {
-            jobj = jobj.substring(0, jobj.length - 1);
-        }
-        jobj += ']}';
+        '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"}}';
+        console.log(jobj);
         return JSON.parse(jobj);
     }
+    
 }
 
 class EventDate {
@@ -175,6 +152,7 @@ var Marconi = {
     classEventPrenotation : function(eventId, eventTitle, date) {
         date.classes.forEach(c => {
             var str = 'class/'+c.id+'/event/'+eventId;
+            var prenotText = 'event,'+eventId;
             firebase.database().ref(str).update({
                 title : eventTitle
             });
@@ -182,10 +160,10 @@ var Marconi = {
             firebase.database().ref(str+'/date/').update({
                 [date.date] : date.place.getPlaceName()
             });
-    
+            
             date.hours.forEach(h => {
-                firebase.database().ref('class/'+c.id+'/prenotations/'+date.date).update({
-                    [h] : eventKey
+                firebase.database().ref('class/'+c.id+'/prenotation/'+date.date).update({
+                    [h] : prenotText
                 });
             });
         });   

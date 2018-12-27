@@ -127,7 +127,7 @@ $(function () {
         DataFormFillUtility.loadClassroomSelectList("select_event_classroom", null, "Inserisci nuovo luogo");
         DataFormFillUtility.loadClassSelectList("event_class");
         EventsManagement.init();
-        //EventsManagement.loadEventList();
+        EventsManagement.loadEventList();
         showPage($("#events_page"));
         $("#schedule_event_table_body").empty();
         $("#event_place").hide();

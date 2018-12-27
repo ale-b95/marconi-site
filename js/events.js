@@ -26,7 +26,7 @@ var EventsManagement = {
     },
 
     loadEventList : function () {
-        /*$('#event_list').empty();
+        $('#event_list').empty();
         var tmp_date = $("#datetimepicker6").datetimepicker('getValue');
 
         if (tmp_date == null) {
@@ -39,6 +39,35 @@ var EventsManagement = {
         var startdate = new Date(year, month - 1, 1);
         var enddate = new Date(year, month, 0);
 
+        /*
+        1) get reference of the events with dates on the selected period
+
+        2) for each event add a list element with a link to the page to see the events dettails and the delete button
+        */
+
+        var events_ref = [];
+        firebase.database().ref('event/').once('value', snap => {
+            snap.forEach(eventsSnap => {
+                eventId = eventsSnap.key;
+                eventsSnap.val().day.forEach(d => {
+                    var ddate = new Date(d);
+                    if (ddate > startdate && ddate < enddate) {
+                        if (!events_ref.includes(ddate)){
+                            events_ref.push(eventId);
+                        }
+                    }
+                });
+            });
+        }).then(() => {
+            console.log(events_ref);
+            events_ref.forEach(ref => {
+                firebase.database().ref('event/'+ref).once('value', snap => {
+
+                });
+            }); 
+        });
+        
+        /*
         var ref = firebase.database().ref().child('event/');
         ref.orderByChild("date").startAt(startdate.getTime()).endAt(enddate.getTime())
         .once("value", snap => {
@@ -68,10 +97,6 @@ var EventsManagement = {
                                 selectedEvent = $(this).val();
                                 $('#deleteEventModal').modal();
                             });
-                            
-                            Attach a listener for each event listed to retrive the informations about the event,
-                            add a class to partecipate or (if the user created the event or has admin privileges)
-                            remove the event.
                             
                             $("#ed_"+event_key+"").click(function(event) {
                                 EventsManagement.selectedEvent = event_key;
@@ -261,17 +286,50 @@ var EventsManagement = {
         this.newEvent.setTitle($('#event_title')[0].value);
         this.newEvent.setDescription($('#event_description')[0].value);
         this.newEvent.setOnShowcase($('#check_event_creation').is(":checked"));
+        var dates = [];
+
+        this.newEvent.date.forEach(d => {
+            if (!dates.includes(d.date)){
+              dates.push(d.date);
+            }
+        });
+
         if (this.newEvent.getTitle() == '' || this.newEvent.getTitle() == null) {
             alert('Inserire Titolo');
         } else if (this.newEvent.getDescription() == '' || this.newEvent.getDescription() == null) {
             alert('Inserire Descrizione');
         } else {
             firebase.database().ref('event').push(this.newEvent.getJsonObj()).then((snap) => {
-                this.newEvent.getDate().forEach(d => {
-                    if (d.place.isInternal()) {
-                        Marconi.eventHourPrenotation(d.date, d.place, d.hours, this.newEvent.getTitle(), snap.key);
+                this.newEvent.getDate().forEach(eventDate => {
+                    var jobj = '{';
+                    if (eventDate.classes.length > 0) {
+                        jobj += '"class" : {';
+                        eventDate.classes.forEach(eventClass => {
+                            jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
+                        });
+                        jobj = jobj.substring(0, jobj.length - 1);
+                        jobj += '},';
                     }
-                    Marconi.classEventPrenotation(snap.key, this.newEvent.getTitle(), d);
+                    jobj += '"place" : { "internal" : '+ eventDate.place.isInternal()+', ';
+                    if (eventDate.place.isInternal()) {
+                        jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.place.id +'"},';
+                    } else {
+                        jobj +='"name" : "' + eventDate.place.place +'"},';
+                    }
+                    jobj += '"hour" : [';
+                    eventDate.hours.forEach(hour => {
+                        jobj += '"' + hour + '",';
+                    });
+                    jobj = jobj.substring(0, jobj.length - 1);
+                    jobj += ']}';
+                    console.log(jobj);
+                    jobj = JSON.parse(jobj);
+                    firebase.database().ref('event/'+snap.key+'/date/'+eventDate.date+'/').update(jobj);
+                    firebase.database().ref('event/'+snap.key+'/day').update(dates);
+                    if (eventDate.place.isInternal()) {
+                        Marconi.eventHourPrenotation(eventDate.date, eventDate.place, eventDate.hours, this.newEvent.getTitle(), snap.key);
+                    }
+                    Marconi.classEventPrenotation(snap.key, this.newEvent.getTitle(), eventDate);
                 });
                 
                 EventsManagement.newEvent.date = [];
@@ -338,13 +396,6 @@ $(function () {
         var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
         var eventDate = new EventDate(dateString);
 
-        EventsManagement.newEvent.date.forEach(registeredEventDate => {
-            if (registeredEventDate.date == dateString) {
-                alert('E\' già presente un\'altra prenotazine per questo evento nella data selezionata.');
-                check = false;
-            }
-        });
-
         if (check) {
             if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
                 alert('Seleziona un luogo per l\'evento');
@@ -355,13 +406,6 @@ $(function () {
         if (check) {
             if (EventsManagement.selectedHours.length == 0) {
                 alert('Seleziona un orario per l\'evento');
-                check = false;
-            }
-        }
-
-        if (check) {
-            if (EventsManagement.selectedClasses.length == 0) {
-                alert('Seleziona classi partecipanti');
                 check = false;
             }
         }
