@@ -12,11 +12,10 @@ var EventsManagement = {
         this.classroomName = '';
         this.classroomId = '';
     
-        this.selectedEvent = null;
-
         this.newEvent = new InstituteEvent();
         this.newEvent.setOrganizer(new Teacher(this.user.uid, this.user.displayName));
 
+        this.selectedEvent = null;
         this.dbEvents = [];
     },
 
@@ -46,14 +45,15 @@ var EventsManagement = {
 
         2) for each event add a list element with a link to the page to see the events dettails and the delete button
         */
-
+        var dbEvents = [];
         var events_ref = [];
+
         firebase.database().ref('event/').once('value', snap => {
             snap.forEach(eventsSnap => {
                 eventId = eventsSnap.key;
                 if (eventsSnap.child('day').exists()) {
                     eventsSnap.child('day').forEach(d => {
-                        var ddate = new Date(d);
+                        var ddate = new Date(d.val());
                         if (ddate > startdate && ddate < enddate) {
                             if (!events_ref.includes(eventId)){
                                 events_ref.push(eventId);
@@ -67,10 +67,9 @@ var EventsManagement = {
                 }
             });
         }).then(() => {
+            var promises = [];
             events_ref.forEach(ref => {
-                firebase.database().ref('event/'+ref).once('value', snap => {
-                    
-                    //THIS SHIT DOESN'T WORK MAN!!!
+                var prom = firebase.database().ref('event/'+ref).once('value', snap => {
                     var tmpEvent = new InstituteEvent();
                     tmpEvent.setId(ref);
                     tmpEvent.setTitle(snap.val().title);
@@ -79,127 +78,105 @@ var EventsManagement = {
                     tmpEvent.setOrganizer(new Teacher(snap.child('organizer').val().id, snap.child('organizer').val().name));
 
                     snap.child('date').forEach(dateSnap => {
-                        
                         var tmpDate = new EventDate(dateSnap.key);
-                        
                         dateSnap.child('hour').forEach(hourSnap => {
                             tmpDate.hours.push(hourSnap.val());
                         });
 
+                        var placeId = null;
+                        var placeName = null;
+                        var isInternal = null;
+
                         dateSnap.child('place').forEach(placeSnap => {
-                            
-                            console.log(placeSnap.val().internal);
-                            /*
-                            if (placeSnap.val().internal == 'true') {
-                                console.log('internal true');
-                                tmpDate.setPlace(new EventPlace(new Classroom(placeSnap.val().id, placeSnap.val().name)));
-                            } else {
-                                console.log('internal false');
-                                tmpDate.setPlace(new EventPlace(undefined, placeSnap.val().name));
-                            }*/
-                        });
+                            if (placeSnap.key == 'internal') {
+                                isInternal = placeSnap.val();
+                            } else if (placeSnap.key == 'id') {
+                                placeId = placeSnap.val();
+                            } else if (placeSnap.key == 'name') {
+                                placeName = placeSnap.val();
+                            }
+                        }); 
 
-                        tmpEvent.date.push(tmpDate);
-                    }); 
-                    
-                    console.log(tmpEvent);
-                });
-            }); 
-        });
-        
-        /*
-        var ref = firebase.database().ref().child('event/');
-        ref.orderByChild("date").startAt(startdate.getTime()).endAt(enddate.getTime())
-        .once("value", snap => {
-            snap.forEach(childSnap => {
-                var event_key = childSnap.key;
-                var title = childSnap.val().title;
-                var event_date = new Date(childSnap.val().date);
-                var hour  = childSnap.val().starting_hour;
-                var teacher = childSnap.val().teacher;
-                var teacher_key = childSnap.val().teacher_key;
-                var classroom = childSnap.val().classroom;
-                var classroom_key = childSnap.val().classroom_key; 
-                var description = childSnap.val().description;
-                var inBacheca = childSnap.val().bacheca;
-
-                if (this.user) {
-                    firebase.database().ref('user/' + this.user.uid).once('value', snap => {
-                        if (snap.val().priviledges == "1" || this.user.uid == teacher_key) {
-                            $('#event_list').append('<div class="list-group-item event_list"><div id="ed_'
-                            + event_key +'">'
-                            + title + ' - ' 
-                            + event_date.getDate() + '/' 
-                            + (event_date.getMonth() + 1) + '/' 
-                            + event_date.getFullYear() +'</div><button id="del_btn_'+ event_key +'" value="'+ event_key +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
-
-                            $('.del_btn_event').click(function() {
-                                selectedEvent = $(this).val();
-                                $('#deleteEventModal').modal();
-                            });
-                            
-                            $("#ed_"+event_key+"").click(function(event) {
-                                EventsManagement.selectedEvent = event_key;
-                                EventsManagement.dettailsEventClassSelection.loadClasses(event_key, EventsManagement.selectedClasses);
-
-                                $("#back_to_main_event").on('click', () => {
-                                    EventsManagement.dettailsEventClassSelection.applySelection(EventsManagement.selectedEvent, EventsManagement.selectedClasses);
-                                    EventsManagement.selectedClasses = [];
-                                });
-                                
-                                $("#delete_event").off();
-                                $("#save_event").off();
-                                
-                                var id = event.target.id;
-                                var current_key = id.substring(id.indexOf("_") + 1);
-                                var current_date = event_date;
-                                
-                                $('#event_list').empty();
-                                $("#ed_title").text('- ' + title);
-                                $("#ed_date").text('- '
-                                + current_date.getDate() + '/' 
-                                + (current_date.getMonth() + 1 )+ '/' 
-                                + current_date.getFullYear());
-                                
-                                $("#ed_starting_hour").text('- '+ SPECIAL_HOURS[hour]);
-                                $("#ed_organizer").text('- '+ teacher);
-                                $("#ed_classroom").text('- '+ classroom);
-                                $('#desc_title').empty();
-                                $('#desc_text').empty();
-                                $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+title+'"></div>');
-                                $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+description+'</textarea></div>');
-                                $('#check_event_det').prop("checked", inBacheca);
-                                $('#mod_event_desk').on('click', () => {
-                                    EventsManagement.modifyEvent(selectedEvent, $('#event_title_text').val(), $('#event_desc_txt_area').val());
-                                    $("#ed_title").text('- ' + $('#event_title_text').val());
-                                });
-
-                                $('#check_event_det').on('change', () => {
-                                    firebase.database().ref('event/'+EventsManagement.selectedEvent).update({
-                                        bacheca : $('#check_event_det').is(':checked')
-                                    });
-                                });
-                                
-                                firebase.database().ref('user/'+this.user.uid).once('value', snap => {
-                                    var level = snap.val().priviledges + '';
-                                    if (level == 1 || this.user.uid == teacher_key) {
-                                        $("#safe_delete_event_btn").show();
-                                        $("#save_event").hide();
-                                        $("#delete_event").on('click', () => {
-                                            EventsManagement.deleteEvent(current_key, classroom_key);
-                                            EventsManagement.loadEventList();
-                                            $("#safe_delete_event_btn").text('Elimina evento');
-                                            $("#delete_event").slideUp();
-                                        });
-                                    }
-                                });
-                            });
+                        if (isInternal) {
+                            tmpDate.setPlace(new EventPlace(new Classroom(placeId, placeName)));
+                        } else {
+                            tmpDate.setPlace(new EventPlace(undefined, placeName));
                         }
+                        tmpEvent.date.push(tmpDate);
+                 
+                    }); 
+
+                    dbEvents.push(tmpEvent);
+                });
+
+                promises.push(prom);
+            });
+            
+            Promise.all(promises).then(() => {
+                dbEvents.forEach(e => {
+                    if (Marconi.admin == '1' || e.getOrganizer().id == user.uid) {
+                        $('#event_list').append('<div class="list-group-item event_list">'
+                        +'<div id="ed_'+ e.id +'">'
+                        + e.title +'</div><button id="del_btn_'+ e.id +'" value="'+ e.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
+                    }   
+
+                    $('.del_btn_event').click(function() {
+                        selectedEvent = $(this).val();
+                        $('#deleteEventModal').modal();
                     });
-                }
+
+                    $("#ed_"+e.id+"").click(function(event) {
+                        EventsManagement.selectedEvent = e.id;
+                        EventsManagement.dettailsEventClassSelection.loadClasses(event_key, EventsManagement.selectedClasses);
+            
+                        $("#back_to_main_event").on('click', () => {
+                            EventsManagement.dettailsEventClassSelection.applySelection(EventsManagement.selectedEvent, EventsManagement.selectedClasses);
+                            EventsManagement.selectedClasses = [];
+                        });
+                        
+                        $("#delete_event").off();
+                        $("#save_event").off();
+                        
+                        var id = event.target.id;
+                        var current_key = id.substring(id.indexOf("_") + 1);
+                        
+                        $('#event_list').empty();
+                        $("#ed_title").text('- ' + title);
+                        $("#ed_organizer").text('- '+ teacher);
+                        $("#ed_classroom").text('- '+ classroom);
+                        $('#desc_title').empty();
+                        $('#desc_text').empty();
+                        $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+title+'"></div>');
+                        $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+description+'</textarea></div>');
+                        $('#check_event_det').prop("checked", inBacheca);
+                        $('#mod_event_desk').on('click', () => {
+                            EventsManagement.modifyEvent(selectedEvent, $('#event_title_text').val(), $('#event_desc_txt_area').val());
+                            $("#ed_title").text('- ' + $('#event_title_text').val());
+                        });
+            
+                        $('#check_event_det').on('change', () => {
+                            firebase.database().ref('event/'+EventsManagement.selectedEvent).update({
+                                bacheca : $('#check_event_det').is(':checked')
+                            });
+                        });
+                        
+                        firebase.database().ref('user/'+this.user.uid).once('value', snap => {
+                            var level = snap.val().priviledges + '';
+                            if (level == 1 || this.user.uid == teacher_key) {
+                                $("#safe_delete_event_btn").show();
+                                $("#save_event").hide();
+                                $("#delete_event").on('click', () => {
+                                    EventsManagement.deleteEvent(current_key, classroom_key);
+                                    EventsManagement.loadEventList();
+                                    $("#safe_delete_event_btn").text('Elimina evento');
+                                    $("#delete_event").slideUp();
+                                });
+                            }
+                        });
+                    });
+                });
             });
         });
-        */
     },
 
     loadEventDateList : function () {
@@ -256,7 +233,9 @@ var EventsManagement = {
     },
 
     deleteEvent : function (event_key) {
-        //TODO
+        //get all references for every date, joining classes and prenotations related to the selected event
+
+        //delete all those elements from the database
     },
 
     loadClassroomSchedule : function () {
@@ -365,7 +344,9 @@ var EventsManagement = {
                     console.log(jobj);
                     jobj = JSON.parse(jobj);
                     firebase.database().ref('event/'+snap.key+'/date/'+eventDate.date+'/').update(jobj);
-                    firebase.database().ref('event/'+snap.key+'/day').update(dates);
+                    dates.forEach((date, i) => {
+                        firebase.database().ref('event/'+snap.key+'/day').update({[i] : date});
+                    });
                     if (eventDate.place.isInternal()) {
                         Marconi.eventHourPrenotation(eventDate.date, eventDate.place, eventDate.hours, this.newEvent.getTitle(), snap.key);
                     }
@@ -416,8 +397,7 @@ $(function () {
 
     $('#quick_delet_event_btn').on('click', () => {
         firebase.database().ref('event/'+ selectedEvent).once('value', snap => {
-            var classroom_key = snap.val().classroom_key;
-            EventsManagement.deleteEvent(selectedEvent, classroom_key);
+            EventsManagement.deleteEvent(selectedEvent);
         })
     });
     
