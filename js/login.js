@@ -37,6 +37,11 @@ $(function () {
 */
   firebase.auth().onAuthStateChanged(firebaseUser => {
     if (firebaseUser) {
+      Marconi.user = firebase.auth().currentUser;
+      firebase.database().ref('user/'+Marconi.user.uid+'/priviledges').once('value', snap => {
+        Marconi.admin = snap.val();
+        console.log('Admin: ' + Marconi.admin);
+      });
       console.log(firebaseUser);
       console.log('logged in');
       goInstitutePage();
@@ -106,8 +111,7 @@ $(function () {
     const email = txtEmailLogin.value;
     const pwd = txtPwdLogin.value;
 
-    firebase.auth().signInWithEmailAndPassword(email, pwd)
-    .catch(e => console.log('login error: ' + e.message));
+    firebase.auth().signInWithEmailAndPassword(email, pwd).catch(e => console.log('login error: ' + e.message));
   }
 
   function logOut() {

@@ -16,6 +16,8 @@ var EventsManagement = {
 
         this.newEvent = new InstituteEvent();
         this.newEvent.setOrganizer(new Teacher(this.user.uid, this.user.displayName));
+
+        this.dbEvents = [];
     },
 
     eventDateInit : function () {
@@ -49,20 +51,58 @@ var EventsManagement = {
         firebase.database().ref('event/').once('value', snap => {
             snap.forEach(eventsSnap => {
                 eventId = eventsSnap.key;
-                eventsSnap.val().day.forEach(d => {
-                    var ddate = new Date(d);
-                    if (ddate > startdate && ddate < enddate) {
-                        if (!events_ref.includes(ddate)){
-                            events_ref.push(eventId);
+                if (eventsSnap.child('day').exists()) {
+                    eventsSnap.child('day').forEach(d => {
+                        var ddate = new Date(d);
+                        if (ddate > startdate && ddate < enddate) {
+                            if (!events_ref.includes(eventId)){
+                                events_ref.push(eventId);
+                            }
                         }
+                    });
+                } else if (!eventsSnap.child('day').exists() && Marconi.admin == 1) {
+                    if (!events_ref.includes(eventId)){
+                        events_ref.push(eventId);
                     }
-                });
+                }
             });
         }).then(() => {
-            console.log(events_ref);
             events_ref.forEach(ref => {
                 firebase.database().ref('event/'+ref).once('value', snap => {
+                    
+                    //THIS SHIT DOESN'T WORK MAN!!!
+                    var tmpEvent = new InstituteEvent();
+                    tmpEvent.setId(ref);
+                    tmpEvent.setTitle(snap.val().title);
+                    tmpEvent.setDescription(snap.val().description);
+                    tmpEvent.setOnShowcase(snap.val().onShowcase);
+                    tmpEvent.setOrganizer(new Teacher(snap.child('organizer').val().id, snap.child('organizer').val().name));
 
+                    snap.child('date').forEach(dateSnap => {
+                        
+                        var tmpDate = new EventDate(dateSnap.key);
+                        
+                        dateSnap.child('hour').forEach(hourSnap => {
+                            tmpDate.hours.push(hourSnap.val());
+                        });
+
+                        dateSnap.child('place').forEach(placeSnap => {
+                            
+                            console.log(placeSnap.val().internal);
+                            /*
+                            if (placeSnap.val().internal == 'true') {
+                                console.log('internal true');
+                                tmpDate.setPlace(new EventPlace(new Classroom(placeSnap.val().id, placeSnap.val().name)));
+                            } else {
+                                console.log('internal false');
+                                tmpDate.setPlace(new EventPlace(undefined, placeSnap.val().name));
+                            }*/
+                        });
+
+                        tmpEvent.date.push(tmpDate);
+                    }); 
+                    
+                    console.log(tmpEvent);
                 });
             }); 
         });

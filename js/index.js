@@ -1,10 +1,15 @@
 class InstituteEvent {
     constructor() {
+        this.id = null;
         this.title = null;
         this.description = null;
         this.organizer = null;
         this.date = [];
         this.onShowcase = false;
+    }
+
+    setId(id) {
+        this.id = id;
     }
 
     setTitle(title) {
@@ -21,6 +26,10 @@ class InstituteEvent {
 
     setOrganizer(organizer) {
         this.organizer = organizer;
+    }
+
+    getId() {
+        return this.id;
     }
 
     getTitle() {
@@ -131,6 +140,9 @@ class InstituteClass {
 }
 
 var Marconi = {
+    user : "",
+    admin : "", 
+
     eventHourPrenotation : function (dateStr, place, hour, eventTitle, eventKey) {
         if (place.isInternal) {
             var str = 'prenotation/'+dateStr.split('-')[0]+'/'+dateStr.split('-')[1]+'/'+dateStr.split('-')[2]+'/'+place.getClassroomId();
