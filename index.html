@@ -439,59 +439,72 @@
         </div>
             
         <div id="event_details_page" class="collapse mainApp container-fluid">
-            <br/>
-            <div class="container">
-                <h1 class="h3 mb-3 font-weight-normal">Dettagli evento</h1>
-                    <span id="ed_title">-</span>
-                    <span id="ed_date">-</span>
-                    <span id="ed_organizer">-</span>
-                    <span id="ed_classroom">-</spanspan>
-            </div>
+            <div class="row">
+                <div class="col-sm-4 col-md-4"></div>
+                <div class="col-sm-4 col-md-4">
+                    <h1 class="h3 mb-3 font-weight-normal">Dettagli evento</h1>
+                    <hr>
+                    <div class="container">
+                        <span id="ed_title">Titolo: </span>
+                        <br><br>
+                        <span id="ed_organizer">Organizzatore: </span>
+                    </div>
 
-            <div class="checkbox">
-                <label><input id="check_event_det" type="checkbox" value="">Mostra in bacheca.</label>
-            </div>
+                    <hr>
+        
+                    <div class="checkbox">
+                        <label><input id="check_event_det" type="checkbox" value=""> Mostra in bacheca.</label>
+                    </div>
 
-            <div class="dropdown" id="event_dettails_dropdown"> 
-                <button class="btn long-btn btn-primary btn-lg" type="button"> Classi</button>
-                <div class="multiSelect">
-                    <ul class="list-group list-group-flush">
-                    </ul>
-                </div>
-            </div>
+                    <hr>
 
-            <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Modifica evento</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                                <div id="desc_title"></div>
-                                <div id="desc_text"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mod_event_desk">Applica modifiche</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <span>Date Evento:</span>
+                    <div id="event_date_details_list" class="list-group center-std-element" autocomplete="off">
+                    </div>
+        
+                    <!--
+                    <div class="dropdown" id="event_dettails_dropdown"> 
+                        <button class="btn long-btn btn-primary btn-lg" type="button">Classi</button>
+                        <div class="multiSelect">
+                            <ul class="list-group list-group-flush">
+                            </ul>
                         </div>
                     </div>
+                    <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
+                    -->
+                    <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Modifica evento</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                        <div id="desc_title"></div>
+                                        <div id="desc_text"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mod_event_desk">Applica modifiche</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica evento</button>
+                    <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
+                    <button id="delete_event" class="btn long-btn btn-danger btn-lg collapse" type="button">Conferma</button>
+
+                    <hr>
+
+                    <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
                 </div>
+                <div class="col-sm-4 col-md-4"></div>
             </div>
-            <br/>
-            
-            <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
-            <br/>
-
-            <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica evento</button>
-
-            <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
-
-            <button id="delete_event" class="btn long-btn btn-danger btn-lg collapse" type="button">Conferma</button>
-            
-            <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
         </div>
 
         <div id="prenotations_page" class="collapse mainApp container-fluid">

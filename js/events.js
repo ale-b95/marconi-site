@@ -40,14 +40,10 @@ var EventsManagement = {
         var startdate = new Date(year, month - 1, 1);
         var enddate = new Date(year, month, 0);
 
-        /*
-        1) get reference of the events with dates on the selected period
-
-        2) for each event add a list element with a link to the page to see the events dettails and the delete button
-        */
         var dbEvents = [];
         var events_ref = [];
 
+        // 1) get reference of the events with dates on the selected period
         firebase.database().ref('event/').once('value', snap => {
             snap.forEach(eventsSnap => {
                 eventId = eventsSnap.key;
@@ -67,6 +63,7 @@ var EventsManagement = {
                 }
             });
         }).then(() => {
+        //2) for each event selected from the database create an object representation
             var promises = [];
             events_ref.forEach(ref => {
                 var prom = firebase.database().ref('event/'+ref).once('value', snap => {
@@ -111,68 +108,73 @@ var EventsManagement = {
 
                 promises.push(prom);
             });
-            
+
+            //3) for each event add a list element with a link to the page to see the events dettails and the delete button
             Promise.all(promises).then(() => {
                 dbEvents.forEach(e => {
+                    //3.1 create the list element with the delete button
                     if (Marconi.admin == '1' || e.getOrganizer().id == user.uid) {
                         $('#event_list').append('<div class="list-group-item event_list">'
                         +'<div id="ed_'+ e.id +'">'
                         + e.title +'</div><button id="del_btn_'+ e.id +'" value="'+ e.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
                     }   
 
-                    $('.del_btn_event').click(function() {
-                        selectedEvent = $(this).val();
+                    $("del_btn_"+ e.id).click(() => {
+                        EventsManagement.selectedEvent = e.id;
+                    });
+
+                    //3.2 add a listener for the delete button of each list element
+                    $('.del_btn_event').click(() => {
+                        EventsManagement.selectedEvent = dbEvents[dbEvents.indexOf($(this).val())];
                         $('#deleteEventModal').modal();
                     });
 
-                    $("#ed_"+e.id+"").click(function(event) {
-                        EventsManagement.selectedEvent = e.id;
-                        EventsManagement.dettailsEventClassSelection.loadClasses(event_key, EventsManagement.selectedClasses);
-            
-                        $("#back_to_main_event").on('click', () => {
-                            EventsManagement.dettailsEventClassSelection.applySelection(EventsManagement.selectedEvent, EventsManagement.selectedClasses);
-                            EventsManagement.selectedClasses = [];
-                        });
-                        
+                    //3.3 add a listener for each list element to show a page in witch the relative event details are shown
+                    $("#ed_"+e.id+"").click(() => {
+                        //3.3.1 set the global event identifier with the selected event reference
+                        EventsManagement.selectedEvent = e;
+
+                        //3.3.2 remove the previous event handler from the buttons
                         $("#delete_event").off();
                         $("#save_event").off();
                         
-                        var id = event.target.id;
-                        var current_key = id.substring(id.indexOf("_") + 1);
-                        
-                        $('#event_list').empty();
-                        $("#ed_title").text('- ' + title);
-                        $("#ed_organizer").text('- '+ teacher);
-                        $("#ed_classroom").text('- '+ classroom);
+                        $("#ed_title").text('Titolo: '+e.title);
+                        $("#ed_organizer").text('Organizzatore: '+e.organizer.name);
                         $('#desc_title').empty();
                         $('#desc_text').empty();
-                        $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+title+'"></div>');
-                        $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+description+'</textarea></div>');
-                        $('#check_event_det').prop("checked", inBacheca);
-                        $('#mod_event_desk').on('click', () => {
-                            EventsManagement.modifyEvent(selectedEvent, $('#event_title_text').val(), $('#event_desc_txt_area').val());
+                        $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+e.title+'"></div>');
+                        $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+e.description+'</textarea></div>');
+                        $('#check_event_det').prop("checked", e.onShowcase);
+
+                        /*$('#mod_event_desk').on('click', () => {
+                            EventsManagement.modifyEvent(selectedEvent.id, $('#event_title_text').val(), $('#event_desc_txt_area').val());
                             $("#ed_title").text('- ' + $('#event_title_text').val());
+                        });*/
+
+                        EventsManagement.selectedEvent.date.forEach(d => {
+                            $('#event_date_details_list').append('<div class="list-group-item event_list">'
+                            +'<div id="date_'+ d.id +'">'
+                            + d.date + ' ' + d.place.getPlaceName() +'</div><button id="d_del_btn_'+ d.id +'" value="'+ d.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
                         });
-            
+
                         $('#check_event_det').on('change', () => {
-                            firebase.database().ref('event/'+EventsManagement.selectedEvent).update({
-                                bacheca : $('#check_event_det').is(':checked')
+                            firebase.database().ref('event/'+EventsManagement.selectedEvent.id).update({
+                                onShowcase : $('#check_event_det').is(':checked')
                             });
                         });
-                        
-                        firebase.database().ref('user/'+this.user.uid).once('value', snap => {
-                            var level = snap.val().priviledges + '';
-                            if (level == 1 || this.user.uid == teacher_key) {
-                                $("#safe_delete_event_btn").show();
-                                $("#save_event").hide();
-                                $("#delete_event").on('click', () => {
-                                    EventsManagement.deleteEvent(current_key, classroom_key);
-                                    EventsManagement.loadEventList();
-                                    $("#safe_delete_event_btn").text('Elimina evento');
-                                    $("#delete_event").slideUp();
-                                });
-                            }
-                        });
+
+                        if (Marconi.admin == 1 || Marconi.user.uid == teacher_key) {
+                            $("#safe_delete_event_btn").show();
+                            $("#save_event").hide();
+                            $("#delete_event").on('click', () => {
+                                EventsManagement.deleteEvent(EventsManagement.selectedEvent.id);
+                                EventsManagement.loadEventList();
+                                $("#safe_delete_event_btn").text('Elimina evento');
+                                $("#delete_event").slideUp();
+                            });
+                        }
+
+                        showPage($('#event_details_page'));
                     });
                 });
             });
@@ -232,9 +234,9 @@ var EventsManagement = {
         //TODO
     },
 
-    deleteEvent : function (event_key) {
+    deleteEvent : function (eventId) {
+        console.log(eventId);
         //get all references for every date, joining classes and prenotations related to the selected event
-
         //delete all those elements from the database
     },
 
@@ -355,6 +357,7 @@ var EventsManagement = {
                 
                 EventsManagement.newEvent.date = [];
                 EventsManagement.loadEventDateList();
+                EventsManagement.loadEventList();
                 backPage();
             });
         }
@@ -396,9 +399,7 @@ $(function () {
     });
 
     $('#quick_delet_event_btn').on('click', () => {
-        firebase.database().ref('event/'+ selectedEvent).once('value', snap => {
-            EventsManagement.deleteEvent(selectedEvent);
-        })
+        EventsManagement.deleteEvent(EventsManagement.selectedEvent.id);
     });
     
     /************************ new event ************************/

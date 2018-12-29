@@ -47,6 +47,10 @@ class InstituteEvent {
     getDate() {
         return this.date;
     }
+
+    getOnShowcase() {
+        return this.onShowcase;
+    }
     
     addDate(date) {
         this.date.push(date);
@@ -56,7 +60,7 @@ class InstituteEvent {
         var jobj = '{' +
         '"title" : "'+ this.title+'",' + 
         '"description" : "'+ this.description+ '",' + 
-        '"onShowcase" : "'+ this.onShowcase+ '",' + 
+        '"onShowcase" : '+ this.onShowcase+ ',' + 
         '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"}}';
         console.log(jobj);
         return JSON.parse(jobj);
