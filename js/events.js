@@ -116,16 +116,12 @@ var EventsManagement = {
                     if (Marconi.admin == '1' || e.getOrganizer().id == user.uid) {
                         $('#event_list').append('<div class="list-group-item event_list">'
                         +'<div id="ed_'+ e.id +'">'
-                        + e.title +'</div><button id="del_btn_'+ e.id +'" value="'+ e.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
+                        + e.title +'</div><button id="del_btn_'+ e.id +'" value="'+ e.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
                     }   
 
-                    $("del_btn_"+ e.id).click(() => {
-                        EventsManagement.selectedEvent = e.id;
-                    });
-
                     //3.2 add a listener for the delete button of each list element
-                    $('.del_btn_event').click(() => {
-                        EventsManagement.selectedEvent = dbEvents[dbEvents.indexOf($(this).val())];
+                    $("#del_btn_"+ e.id).click(() => {
+                        EventsManagement.selectedEvent = e;
                         $('#deleteEventModal').modal();
                     });
 
@@ -139,6 +135,7 @@ var EventsManagement = {
                         $("#save_event").off();
                         
                         $("#ed_title").text('Titolo: '+e.title);
+                        $("#ed_description").text('Descrizione: '+e.description);
                         $("#ed_organizer").text('Organizzatore: '+e.organizer.name);
                         $('#desc_title').empty();
                         $('#desc_text').empty();
@@ -151,10 +148,16 @@ var EventsManagement = {
                             $("#ed_title").text('- ' + $('#event_title_text').val());
                         });*/
 
+                        $('#event_date_details_list').empty();
+
                         EventsManagement.selectedEvent.date.forEach(d => {
                             $('#event_date_details_list').append('<div class="list-group-item event_list">'
                             +'<div id="date_'+ d.id +'">'
-                            + d.date + ' ' + d.place.getPlaceName() +'</div><button id="d_del_btn_'+ d.id +'" value="'+ d.id +'" type="button" class="btn btn-primary del_btn_event">Elimina</button></div>');
+                            + d.date + ' | ' + d.place.getPlaceName() + '</div>');
+                        
+                            $('#date_'+ d.id).click(() => {
+                                EventsManagement.loadEventDatePage(d);
+                            });
                         });
 
                         $('#check_event_det').on('change', () => {
@@ -190,26 +193,7 @@ var EventsManagement = {
             + date.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
 
             $('#'+date.id).on('click', () => {
-                var str = '<table><tdody><tr><th>Giorno</th><td>'+date.date+'</td></tr><tr><th>Luogo</th><td>'+date.place.getPlaceName()+'</td></tr><tr><th>Orario</th><td><ul>';
-                date.hours.forEach(h => {
-                    str += '<li>'+SPECIAL_HOURS[h] +'</li>';
-                });
-                str +='</ul></td></tr><tr><th>Classi presenti</th><td><ul>';
-                date.classes.forEach(c => {
-                    str +='<li>'+c.name+'</li>';
-                });
-                str +='</ul></td></tr></tdody></table>';
-                $('#event_date_details').empty();
-                $('#event_date_details').append(str);
-                showPage($('#event_date_detail_page'));
-
-                $('#delete_current_event_date').on('click', () => {
-                    var index = EventsManagement.newEvent.getDate().indexOf(date);
-                    if (index > -1) {
-                        EventsManagement.newEvent.getDate().splice(index, 1);
-                    }
-                    EventsManagement.loadEventDateList();
-                });
+                EventsManagement.loadEventDatePage(date);
             });
 
             $('#date_'+ date.id).on('click', () => {
@@ -223,6 +207,30 @@ var EventsManagement = {
                 });
                 EventsManagement.loadEventDateList();
             });
+        });
+    },
+
+    loadEventDatePage : function (date) {
+        var str = '<table><tdody><tr><th>Giorno</th><td>'+date.date+'</td></tr><tr><th>Luogo</th><td>'+date.place.getPlaceName()+'</td></tr><tr><th>Orario</th><td><ul>';
+        date.hours.forEach(h => {
+            str += '<li>'+SPECIAL_HOURS[h] +'</li>';
+        });
+        str +='</ul></td></tr><tr><th>Classi presenti</th><td><ul>';
+        date.classes.forEach(c => {
+            str +='<li>'+c.name+'</li>';
+        });
+        str +='</ul></td></tr></tdody></table>';
+        $('#event_date_details').empty();
+        $('#event_date_details').append(str);
+
+        showPage($('#event_date_detail_page'));
+
+        $('#delete_current_event_date').on('click', () => {
+            var index = EventsManagement.newEvent.getDate().indexOf(date);
+            if (index > -1) {
+                EventsManagement.newEvent.getDate().splice(index, 1);
+            }
+            EventsManagement.loadEventDateList();
         });
     },
 
