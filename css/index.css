@@ -32,7 +32,7 @@ input {
     text-align: left;
 }
 
-#event_date_list {
+#event_date_list, #event_date_details_list {
     margin-bottom: 6%;
     margin-top: 1% !important;
 }

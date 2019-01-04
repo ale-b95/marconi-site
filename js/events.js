@@ -13,10 +13,11 @@ var EventsManagement = {
         this.classroomId = '';
     
         this.newEvent = new InstituteEvent();
-        this.newEvent.setOrganizer(new Teacher(this.user.uid, this.user.displayName));
 
         this.selectedEvent = null;
         this.dbEvents = [];
+
+        this.addDate = false;
     },
 
     eventDateInit : function () {
@@ -137,23 +138,14 @@ var EventsManagement = {
                         $("#ed_title").text('Titolo: '+e.title);
                         $("#ed_description").text('Descrizione: '+e.description);
                         $("#ed_organizer").text('Organizzatore: '+e.organizer.name);
-                        $('#desc_title').empty();
-                        $('#desc_text').empty();
-                        $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+e.title+'"></div>');
-                        $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+e.description+'</textarea></div>');
                         $('#check_event_det').prop("checked", e.onShowcase);
-
-                        /*$('#mod_event_desk').on('click', () => {
-                            EventsManagement.modifyEvent(selectedEvent.id, $('#event_title_text').val(), $('#event_desc_txt_area').val());
-                            $("#ed_title").text('- ' + $('#event_title_text').val());
-                        });*/
 
                         $('#event_date_details_list').empty();
 
                         EventsManagement.selectedEvent.date.forEach(d => {
                             $('#event_date_details_list').append('<div class="list-group-item event_list">'
                             +'<div id="date_'+ d.id +'">'
-                            + d.date + ' | ' + d.place.getPlaceName() + '</div>');
+                            + d.date + ', ' + d.place.getPlaceName() + '</div></div>');
                         
                             $('#date_'+ d.id).click(() => {
                                 EventsManagement.loadEventDatePage(d);
@@ -184,11 +176,12 @@ var EventsManagement = {
         });
     },
 
-    loadEventDateList : function () {
-        $('#event_date_list').empty();
-        EventsManagement.newEvent.getDate().forEach(date => {
+    loadEventDateList : function (event) {
+        //$('#event_date_list')
+        $('.date_list').empty();
+        event.getDate().forEach(date => {
             var dateName = date.date+ ' ' + date.place.getPlaceName();
-            $('#event_date_list').append('<div class="list-group-item event_list"><div id="'
+            $('.date_list').append('<div class="list-group-item event_list"><div id="'
             + date.id +'">'+ dateName +'</div><button id="date_'
             + date.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
 
@@ -197,20 +190,20 @@ var EventsManagement = {
             });
 
             $('#date_'+ date.id).on('click', () => {
-                EventsManagement.newEvent.getDate().forEach(selectedDate => {
+                event.getDate().forEach(selectedDate => {
                     if (date.id == selectedDate.id) {
-                        var index = EventsManagement.newEvent.getDate().indexOf(selectedDate);
+                        var index = event.getDate().indexOf(selectedDate);
                         if (index > -1) {
-                            EventsManagement.newEvent.getDate().splice(index, 1);
+                            event.getDate().splice(index, 1);
                         }
                     }
                 });
-                EventsManagement.loadEventDateList();
+                EventsManagement.loadEventDateList(event);
             });
         });
     },
 
-    loadEventDatePage : function (date) {
+    loadEventDatePage : function (date, event) {
         var str = '<table><tdody><tr><th>Giorno</th><td>'+date.date+'</td></tr><tr><th>Luogo</th><td>'+date.place.getPlaceName()+'</td></tr><tr><th>Orario</th><td><ul>';
         date.hours.forEach(h => {
             str += '<li>'+SPECIAL_HOURS[h] +'</li>';
@@ -226,20 +219,24 @@ var EventsManagement = {
         showPage($('#event_date_detail_page'));
 
         $('#delete_current_event_date').on('click', () => {
-            var index = EventsManagement.newEvent.getDate().indexOf(date);
+            var index = event.getDate().indexOf(date);
             if (index > -1) {
-                EventsManagement.newEvent.getDate().splice(index, 1);
+                event.getDate().splice(index, 1);
             }
-            EventsManagement.loadEventDateList();
+            EventsManagement.loadEventDateList(event);
         });
     },
 
-    changeEventTitle : function () {
-        //TODO
-    },
-
-    changeEventDescription : function () {
-        //TODO
+    changeEventDetails : function (eventId, newTitle, newDesc) {
+        if (newTitle != '' && newDesc != '') {
+            firebase.database().ref('event/'+eventId).update({
+                title : newTitle,
+                description : newDesc
+            });
+            $("#ed_title").text('Titolo: ' + $('#event_title_text').val());
+        } else {
+            alert('Modifica non registrata. I campi Titolo e Descrizione non possono essere vuoti.');
+        }
     },
 
     deleteEvent : function (eventId) {
@@ -312,9 +309,11 @@ var EventsManagement = {
     },
 
     createEvent : function () {
+        this.selectedEvent = this.newEvent;
         this.newEvent.setTitle($('#event_title')[0].value);
         this.newEvent.setDescription($('#event_description')[0].value);
         this.newEvent.setOnShowcase($('#check_event_creation').is(":checked"));
+        this.newEvent.setOrganizer(new Teacher(this.user.uid, this.user.displayName));
         var dates = [];
 
         this.newEvent.date.forEach(d => {
@@ -329,46 +328,94 @@ var EventsManagement = {
             alert('Inserire Descrizione');
         } else {
             firebase.database().ref('event').push(this.newEvent.getJsonObj()).then((snap) => {
+                EventsManagement.newEvent.id = snap.key;
                 this.newEvent.getDate().forEach(eventDate => {
-                    var jobj = '{';
-                    if (eventDate.classes.length > 0) {
-                        jobj += '"class" : {';
-                        eventDate.classes.forEach(eventClass => {
-                            jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
-                        });
-                        jobj = jobj.substring(0, jobj.length - 1);
-                        jobj += '},';
-                    }
-                    jobj += '"place" : { "internal" : '+ eventDate.place.isInternal()+', ';
-                    if (eventDate.place.isInternal()) {
-                        jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.place.id +'"},';
-                    } else {
-                        jobj +='"name" : "' + eventDate.place.place +'"},';
-                    }
-                    jobj += '"hour" : [';
-                    eventDate.hours.forEach(hour => {
-                        jobj += '"' + hour + '",';
-                    });
-                    jobj = jobj.substring(0, jobj.length - 1);
-                    jobj += ']}';
-                    console.log(jobj);
-                    jobj = JSON.parse(jobj);
-                    firebase.database().ref('event/'+snap.key+'/date/'+eventDate.date+'/').update(jobj);
-                    dates.forEach((date, i) => {
-                        firebase.database().ref('event/'+snap.key+'/day').update({[i] : date});
-                    });
-                    if (eventDate.place.isInternal()) {
-                        Marconi.eventHourPrenotation(eventDate.date, eventDate.place, eventDate.hours, this.newEvent.getTitle(), snap.key);
-                    }
-                    Marconi.classEventPrenotation(snap.key, this.newEvent.getTitle(), eventDate);
+                    EventsManagement.addDateToDbEvent(EventsManagement.newEvent, eventDate);
                 });
                 
                 EventsManagement.newEvent.date = [];
-                EventsManagement.loadEventDateList();
+                EventsManagement.loadEventDateList(this.newEvent);
                 EventsManagement.loadEventList();
                 backPage();
             });
         }
+    },
+
+    createEventDate : function () {
+        var check = true;
+        var eventDate = $('#datetimepicker3').datetimepicker('getValue');
+        if (eventDate == null) eventDate = new Date();
+        var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
+        var eventDate = new EventDate(dateString);
+
+        if (check) {
+            EventsManagement.selectedEvent.date.forEach(d => {
+                if (d.date == dateString) {
+                    alert('E\' già presente un\'altra data per il giorno selezionato');
+                    check = false;
+                }
+            });
+        }
+
+        if (check) {
+            if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
+                alert('Seleziona un luogo per l\'evento');
+                check = false;
+            }
+        }
+
+        if (check) {
+            if (EventsManagement.selectedHours.length == 0) {
+                alert('Seleziona un orario per l\'evento');
+                check = false;
+            }
+        }
+
+        if (check) {
+            if ($('#event_place').val() != '' && EventsManagement.classroomName == 'Inserisci nuovo luogo') {
+                var eventPlace = new EventPlace(null, $('#event_place').val());
+            } else {
+                var eventPlace = new EventPlace(new Classroom(EventsManagement.classroomId, EventsManagement.classroomName), null);
+            }
+            eventDate.setClasses(EventsManagement.selectedClasses);
+            eventDate.setHours(EventsManagement.selectedHours);
+            eventDate.setPlace(eventPlace);
+            EventsManagement.eventDateResetForms();
+            backPage();
+            return eventDate;
+        }
+    },
+
+    addDateToDbEvent : function (event, eventDate) {
+        var jobj = '{';
+        if (eventDate.classes.length > 0) {
+            jobj += '"class" : {';
+            eventDate.classes.forEach(eventClass => {
+                jobj += '"'+eventClass.id+'" : "'+ eventClass.name+'",';
+            });
+            jobj = jobj.substring(0, jobj.length - 1);
+            jobj += '},';
+        }
+        jobj += '"place" : { "internal" : '+ eventDate.place.isInternal()+', ';
+        if (eventDate.place.isInternal()) {
+            jobj +='"name" : "' + eventDate.place.place.name +'", "id" : "' + eventDate.place.place.id +'"},';
+        } else {
+            jobj +='"name" : "' + eventDate.place.place +'"},';
+        }
+        jobj += '"hour" : [';
+        eventDate.hours.forEach(hour => {
+            jobj += '"' + hour + '",';
+        });
+        jobj = jobj.substring(0, jobj.length - 1);
+        jobj += ']}';
+        console.log(jobj);
+        jobj = JSON.parse(jobj);
+        firebase.database().ref('event/'+event.id+'/date/'+eventDate.date+'/').update(jobj);
+        firebase.database().ref('event/'+event.id+'/day').push(eventDate.date);
+        if (eventDate.place.isInternal()) {
+            Marconi.eventHourPrenotation(eventDate.date, eventDate.place, eventDate.hours, event.title, event.id);
+        }
+        Marconi.classEventPrenotation(event.id, event.title, eventDate);
     },
 
     resetForms : function () {
@@ -409,50 +456,34 @@ $(function () {
     $('#quick_delet_event_btn').on('click', () => {
         EventsManagement.deleteEvent(EventsManagement.selectedEvent.id);
     });
+
+    $('#mod_event_desk').on('click', () => {
+        EventsManagement.changeEventDetails(EventsManagement.selectedEvent.id, $('#event_title_text').val(), $('#event_desc_txt_area').val());
+    });
     
     /************************ new event ************************/
 
     /*New event date*/
     $('#new_event_date_btn').on('click', () => {
+        EventsManagement.selectedEvent = EventsManagement.newEvent;
+        EventsManagement.eventDateInit();
+        showPage($('#new_event_date_page'));
+    });
+
+    $('#add_event_date_btn').on('click', () => {
+        addDate = true;
         EventsManagement.eventDateInit();
         showPage($('#new_event_date_page'));
     });
 
     $('#create_event_date_btn').on('click', () => {
-        var check = true;
-        var eventDate = $('#datetimepicker3').datetimepicker('getValue');
-        if (eventDate == null) eventDate = new Date();
-        var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
-        var eventDate = new EventDate(dateString);
-
-        if (check) {
-            if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
-                alert('Seleziona un luogo per l\'evento');
-                check = false;
-            }
+        if (addDate) {
+            var newDate = EventsManagement.createEventDate();
+            EventsManagement.addDateToDbEvent(EventsManagement.selectedEvent, newDate);
+            addDate = false;
         }
-
-        if (check) {
-            if (EventsManagement.selectedHours.length == 0) {
-                alert('Seleziona un orario per l\'evento');
-                check = false;
-            }
-        }
-
-        if (check) {
-            if ($('#event_place').val() != '' && EventsManagement.classroomName == 'Inserisci nuovo luogo') {
-                var eventPlace = new EventPlace(null, $('#event_place').val());
-            } else {
-                var eventPlace = new EventPlace(new Classroom(EventsManagement.classroomId, EventsManagement.classroomName), null);
-            }
-            eventDate.setClasses(EventsManagement.selectedClasses);
-            eventDate.setHours(EventsManagement.selectedHours);
-            eventDate.setPlace(eventPlace);
-            EventsManagement.newEvent.addDate(eventDate);
-            EventsManagement.eventDateResetForms();
-            EventsManagement.loadEventDateList();
-            backPage();
-        }
+        EventsManagement.selectedEvent.addDate(EventsManagement.createEventDate());
+        EventsManagement.loadEventDateList(EventsManagement.selectedEvent);
     });
     
     jQuery('#datetimepicker3').datetimepicker({
@@ -475,6 +506,8 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
+        EventsManagement.newEvent = new InstituteEvent();
+        $('.date_list').empty();
         showPage($('#new_event_page'));
     });
     
@@ -494,11 +527,19 @@ $(function () {
     
     //save the event on database
     $('#create_event_btn').on('click', () => {
-        EventsManagement.createEvent();
-        EventsManagement.resetForms();
+        if (EventsManagement.newEvent.date.length == 0) {
+            alert('L\'evento non ha date. Crea almeno una data per l\'evento');
+        } else {
+            EventsManagement.createEvent();
+            EventsManagement.resetForms();
+        }
     });
 
     $('#modal_link_event_desk').on('click', () => {
+        $('#desc_title').empty();
+        $('#desc_text').empty();
+        $('#desc_title').append('<div class="form-group"><input type="text" class="form-control" id="event_title_text" value="'+EventsManagement.selectedEvent.title+'"></div>');
+        $('#desc_text').append('<div class="form-group"><textarea class="form-control" rows="5" id="event_desc_txt_area">'+EventsManagement.selectedEvent.description+'</textarea></div>');
         $('#exampleModalLong').modal();
     });
 });
