@@ -15,6 +15,7 @@ var EventsManagement = {
         this.newEvent = new InstituteEvent();
 
         this.selectedEvent = null;
+
         this.dbEvents = [];
 
         this.addDate = false;
@@ -142,15 +143,7 @@ var EventsManagement = {
 
                         $('#event_date_details_list').empty();
 
-                        EventsManagement.selectedEvent.date.forEach(d => {
-                            $('#event_date_details_list').append('<div class="list-group-item event_list">'
-                            +'<div id="date_'+ d.id +'">'
-                            + d.date + ', ' + d.place.getPlaceName() + '</div></div>');
-                        
-                            $('#date_'+ d.id).click(() => {
-                                EventsManagement.loadEventDatePage(d);
-                            });
-                        });
+                        EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_details_list');
 
                         $('#check_event_det').on('change', () => {
                             firebase.database().ref('event/'+EventsManagement.selectedEvent.id).update({
@@ -162,7 +155,7 @@ var EventsManagement = {
                             $("#safe_delete_event_btn").show();
                             $("#save_event").hide();
                             $("#delete_event").on('click', () => {
-                                EventsManagement.deleteEvent(EventsManagement.selectedEvent.id);
+                                EventsManagement.deleteEvent(EventsManagement.selectedEvent);
                                 EventsManagement.loadEventList();
                                 $("#safe_delete_event_btn").text('Elimina evento');
                                 $("#delete_event").slideUp();
@@ -176,34 +169,34 @@ var EventsManagement = {
         });
     },
 
-    loadEventDateList : function (event) {
-        //$('#event_date_list')
-        $('.date_list').empty();
-        event.getDate().forEach(date => {
-            var dateName = date.date+ ' ' + date.place.getPlaceName();
-            $('.date_list').append('<div class="list-group-item event_list"><div id="'
-            + date.id +'">'+ dateName +'</div><button id="date_'
-            + date.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
+    loadEventDateList : function (event, listId) {
+        $('#'+listId).empty();
+        event.date.forEach(d => {
+            var dateName = d.date+ ' ' + d.place.getPlaceName();
+            $('#'+listId).append('<div class="list-group-item event_list"><div id="'
+            + d.id +'">'+ dateName +'</div><button id="date_'
+            + d.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
 
-            $('#'+date.id).on('click', () => {
-                EventsManagement.loadEventDatePage(date);
+            $('#'+d.id).on('click', () => {
+                EventsManagement.loadEventDatePage(d, event, listId);
             });
 
-            $('#date_'+ date.id).on('click', () => {
+            $('#date_'+ d.id).on('click', () => {
                 event.getDate().forEach(selectedDate => {
-                    if (date.id == selectedDate.id) {
+                    if (d.id == selectedDate.id) {
                         var index = event.getDate().indexOf(selectedDate);
                         if (index > -1) {
                             event.getDate().splice(index, 1);
                         }
+                        EventsManagement.deleteEventDate(event, selectedDate);
                     }
                 });
-                EventsManagement.loadEventDateList(event);
+                EventsManagement.loadEventDateList(event, listId);
             });
         });
     },
 
-    loadEventDatePage : function (date, event) {
+    loadEventDatePage : function (date, event, listId) {
         var str = '<table><tdody><tr><th>Giorno</th><td>'+date.date+'</td></tr><tr><th>Luogo</th><td>'+date.place.getPlaceName()+'</td></tr><tr><th>Orario</th><td><ul>';
         date.hours.forEach(h => {
             str += '<li>'+SPECIAL_HOURS[h] +'</li>';
@@ -219,11 +212,12 @@ var EventsManagement = {
         showPage($('#event_date_detail_page'));
 
         $('#delete_current_event_date').on('click', () => {
-            var index = event.getDate().indexOf(date);
+            var index = event.date.indexOf(date);
             if (index > -1) {
-                event.getDate().splice(index, 1);
+                event.date.splice(index, 1);
             }
-            EventsManagement.loadEventDateList(event);
+            EventsManagement.deleteEventDate(event, date);
+            EventsManagement.loadEventDateList(event, listId);
         });
     },
 
@@ -239,10 +233,75 @@ var EventsManagement = {
         }
     },
 
-    deleteEvent : function (eventId) {
-        console.log(eventId);
-        //get all references for every date, joining classes and prenotations related to the selected event
-        //delete all those elements from the database
+    deleteEvent : function (event) {
+        var promises = []
+        event.date.forEach(date => {
+            promises.push(EventsManagement.deleteEventDate(event, date));
+        });
+
+        Promise.all(promises).then(() => {
+            firebase.database().ref('event/'+event.id).remove();
+        });
+    },
+
+    deleteEventDate : function (event, date) {
+        var classes = [];
+        var hours = [];
+        var classroom = '';
+        
+        var prom = firebase.database().ref('event/'+event.id+'/date/'+date.date).once('value', dateStr => {
+            // 1) find the classes and remove the references and prenotations
+            dateStr.child('class').forEach(instClass => {
+                classes.push(instClass.key);
+                firebase.database().ref('class/'+instClass.key+'/event/'+event.id+'/date/'+date.date).remove();
+                firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date).once('value', dateDate => {
+                    dateDate.forEach(hour => {
+                        if (hour.val() == 'event,'+event.id) {
+                            firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date+'/'+hour.key).remove();
+                        }
+                    });
+                })
+            });
+            // 2) find the prenoted hours
+            dateStr.child('hour').forEach(prenotHour => {
+                hours.push(prenotHour.val());
+            });
+
+            // 3) find the prenoted classroom
+            if (dateStr.child('place').val().internal) {
+                classroom = dateStr.child('place').val().id;
+            }
+
+        }).then(() => {
+            // 4) delete the whole event reference if there are no dates
+            classes.forEach(c => {
+                firebase.database().ref('class/'+c+'/event/'+event.id).once('value', e => {
+                    if (!e.child('date').exists() && e.exists()) {
+                        firebase.database().ref('class/'+c+'/event/'+event.id).remove();
+                    }
+                });
+            });
+            // 5) delete the prenotation references
+            hours.forEach(h => {
+                firebase.database().ref(
+                'prenotation/'+date.date.split('-')[0]
+                +'/'+date.date.split('-')[1]
+                +'/'+date.date.split('-')[2]
+                +'/'+classroom
+                +'/'+h).remove();
+            });
+        }).then(() => {
+            firebase.database().ref('event/'+event.id+'/date/'+date.date).remove();
+            firebase.database().ref('event/'+event.id+'/day').once('value', day => {
+                day.forEach(d => {
+                    if (d.val() == date.date) {
+                        firebase.database().ref('event/'+event.id+'/day/'+d.key).remove();
+                    }
+                });
+            });
+        });
+
+        return prom;
     },
 
     loadClassroomSchedule : function () {
@@ -334,7 +393,7 @@ var EventsManagement = {
                 });
                 
                 EventsManagement.newEvent.date = [];
-                EventsManagement.loadEventDateList(this.newEvent);
+                EventsManagement.loadEventDateList(this.newEvent, 'event_date_list');
                 EventsManagement.loadEventList();
                 backPage();
             });
@@ -348,14 +407,12 @@ var EventsManagement = {
         var dateString = eventDate.getFullYear() + '-' + (eventDate.getMonth()+1) + '-' + eventDate.getDate();
         var eventDate = new EventDate(dateString);
 
-        if (check) {
-            EventsManagement.selectedEvent.date.forEach(d => {
-                if (d.date == dateString) {
-                    alert('E\' già presente un\'altra data per il giorno selezionato');
-                    check = false;
-                }
-            });
-        }
+        EventsManagement.selectedEvent.date.forEach(d => {
+            if (d.date == dateString) {
+                alert('E\' già presente un\'altra data per il giorno selezionato');
+                check = false;
+            }
+        });
 
         if (check) {
             if (EventsManagement.classroomName == 'Seleziona un\'aula' || ($('#event_place').val() == '' && EventsManagement.classroomName == 'Inserisci nuovo luogo')){
@@ -383,6 +440,8 @@ var EventsManagement = {
             EventsManagement.eventDateResetForms();
             backPage();
             return eventDate;
+        } else {
+            return null;
         }
     },
 
@@ -454,7 +513,7 @@ $(function () {
     });
 
     $('#quick_delet_event_btn').on('click', () => {
-        EventsManagement.deleteEvent(EventsManagement.selectedEvent.id);
+        EventsManagement.deleteEvent(EventsManagement.selectedEvent);
     });
 
     $('#mod_event_desk').on('click', () => {
@@ -471,19 +530,21 @@ $(function () {
     });
 
     $('#add_event_date_btn').on('click', () => {
-        addDate = true;
+        EventsManagement.addDate = true;
         EventsManagement.eventDateInit();
         showPage($('#new_event_date_page'));
     });
 
     $('#create_event_date_btn').on('click', () => {
-        if (addDate) {
-            var newDate = EventsManagement.createEventDate();
-            EventsManagement.addDateToDbEvent(EventsManagement.selectedEvent, newDate);
-            addDate = false;
+        var newDate = EventsManagement.createEventDate();
+        if (newDate != null) { 
+            if (EventsManagement.addDate) {
+                EventsManagement.addDateToDbEvent(EventsManagement.selectedEvent, newDate);
+                EventsManagement.addDate = false;
+            }
+            EventsManagement.selectedEvent.addDate(newDate);
+            EventsManagement.loadEventDateList(EventsManagement.selectedEvent);
         }
-        EventsManagement.selectedEvent.addDate(EventsManagement.createEventDate());
-        EventsManagement.loadEventDateList(EventsManagement.selectedEvent);
     });
     
     jQuery('#datetimepicker3').datetimepicker({
