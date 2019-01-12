@@ -7,9 +7,9 @@ class CheckboxClassSelectDropdown {
         });
 
         $(document).on('click', e => {
-            var $clicked = $(e.target);
-            if ($clicked.parents().attr('id') != this.dropdownId + "" &&
-            !$clicked.parents().hasClass('list-group')) {
+            var clicked = $(e.target);
+            if (clicked.parents().attr('id') != this.dropdownId + "" &&
+            !clicked.parents().hasClass('list-group')) {
                 $("#"+this.dropdownId+" ul").slideUp();
             }
         });
@@ -46,6 +46,15 @@ class CheckboxClassSelectDropdown {
                 });
             });
         }
+    }
+
+    getSelection() {
+        var selection = [];
+        var length = $('div ul li input:checked').length;
+        for (var i = 0; i < length; i++) {
+            selection.push($('div ul li input:checked')[i].value);
+        }
+        return selection;
     }
 
     applySelection(eventKey, checkedElements) {

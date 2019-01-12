@@ -62,7 +62,6 @@ class InstituteEvent {
         '"description" : "'+ this.description+ '",' + 
         '"onShowcase" : '+ this.onShowcase+ ',' + 
         '"organizer" : { "id" : "' + this.organizer.id + '", "name" : "'+ this.organizer.name +'"}}';
-        console.log(jobj);
         return JSON.parse(jobj);
     }
     

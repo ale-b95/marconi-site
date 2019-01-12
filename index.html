@@ -393,17 +393,9 @@
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
                     <div>
-                        <h1 class="h4 mb-3 font-weight-normal">Nuovo Evento</h1>
+                        <h1 class="h4 mb-3 font-weight-normal">Nuova Data Evento</h1>
                         <hr>
                         <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
-                        <hr>
-                        <select id="select_event_classroom" class="form-control" autocomplete="off">
-                        </select>
-                        <input id="event_place" class="form-control" type="text" placeholder="Nome luogo evento" autocomplete="off">
-                        <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
-                            <tbody id="schedule_event_table_body">
-                            </tbody>
-                        </table>
                         <hr>
                         <div class="dropdown" id="new_event_dropdown"> 
                             <button class="btn long-btn btn-outline-primary btn-lg" type="button"> Classi</button>
@@ -413,6 +405,15 @@
                             </div>
                         </div>
                         <hr>
+                        <select id="select_event_classroom" class="form-control" autocomplete="off">
+                        </select>
+                        <input id="event_place" class="form-control" type="text" placeholder="Nome luogo evento" autocomplete="off">
+                        <table id="schedule_event_table" class="table two-columns-table table-fixed table-sm collapse">
+                            <tbody id="schedule_event_table_body">
+                            </tbody>
+                        </table>
+                        <hr>
+                                              
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
                     </div>
@@ -448,8 +449,6 @@
                         <span id="ed_title">Titolo: </span>
                         <br><br>
                         <span id="ed_description">Descrizione: </span>
-                        <br><br>
-                        <span id="ed_organizer">Organizzatore: </span>
                     </div>
 
                     <hr>
@@ -495,10 +494,9 @@
 
                     <hr>
 
-                    <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica evento</button>
+                    <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica Info Evento</button>
                     <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
                     <button id="delete_event" class="btn long-btn btn-danger btn-lg collapse" type="button">Conferma</button>
-
                     <hr>
 
                     <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>

@@ -86,6 +86,10 @@ var EventsManagement = {
                         var placeName = null;
                         var isInternal = null;
 
+                        dateSnap.child('class').forEach(classSnap => {
+                            tmpDate.classes.push(new InstituteClass(classSnap.key, classSnap.val()));
+                        });
+
                         dateSnap.child('place').forEach(placeSnap => {
                             if (placeSnap.key == 'internal') {
                                 isInternal = placeSnap.val();
@@ -102,7 +106,6 @@ var EventsManagement = {
                             tmpDate.setPlace(new EventPlace(undefined, placeName));
                         }
                         tmpEvent.date.push(tmpDate);
-                 
                     }); 
 
                     dbEvents.push(tmpEvent);
@@ -138,11 +141,10 @@ var EventsManagement = {
                         
                         $("#ed_title").text('Titolo: '+e.title);
                         $("#ed_description").text('Descrizione: '+e.description);
-                        $("#ed_organizer").text('Organizzatore: '+e.organizer.name);
                         $('#check_event_det').prop("checked", e.onShowcase);
 
                         $('#event_date_details_list').empty();
-
+                        console.log(EventsManagement.selectedEvent);
                         EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_details_list');
 
                         $('#check_event_det').on('change', () => {
@@ -150,6 +152,8 @@ var EventsManagement = {
                                 onShowcase : $('#check_event_det').is(':checked')
                             });
                         });
+
+                        showPage($('#event_details_page'));
 
                         if (Marconi.admin == 1 || Marconi.user.uid == teacher_key) {
                             $("#safe_delete_event_btn").show();
@@ -159,10 +163,9 @@ var EventsManagement = {
                                 EventsManagement.loadEventList();
                                 $("#safe_delete_event_btn").text('Elimina evento');
                                 $("#delete_event").slideUp();
+                                showPage($('#events_page'));
                             });
                         }
-
-                        showPage($('#event_details_page'));
                     });
                 });
             });
@@ -248,30 +251,32 @@ var EventsManagement = {
         var classes = [];
         var hours = [];
         var classroom = '';
+        var inDb = true;
         
         var prom = firebase.database().ref('event/'+event.id+'/date/'+date.date).once('value', dateStr => {
-            // 1) find the classes and remove the references and prenotations
-            dateStr.child('class').forEach(instClass => {
-                classes.push(instClass.key);
-                firebase.database().ref('class/'+instClass.key+'/event/'+event.id+'/date/'+date.date).remove();
-                firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date).once('value', dateDate => {
-                    dateDate.forEach(hour => {
-                        if (hour.val() == 'event,'+event.id) {
-                            firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date+'/'+hour.key).remove();
-                        }
-                    });
-                })
-            });
-            // 2) find the prenoted hours
-            dateStr.child('hour').forEach(prenotHour => {
-                hours.push(prenotHour.val());
-            });
-
-            // 3) find the prenoted classroom
-            if (dateStr.child('place').val().internal) {
-                classroom = dateStr.child('place').val().id;
+            inDb = dateStr.exists();
+            if (inDb) {
+                // 1) find the classes and remove the references and prenotations
+                dateStr.child('class').forEach(instClass => {
+                    classes.push(instClass.key);
+                    firebase.database().ref('class/'+instClass.key+'/event/'+event.id+'/date/'+date.date).remove();
+                    firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date).once('value', dateDate => {
+                        dateDate.forEach(hour => {
+                            if (hour.val() == 'event,'+event.id) {
+                                firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date+'/'+hour.key).remove();
+                            }
+                        });
+                    })
+                });
+                // 2) find the prenoted hours
+                dateStr.child('hour').forEach(prenotHour => {
+                    hours.push(prenotHour.val());
+                });
+                // 3) find the prenoted classroom
+                if (dateStr.child('place').val().internal) {
+                    classroom = dateStr.child('place').val().id;
+                }
             }
-
         }).then(() => {
             // 4) delete the whole event reference if there are no dates
             classes.forEach(c => {
@@ -291,14 +296,16 @@ var EventsManagement = {
                 +'/'+h).remove();
             });
         }).then(() => {
-            firebase.database().ref('event/'+event.id+'/date/'+date.date).remove();
-            firebase.database().ref('event/'+event.id+'/day').once('value', day => {
-                day.forEach(d => {
-                    if (d.val() == date.date) {
-                        firebase.database().ref('event/'+event.id+'/day/'+d.key).remove();
-                    }
+            if (inDb) {
+                firebase.database().ref('event/'+event.id+'/date/'+date.date).remove();
+                firebase.database().ref('event/'+event.id+'/day').once('value', day => {
+                    day.forEach(d => {
+                        if (d.val() == date.date) {
+                            firebase.database().ref('event/'+event.id+'/day/'+d.key).remove();
+                        }
+                    });
                 });
-            });
+            }
         });
 
         return prom;
@@ -311,7 +318,8 @@ var EventsManagement = {
             '<tr class="clickable-row" id="ev_hid_'+hour+'" value="'+hour+'">'+
             '<th>'+SPECIAL_HOURS[hour]+'</th><td></td>'+
             '</tr>');
-        }
+        }   
+        
         firebase.database().ref().child('/prenotation/'
             +EventsManagement.tempDate.getFullYear()+'/'
             +(EventsManagement.tempDate.getMonth() + 1)+'/'
@@ -467,7 +475,6 @@ var EventsManagement = {
         });
         jobj = jobj.substring(0, jobj.length - 1);
         jobj += ']}';
-        console.log(jobj);
         jobj = JSON.parse(jobj);
         firebase.database().ref('event/'+event.id+'/date/'+eventDate.date+'/').update(jobj);
         firebase.database().ref('event/'+event.id+'/day').push(eventDate.date);
@@ -543,7 +550,7 @@ $(function () {
                 EventsManagement.addDate = false;
             }
             EventsManagement.selectedEvent.addDate(newDate);
-            EventsManagement.loadEventDateList(EventsManagement.selectedEvent);
+            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_list');
         }
     });
     
