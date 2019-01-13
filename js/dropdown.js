@@ -52,7 +52,8 @@ class CheckboxClassSelectDropdown {
         var selection = [];
         var length = $('div ul li input:checked').length;
         for (var i = 0; i < length; i++) {
-            selection.push($('div ul li input:checked')[i].value);
+            var str = $('div ul li input:checked')[i].value;
+            selection.push(new InstituteClass(str.split(',')[0],str.split(',')[1]));
         }
         return selection;
     }

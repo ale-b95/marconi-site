@@ -395,15 +395,7 @@
                     <div>
                         <h1 class="h4 mb-3 font-weight-normal">Nuova Data Evento</h1>
                         <hr>
-                        <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona data">
-                        <hr>
-                        <div class="dropdown" id="new_event_dropdown"> 
-                            <button class="btn long-btn btn-outline-primary btn-lg" type="button"> Classi</button>
-                            <div class="multiSelect">
-                                <ul class="list-group list-group-flush ">
-                                </ul>
-                            </div>
-                        </div>
+                        <input class="datepicker form-control" id="datetimepicker3" type="text" readonly="true" autocomplete="off" placeholder="Seleziona giorno">
                         <hr>
                         <select id="select_event_classroom" class="form-control" autocomplete="off">
                         </select>
@@ -413,7 +405,14 @@
                             </tbody>
                         </table>
                         <hr>
-                                              
+                        <div class="dropdown" id="new_event_dropdown"> 
+                            <button class="btn long-btn btn-outline-primary btn-lg" type="button"> Classi</button>
+                            <div class="multiSelect">
+                                <ul class="list-group list-group-flush ">
+                                </ul>
+                            </div>
+                        </div>
+                        <hr>            
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
                         <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
                     </div>
@@ -443,34 +442,13 @@
             <div class="row">
                 <div class="col-sm-4 col-md-4"></div>
                 <div class="col-sm-4 col-md-4">
-                    <h1 class="h3 mb-3 font-weight-normal">Dettagli evento</h1>
+                    <h1 class="h3 mb-3 font-weight-normal"><span id="ed_title"></span></h1>
+                    <span id="ed_description"></span>
                     <hr>
-                    <div class="container">
-                        <span id="ed_title">Titolo: </span>
-                        <br><br>
-                        <span id="ed_description">Descrizione: </span>
-                    </div>
-
-                    <hr>
-        
-                    <div class="checkbox">
-                        <label><input id="check_event_det" type="checkbox" value=""> Mostra in bacheca.</label>
-                    </div>
-
-                    <hr>
-                    <button id="add_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Aggiungi Data</button>
+                    
+                    <p>Date evento:</p>
                     <div id="event_date_details_list" class="list-group center-std-element date_list" autocomplete="off">
                     </div>
-                    <!--
-                    <div class="dropdown" id="event_dettails_dropdown"> 
-                        <button class="btn long-btn btn-primary btn-lg" type="button">Classi</button>
-                        <div class="multiSelect">
-                            <ul class="list-group list-group-flush">
-                            </ul>
-                        </div>
-                    </div>
-                    <button id="save_event" class="btn long-btn btn-primary btn-lg collapse" type="button">Aggiungi classe</button>
-                    -->
                     <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -483,6 +461,9 @@
                                 <div class="modal-body">
                                         <div id="desc_title"></div>
                                         <div id="desc_text"></div>
+                                        <div class="checkbox">
+                                            <label><input id="check_event_det" type="checkbox" value=""> Mostra in bacheca.</label>
+                                        </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mod_event_desk">Applica modifiche</button>
@@ -491,14 +472,11 @@
                             </div>
                         </div>
                     </div>
-
                     <hr>
-
-                    <button type="button" class="btn long-btn btn-primary btn-lg" id="modal_link_event_desk">Modifica Info Evento</button>
-                    <button id="safe_delete_event_btn" class="btn long-btn btn-primary btn-lg" type="button">Elimina evento</button>
+                    <button type="button" class="btn long-btn btn-outline-primary btn-lg" id="modal_link_event_desk">Modifica info evento</button>
+                    <button id="add_event_date_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Aggiungi data</button>
+                    <button id="safe_delete_event_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Elimina evento</button>
                     <button id="delete_event" class="btn long-btn btn-danger btn-lg collapse" type="button">Conferma</button>
-                    <hr>
-
                     <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-sm-4 col-md-4"></div>
