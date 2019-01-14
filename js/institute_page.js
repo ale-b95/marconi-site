@@ -79,8 +79,9 @@ var DataFormFillUtility = {
     },
 
     createDayScheduleTable : function (table_body) {
+        $("#"+table_body).empty();
         for (var day = 0; day < 7; day++) {
-            for (var hour = 8; hour<25; hour++) {
+            for (var hour = 8; hour<22; hour++) {
                 $("#"+table_body).append(
                 '<tr class="clickable-row d-'+day+' d-row" id="'+table_body+'_'+hour+'_'+day+' collapse" value="'+hour+'">'+
                 '<th>'+SPECIAL_HOURS[hour]+'</th><td></td></tr>');
@@ -92,7 +93,7 @@ var DataFormFillUtility = {
         $('.d-row').hide();
         $('.d-'+day).show();
         
-        for (var hour = 8; hour<25; hour++) {
+        for (var hour = 8; hour<22; hour++) {
             if (table_click_ref.selected_hours[day].includes(hour)) {
                 $('#'+table_body+'_'+hour+'_'+day).addClass('selected_row');
             }

@@ -1,5 +1,4 @@
 var AdvancedOperations = {
-    selected_event : null,
     selected_classroom : null,
     proto_week_selection : null,
     user_name : null,
@@ -7,6 +6,8 @@ var AdvancedOperations = {
     selected_class : [],
 
     init : function () {
+        this.selected_classroom = null;
+        this.selected_class = [];
         this.proto_week_selection = {
             selected_rows : 0,
             selected_hours : [[],[],[],[],[],[],[]]
@@ -16,7 +17,6 @@ var AdvancedOperations = {
         $('#adv_prenotation_btn').on('click', () => {
             this.setupAdvancedOperations();
         });
-
         $("#advanced_schedule_table_body").on('click', '.clickable-row', function(event) {
             var day = $('#adv_select_day').val();
             if ($(this).hasClass('d-'+day)) {
@@ -114,7 +114,7 @@ var AdvancedOperations = {
             var selected_class_name = $("#adv_class_select option:selected").text();
             while (temp_date <= last_day) {
                 parameters = [AdvancedOperations.user_key, AdvancedOperations.user_name, selected_classroom_name, selected_classroom_key, selected_class, selected_class_name, temp_date.getTime(), this.proto_week_selection];
-                this.checkPrenotationCompatibility(this.proto_week_selection, temp_date, selected_classroom_key, 0, parameters)
+                this.checkPrenotationCompatibility(this.proto_week_selection, temp_date, selected_classroom_key, parameters);
                 temp_date.setDate(temp_date.getDate() + 1);
             }
         } else {
@@ -122,20 +122,26 @@ var AdvancedOperations = {
         }
     },
 
-    checkPrenotationCompatibility : function (week_schedule, temp_date, classroom_key, prenotaionType, parameters) {
+    checkPrenotationCompatibility : function (week_schedule, temp_date, classroom_key, parameters) {
         var tmp_day = temp_date.getDate();
         var tmp_month = temp_date.getMonth() + 1;
         var tmp_year = temp_date.getFullYear();
         var day = temp_date.getDay() - 1;
         if (day < 0) day = 6;
         var promises_select = [];
-        var toRemove = {class_name:[], hour:[], date:[]};
+        var toRemove = {class_name:[], hour:[], date:[], event:[]};
         for (i in week_schedule.selected_hours[day]) {
             var hour = week_schedule.selected_hours[day][i];
             var my_prom = firebase.database().ref('prenotation/'+tmp_year+'/'+tmp_month+'/'+tmp_day+'/'+classroom_key+'/'+hour).once('value', function(snap)  {
                 if (snap.exists()) {
+                    if (snap.val().class_name != undefined) {
+                        toRemove.class_name.push(snap.val().class_name);
+                        toRemove.event.push(undefined);
+                    } else {
+                        toRemove.event.push(snap.val().event);
+                        toRemove.class_name.push(undefined);
+                    }
                     toRemove.date.push(tmp_day+'/'+tmp_month+'/'+tmp_year);
-                    toRemove.class_name.push(snap.val().class_name);
                     toRemove.hour.push(this.h);
                 }
             }.bind({h : hour}));
@@ -145,15 +151,31 @@ var AdvancedOperations = {
         Promise.all(promises_select).then(() => {
             if (toRemove.hour.length > 0) {
                 var dettailTxt = "";
+                var eventOverride = false;
                 for (i = 0; i < toRemove.hour.length; i++) {
-                    dettailTxt += 'Giorno: ' + toRemove.date[i] + ' Ora: '+ toRemove.hour[i] + ' Classe: ' + toRemove.class_name[i] + '<br/>';
+                    if (toRemove.event[i] == undefined) {
+                        dettailTxt += 'Giorno: ' + toRemove.date[i] + ' Ore: '+ toRemove.hour[i] + ' Classe: ' + toRemove.class_name[i] + '<br/>';
+                    } else {
+                        dettailTxt += 'Giorno: ' + toRemove.date[i] + ' Ore: '+ toRemove.hour[i] + ' Evento: ' + toRemove.event[i] + '<br/>';
+                        eventOverride = true;
+                    }
                 }
+
+                if (eventOverride) {
+                    $('#prenotation_override_btn').hide();
+                    dettailTxt += "ATTENZIONE: Non è possibile sovrascrivere le prenotazioni degli eventi!"
+                } else {
+                    $('#prenotation_override_btn').show();
+                }
+
                 $('#overrideDetails').empty();
                 $('#overrideDetails').append(dettailTxt);
                 $('#prenotationOverrideAlertModal').modal('show');
+                
                 $('#abort_override_btn').on('click',() => {
                     this.advancedOperationDone();
                 });
+                
                 $('#prenotation_override_btn').on('click', () => {
                     this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
                 });
@@ -230,11 +252,14 @@ var AdvancedOperations = {
     advancedOperationDone : function() {
         $(".d-row").removeClass('selected_row');
         $("#advanced_schedule_table").hide();
-
+        $('#abort_override_btn').off();
+        $('#prenotation_override_btn').off();
         Admin.resetForms();
+        this.selected_classroom = null;
+        this.selected_class = [];
         this.proto_week_selection = {
             selected_rows : 0,
             selected_hours : [[],[],[],[],[],[],[]]
-        }
+        };
     }
 }

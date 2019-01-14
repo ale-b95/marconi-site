@@ -4,8 +4,8 @@ var EventsManagement = {
     init : function () {
         this.user = firebase.auth().currentUser;
 
-        this.selectedHours = [];
         this.selectedClasses = [];
+        this.selectedHours = [];
         this.nSelectedRows = 0;
 
         this.tempDate = new Date();
@@ -316,6 +316,9 @@ var EventsManagement = {
 
     loadClassroomSchedule : function () {
         $("#schedule_event_table_body").empty();
+
+        EventsManagement.selectedHours = [];
+        EventsManagement.nSelectedRows = 0;
 
         for (var hour = 8; hour<22; hour++) {
             $("#schedule_event_table_body").append(
@@ -662,6 +665,8 @@ $(function () {
 
 function onClickHandler(cb) {
     var instituteClass = new InstituteClass($(cb).val().split(',')[0], $(cb).val().split(',')[1]);
+    EventsManagement.loadClassroomSchedule();
+    
     if (cb.checked) {
         if (!EventsManagement.selectedClasses.includes(instituteClass)) {
             EventsManagement.selectedClasses.push(instituteClass);
