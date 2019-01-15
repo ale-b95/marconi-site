@@ -26,7 +26,7 @@ $(function () {
                 snap.forEach(childSnap => {
                     var place = childSnap.val();
                     if (place.split(',')[0] == "event") {
-                        place = 'Evento '+place.split(',')[2];
+                        place = 'Partecipa all\' evento: '+place.split(',')[2];
                     }
                     occupied_h.push(childSnap.key);
                     occupied_cls.push(place);
