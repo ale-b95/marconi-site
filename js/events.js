@@ -3,8 +3,6 @@ var EventsManagement = {
 
     init : function () {
         this.user = firebase.auth().currentUser;
-
-        this.selectedClasses = [];
         this.selectedHours = [];
         this.nSelectedRows = 0;
 
@@ -22,7 +20,6 @@ var EventsManagement = {
     },
 
     eventDateInit : function () {
-        EventsManagement.selectedClasses = [];
         EventsManagement.selectedHours = [];
         EventsManagement.nSelectedRows = 0;
         EventsManagement.newEventClassSelection.loadClasses(null, null);
@@ -157,6 +154,7 @@ var EventsManagement = {
                         if (Marconi.admin == 1 || Marconi.user.uid == teacher_key) {
                             $("#safe_delete_event_btn").show();
                             $("#save_event").hide();
+                            $("#delete_event").off();
                             $("#delete_event").on('click', () => {
                                 EventsManagement.deleteEvent(EventsManagement.selectedEvent);
                                 EventsManagement.loadEventList();
@@ -179,6 +177,7 @@ var EventsManagement = {
             + d.id +'">'+ dateName +'</div>');
 
             //<button id="date_'+ d.id +'" type="button" class="btn btn-primary">Elimina</button></div>
+            $('#'+d.id).off();
             $('#'+d.id).on('click', () => {
                 EventsManagement.loadEventDatePage(d, event, listId);
             });
@@ -213,6 +212,7 @@ var EventsManagement = {
 
         showPage($('#event_date_detail_page'));
 
+        $('#delete_current_event_date').off();
         $('#delete_current_event_date').on('click', () => {
             var index = event.date.indexOf(date);
             if (index > -1) {
@@ -220,6 +220,7 @@ var EventsManagement = {
             }
             EventsManagement.deleteEventDate(event, date);
             EventsManagement.loadEventDateList(event, listId);
+            backPage();
         });
     },
 
@@ -265,7 +266,7 @@ var EventsManagement = {
                     firebase.database().ref('class/'+instClass.key+'/event/'+event.id+'/date/'+date.date).remove();
                     firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date).once('value', dateDate => {
                         dateDate.forEach(hour => {
-                            if (hour.val() == 'event,'+event.id) {
+                            if (hour.val().split(',')[1] == event.id) {
                                 firebase.database().ref('class/'+instClass.key+'/prenotation/'+date.date+'/'+hour.key).remove();
                             }
                         });
@@ -492,10 +493,11 @@ var EventsManagement = {
             } else {
                 var eventPlace = new EventPlace(new Classroom(EventsManagement.classroomId, EventsManagement.classroomName), null);
             }
-            eventDate.setClasses(EventsManagement.selectedClasses);
+            eventDate.setClasses(EventsManagement.newEventClassSelection.getSelection());
             eventDate.setHours(EventsManagement.selectedHours);
             eventDate.setPlace(eventPlace);
             EventsManagement.eventDateResetForms();
+            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_list');
             backPage();
             return eventDate;
         } else {
@@ -664,19 +666,5 @@ $(function () {
 });
 
 function onClickHandler(cb) {
-    var instituteClass = new InstituteClass($(cb).val().split(',')[0], $(cb).val().split(',')[1]);
     EventsManagement.loadClassroomSchedule();
-    
-    if (cb.checked) {
-        if (!EventsManagement.selectedClasses.includes(instituteClass)) {
-            EventsManagement.selectedClasses.push(instituteClass);
-        }
-    } else {
-        if (EventsManagement.selectedClasses.includes(instituteClass)) {
-            var index = EventsManagement.selectedClasses.indexOf(instituteClass);
-            if (index > -1) {
-                EventsManagement.selectedClasses.splice(index, 1);
-            }
-        }
-    }
 }

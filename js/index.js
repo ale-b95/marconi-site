@@ -167,7 +167,7 @@ var Marconi = {
     classEventPrenotation : function(eventId, eventTitle, date) {
         date.classes.forEach(c => {
             var str = 'class/'+c.id+'/event/'+eventId;
-            var prenotText = 'event,'+eventId;
+            var prenotText = 'event,'+eventId+','+eventTitle;
             firebase.database().ref(str).update({
                 title : eventTitle
             });

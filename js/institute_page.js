@@ -135,8 +135,8 @@ $(function () {
     });
     
     $("#search_class_btn").on('click', () => {
-        /*DataFormFillUtility.loadClassSelectList("select_class_pren");
-        showPage($("#prenotations_page"));*/
+        DataFormFillUtility.loadClassSelectList("select_class_pren");
+        showPage($("#prenotations_page"));
     });
 
     $("#bacheca_btn").on('click', () => {

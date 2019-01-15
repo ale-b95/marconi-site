@@ -52,7 +52,7 @@ var Showcase = {
             $('#th_'+ i).empty();
         }
 
-        for (i = 8; i < 25; i++) {
+        for (i = 8; i < 22; i++) {
             for (j = 0; j < 10 ; j++) {
                 $('#cll_'+ i + '_' + j).empty();
                 $('#cll_'+ i + '_' + j).removeClass('reserved_lesson');
