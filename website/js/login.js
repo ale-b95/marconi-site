@@ -122,7 +122,7 @@ $(function () {
 /*
   show institute info on institute page
 */
-  function goInstitutePage () {
+  function goInstitutePage () {       
     firebase.database().ref('last_update').once('value', snap => {
       if (snap.val() == 'x') {
         firebase.database().ref().update({

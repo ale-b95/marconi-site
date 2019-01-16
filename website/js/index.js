@@ -119,6 +119,16 @@ class EventPlace {
             console.log('The place is not internal.');        
         }
     }
+
+    getJsonString() {
+        var jobj = '{ "internal" : '+ (this.type == "INT") +', ';
+        if (this.type == "INT") {
+            jobj +='"name" : "' + this.place.name +'", "id" : "' + this.place.id +'"}';
+        } else {
+            jobj +='"name" : "' + this.place +'"}';
+        }
+        return jobj;
+    }
 }
 
 class Teacher {

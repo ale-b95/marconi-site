@@ -1,0 +1,22 @@
+.container {
+    margin-top : 2%;
+    margin-bottom: 2%;
+    text-align: center ;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 7%;
+}
+
+.big-table tbody > tr > th {
+    width: 4%;
+    height: 10%;
+} 
+
+.big-table tbody > tr > td,
+.big-table thead > tr > th {
+    width: 9%;
+    height: 10%;
+    font-size: medium;
+}

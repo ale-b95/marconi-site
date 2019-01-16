@@ -1,7 +1,7 @@
 var cleanDB = {
     today : new Date(),
     removeOldPrenotations : function () {
-        console.log('sgnak');
+        console.log('clean db');
         firebase.database().ref('prenotation/').once('value', snap => {
             snap.forEach(childSnap => {
                 if (parseInt(childSnap.key) < this.today.getFullYear()) {

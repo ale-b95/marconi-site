@@ -141,7 +141,7 @@ var EventsManagement = {
                         $('#check_event_det').prop("checked", e.onShowcase);
 
                         $('#event_date_details_list').empty();
-                        EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_details_list');
+                        EventsManagement.loadEventDateList(EventsManagement.selectedEvent, ['event_date_details_list']);
 
                         $('#check_event_det').on('change', () => {
                             firebase.database().ref('event/'+EventsManagement.selectedEvent.id).update({
@@ -170,31 +170,34 @@ var EventsManagement = {
     },
 
     loadEventDateList : function (event, listId) {
-        $('#'+listId).empty();
-        event.date.forEach(d => {
-            var dateName = d.date+ ' ' + d.place.getPlaceName();
-            $('#'+listId).append('<div class="list-group-item event_list" id="'
-            + d.id +'">'+ dateName +'</div>');
-
-            //<button id="date_'+ d.id +'" type="button" class="btn btn-primary">Elimina</button></div>
-            $('#'+d.id).off();
-            $('#'+d.id).on('click', () => {
-                EventsManagement.loadEventDatePage(d, event, listId);
-            });
-
-            /*$('#date_'+ d.id).on('click', () => {
-                event.getDate().forEach(selectedDate => {
-                    if (d.id == selectedDate.id) {
-                        var index = event.getDate().indexOf(selectedDate);
-                        if (index > -1) {
-                            event.getDate().splice(index, 1);
-                        }
-                        EventsManagement.deleteEventDate(event, selectedDate);
-                    }
+        listId.forEach(list => {
+            $('#'+list).empty();
+            event.date.forEach(d => {
+                var dateName = d.date+ ' ' + d.place.getPlaceName();
+                $('#'+list).append('<div class="list-group-item event_list" id="'
+                + list + d.id +'">'+ dateName +'</div>');
+    
+                //<button id="date_'+ d.id +'" type="button" class="btn btn-primary">Elimina</button></div>
+                $('#'+ list +d.id).off();
+                $('#'+ list +d.id).on('click', () => {
+                    EventsManagement.loadEventDatePage(d, event, list);
                 });
-                EventsManagement.loadEventDateList(event, listId);
-            });*/
+    
+                /*$('#date_'+ d.id).on('click', () => {
+                    event.getDate().forEach(selectedDate => {
+                        if (d.id == selectedDate.id) {
+                            var index = event.getDate().indexOf(selectedDate);
+                            if (index > -1) {
+                                event.getDate().splice(index, 1);
+                            }
+                            EventsManagement.deleteEventDate(event, selectedDate);
+                        }
+                    });
+                    EventsManagement.loadEventDateList(event, [list]);
+                });*/
+            });
         });
+        
     },
 
     loadEventDatePage : function (date, event, listId) {
@@ -219,7 +222,7 @@ var EventsManagement = {
                 event.date.splice(index, 1);
             }
             EventsManagement.deleteEventDate(event, date);
-            EventsManagement.loadEventDateList(event, listId);
+            EventsManagement.loadEventDateList(event, [listId]);
             backPage();
         });
     },
@@ -256,7 +259,8 @@ var EventsManagement = {
         var hours = [];
         var classroom = '';
         var inDb = true;
-        
+
+        firebase.database().ref('date/'+date.date+'/'+event.id).remove();
         var prom = firebase.database().ref('event/'+event.id+'/date/'+date.date).once('value', dateStr => {
             inDb = dateStr.exists();
             if (inDb) {
@@ -452,7 +456,7 @@ var EventsManagement = {
                 });
                 
                 EventsManagement.newEvent.date = [];
-                EventsManagement.loadEventDateList(this.newEvent, 'event_date_list');
+                EventsManagement.loadEventDateList(this.newEvent, ['event_date_list']);
                 EventsManagement.loadEventList();
                 backPage();
             });
@@ -497,7 +501,7 @@ var EventsManagement = {
             eventDate.setHours(EventsManagement.selectedHours);
             eventDate.setPlace(eventPlace);
             EventsManagement.eventDateResetForms();
-            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_list');
+            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, ['event_date_list']);
             backPage();
             return eventDate;
         } else {
@@ -507,6 +511,7 @@ var EventsManagement = {
 
     addDateToDbEvent : function (event, eventDate) {
         var jobj = '{';
+        var hoursString = '';
         if (eventDate.classes.length > 0) {
             jobj += '"class" : {';
             eventDate.classes.forEach(eventClass => {
@@ -523,13 +528,19 @@ var EventsManagement = {
         }
         jobj += '"hour" : [';
         eventDate.hours.forEach(hour => {
-            jobj += '"' + hour + '",';
+            hoursString += '"' + hour + '",';
         });
-        jobj = jobj.substring(0, jobj.length - 1);
+        hoursString = hoursString.substring(0, hoursString.length - 1);
+        jobj += hoursString;
         jobj += ']}';
         jobj = JSON.parse(jobj);
         firebase.database().ref('event/'+event.id+'/date/'+eventDate.date+'/').update(jobj);
         firebase.database().ref('event/'+event.id+'/day').push(eventDate.date);
+        
+        firebase.database().ref('date/'+eventDate.date+'/').update({
+            [event.id] : eventDate.place.isInternal()
+        });
+
         if (eventDate.place.isInternal()) {
             Marconi.eventHourPrenotation(eventDate.date, eventDate.place, eventDate.hours, event.title, event.id);
         }
@@ -603,7 +614,7 @@ $(function () {
                 EventsManagement.addDate = false;
             }
             EventsManagement.selectedEvent.addDate(newDate);
-            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, 'event_date_list');
+            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, ['event_date_details_list', 'event_date_list']);
         }
     });
     

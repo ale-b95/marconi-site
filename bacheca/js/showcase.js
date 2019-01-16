@@ -6,6 +6,7 @@ $(function() {
         },
 
         showcaseAutoScroll : function () {
+            var STATE = {MORNING : 0, AFTERNOON : 1, SHOWCASE : 2}
             var date = new Date();
             var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13','bt_hid_14'];
             var afternoon_hours = ['bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19','bt_hid_20','bt_hid_21'];
@@ -19,24 +20,23 @@ $(function() {
                 }
             }, 500);
 
-            var STATE = 'morning';
+            var SHOW = STATE.MORNING;
             //start cycling the elements
             INTERVAL = setInterval(function () {
                 date = new Date();
                 $('#bacheca_date').text(date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
-                switch (STATE) {
-                    case 'morning':
-                        for (id in afternoon_hours) {
-                            $('#'+afternoon_hours[id]).fadeOut();
-                        }
+                switch (SHOW) {
+                    case STATE.MORNING:
+                        $('#showcase').fadeOut();
                         setTimeout(() => {
+                            $('#big-table').fadeIn();
                             for (id in morning_hours) {
                                 $('#'+morning_hours[id]).fadeIn();
                             }
                         }, 500);
-                        STATE = 'afternoon';
+                        SHOW = STATE.AFTERNOON;
                     break;
-                    case 'afternoon':
+                    case STATE.AFTERNOON:
                         for (id in morning_hours) {
                             $('#'+morning_hours[id]).fadeOut();
                         }
@@ -45,8 +45,17 @@ $(function() {
                                 $('#'+afternoon_hours[id]).fadeIn();
                             }
                         }, 500);
-                        STATE = 'morning';
+                        SHOW = STATE.SHOWCASE;
                     break;
+                    case STATE.SHOWCASE:
+                        $('#big-table').fadeOut();
+                        for (id in afternoon_hours) {
+                            $('#'+afternoon_hours[id]).fadeOut();
+                        }
+                        setTimeout(() => {
+                            $('#showcase').fadeIn();
+                        }, 500);
+                        SHOW = STATE.MORNING;
                     default:
                 }
             }, 10000);
@@ -66,82 +75,115 @@ $(function() {
             }
         },
 
-        loadShowcase : function () {
-            this.clearShowcase();
-            var date = new Date();
-            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value', () => {
-                this.clearShowcase();
-                var selected_croom = [];
-                var croom_w_prenotation = [];
-                var other_croom = [];
-                var bacheca_croom = [];
-                var promises = [];
+        updateShowcase : function (date = new Date()) {
+            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').onUpdate(() => {
+                clearShowcase();
+                loadShowcase(date);
+            });
 
-                var myProm_01 = firebase.database().ref('classroom/').once('value', snap => {
-                    snap.forEach(childSnap => {
-                        if (childSnap.val().isFavourite) {
-                            if (!selected_croom.includes(childSnap.key)) {
-                                selected_croom.push(childSnap.key);
-                            }
-                        }
-                    });
-                });
+            firebase.database().ref('date/').onUpdate(() => {
+                clearShowcase();
+                loadShowcase(date);
+                loadShowcase(date);
+            })
+        },
 
-                var myProm_02 = firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').once('value', snap => {
-                    snap.forEach(childSnap => {
-                        if (!croom_w_prenotation.includes(childSnap.key)) {
-                            croom_w_prenotation.push(childSnap.key);
-                        }
-                    });
-                });
+        loadShowcase : function (date = new Date()) {
+            var selected_croom = [];
+            var croom_w_prenotation = [];
+            var other_croom = [];
 
-                var myProm_03 = firebase.database().ref('classroom/').once('value', snap => {
-                    snap.forEach(childSnap => {
-                        if (!childSnap.val().isFavourite) {
-                            if (!selected_croom.includes(childSnap.key) && !other_croom.includes(childSnap.key)) {
-                                other_croom.push(childSnap.key);
-                            }
-                        }
-                    });
-                });
+            var external_events = [];
 
-                promises.push(myProm_01);
-                promises.push(myProm_02);
-                promises.push(myProm_03);
+            var bacheca_croom = [];
 
-                Promise.all(promises).then(() => {
-                    //first add classrooms selected which have prenotations
-                    for (i in selected_croom) {
-                        if (croom_w_prenotation.includes(selected_croom[i])) {
-                            bacheca_croom.push(selected_croom[i]);
-                        }
+            var promises = [];
+
+            var dateString = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
+            //1) cerca tra le date del giorno quelle che non sono  interne
+            var myProm_00 = firebase.database().ref('date/'+dateString+'/').once('value', eventDate => {
+                //if place is external
+                eventDate.forEach(e => {
+                    if (e.val()) {
+                        firebase.database().ref('event/'+eventDate.key).once('value', ext_event=> {
+                            ext_event.forEach(child => {
+                                console.log(child.key);
+                            });
+                            /*extEv = {
+                                title : event.val().title,
+                                hour : event.child('/date/'+dateString+'hour').val(),
+                                place : event.child('/date/'+dateString+'/place/name').val()
+                            };
+                            console.log(extEv)
+                            external_events.push(extEv);*/
+                        });
                     }
+                })
+                
+            });
 
-                    //then add other classrooms with prenotations
-                    for (i in croom_w_prenotation) {
-                        if (!bacheca_croom.includes(croom_w_prenotation[i])) {
-                            bacheca_croom.push(croom_w_prenotation[i]);
-                        }
-                    }
+            //2) vai all'evento corrispondente prendi l'orario e il luogo e facci una colonna
 
-                    //then add all remaining selected classrooms
-                    for (i in selected_croom) {
-                        if (!bacheca_croom.includes(selected_croom[i])) {
-                            bacheca_croom.push(selected_croom[i]);
+            // first select all favourite classrooms
+            var myProm_01 = firebase.database().ref('classroom/').once('value', snap => {
+                snap.forEach(childSnap => {
+                    if (childSnap.val().isFavourite) {
+                        if (!selected_croom.includes(childSnap.key)) {
+                            selected_croom.push(childSnap.key);
                         }
-                    }
-
-                    for (i in other_croom) {
-                        if (!bacheca_croom.includes(other_croom[i])) {
-                            bacheca_croom.push(other_croom[i]);
+                    } else {
+                        if (!other_croom.includes(childSnap.key)) {
+                            other_croom.push(childSnap.key);
                         }
-                    }
-                    
-                    for (i in bacheca_croom) {
-                        var idx = parseInt(i) + 1;
-                        this.fillShowcase(croom_w_prenotation, bacheca_croom[i], idx);
                     }
                 });
+            });
+
+            // then the once where there is a prenotation for the selected day
+            var myProm_02 = firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').once('value', snap => {
+                snap.forEach(childSnap => {
+                    if (!croom_w_prenotation.includes(childSnap.key)) {
+                        croom_w_prenotation.push(childSnap.key);
+                    }
+                });
+            });
+
+            promises.push(myProm_00);
+            promises.push(myProm_01);
+            promises.push(myProm_02);
+
+            Promise.all(promises).then(() => {
+                //first add classrooms selected which have prenotations
+                for (i in selected_croom) {
+                    if (croom_w_prenotation.includes(selected_croom[i])) {
+                        bacheca_croom.push(selected_croom[i]);
+                    }
+                }
+
+                //then add other classrooms with prenotations
+                for (i in croom_w_prenotation) {
+                    if (!bacheca_croom.includes(croom_w_prenotation[i])) {
+                        bacheca_croom.push(croom_w_prenotation[i]);
+                    }
+                }
+
+                //then add all remaining selected classrooms
+                for (i in selected_croom) {
+                    if (!bacheca_croom.includes(selected_croom[i])) {
+                        bacheca_croom.push(selected_croom[i]);
+                    }
+                }
+
+                for (i in other_croom) {
+                    if (!bacheca_croom.includes(other_croom[i])) {
+                        bacheca_croom.push(other_croom[i]);
+                    }
+                }
+                
+                for (i in bacheca_croom) {
+                    var idx = parseInt(i) + 1;
+                    this.fillShowcase(croom_w_prenotation, bacheca_croom[i], idx);
+                }
             });
         },
 
