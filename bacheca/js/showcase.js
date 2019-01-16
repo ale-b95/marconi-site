@@ -100,29 +100,22 @@ $(function() {
             var promises = [];
 
             var dateString = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
-            //1) cerca tra le date del giorno quelle che non sono  interne
             var myProm_00 = firebase.database().ref('date/'+dateString+'/').once('value', eventDate => {
                 //if place is external
                 eventDate.forEach(e => {
-                    if (e.val()) {
-                        firebase.database().ref('event/'+eventDate.key).once('value', ext_event=> {
-                            ext_event.forEach(child => {
-                                console.log(child.key);
-                            });
-                            /*extEv = {
+                    if (!e.val()) {
+                        firebase.database().ref('event/'+e.key+'/').once('value', event=> {
+                            external_event = {
                                 title : event.val().title,
-                                hour : event.child('/date/'+dateString+'hour').val(),
+                                hour : event.child('/date/'+dateString+'/hour').val(),
                                 place : event.child('/date/'+dateString+'/place/name').val()
                             };
-                            console.log(extEv)
-                            external_events.push(extEv);*/
+                            external_events.push(external_event);
                         });
                     }
                 })
                 
             });
-
-            //2) vai all'evento corrispondente prendi l'orario e il luogo e facci una colonna
 
             // first select all favourite classrooms
             var myProm_01 = firebase.database().ref('classroom/').once('value', snap => {
@@ -153,7 +146,7 @@ $(function() {
             promises.push(myProm_02);
 
             Promise.all(promises).then(() => {
-                //first add classrooms selected which have prenotations
+                //first add the favourite classrooms which have prenotations
                 for (i in selected_croom) {
                     if (croom_w_prenotation.includes(selected_croom[i])) {
                         bacheca_croom.push(selected_croom[i]);
@@ -182,44 +175,67 @@ $(function() {
                 
                 for (i in bacheca_croom) {
                     var idx = parseInt(i) + 1;
-                    this.fillShowcase(croom_w_prenotation, bacheca_croom[i], idx);
+                    this.fillShowcase(croom_w_prenotation, bacheca_croom[i], idx, date);
                 }
-            });
-        },
 
-        fillShowcase : function (classrooms_with_prenotation, classroom_name, idx) {
-            if (classrooms_with_prenotation.includes(classroom_name)) {
-                var date = new Date();
-                //for each selected classroom prints on the big table the corresponding schedule
-                firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/'+classroom_name+'/').once('value', snap => {
-                    snap.forEach(childSnap => {
-                        var index = idx + 1;
-                        var hour = childSnap.key;
-                        var event_title = childSnap.val().event;
-                        var text;
+                for (var idx = 1; idx < 11; idx++) {
+                    croom_w_prenotation.forEach(classroom => {
+                        if (idx < 11) {
+                            //for each selected classroom prints on the big table the corresponding schedule
+                            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/'+classroom+'/').once('value', snap => {
+                                snap.forEach(childSnap => {
+                                    var hour = childSnap.key;
+                                    var event_title = childSnap.val().event;
+                                    var text;
 
-                        if (event_title) {
-                            text = event_title;
-                        } else {
-                            text = childSnap.val().class_name + ' ' + childSnap.val().teacher;
-                        }
+                                    if (event_title) {
+                                        text = event_title;
+                                    } else {
+                                        text = childSnap.val().class_name + ' ' + childSnap.val().teacher;
+                                    }
 
-                        $("#th_"+idx).text(childSnap.val().classroom);
-                        $("#bt_hid_"+hour+" td:nth-child("+index+")").text(text);
-                        if (event_title) {
-                            $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_event'); 
-                            $("#bt_hid_"+hour+" td:nth-child("+index+")").removeClass('reserved_lesson');          
-                        } else {
-                            $("#bt_hid_"+hour+" td:nth-child("+index+")").addClass('reserved_lesson');
-                            $("#bt_hid_"+hour+" td:nth-child("+index+")").removeClass('reserved_event'); 
+                                    $("#th_"+idx).text(childSnap.val().classroom);
+                                    $("#bt_hid_"+hour+" td:nth-child("+idx+")").text(text);
+                                    if (event_title) {
+                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").addClass('reserved_event'); 
+                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").removeClass('reserved_lesson');          
+                                    } else {
+                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").addClass('reserved_lesson');
+                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").removeClass('reserved_event'); 
+                                    }
+                                });
+                            });
+                            idx++;
                         }
                     });
-                });
-            } else {
-                firebase.database().ref('classroom/'+classroom_name).once('value', snap => {
-                    $("#th_"+idx).text(snap.val().name);
-                });
-            }
+
+                    if (idx < 11) {
+                        external_events.forEach(exEvent => {
+                            if (idx < 11) {
+                                $("#th_"+idx).text(exEvent.place);
+                                exEvent.hour.forEach(h => {
+                                    $("#bt_hid_"+h+" td:nth-child("+idx+")").text(exEvent.title);
+                                    $("#bt_hid_"+h+" td:nth-child("+idx+")").addClass('reserved_event');  
+                                });
+                                idx++;
+                            }
+                        });
+                    }
+
+                    if (idx < 11) {
+                        bacheca_croom.forEach(classroom => {
+                            if (idx < 11) {
+                                if (!croom_w_prenotation.contains(classroom)) {
+                                    firebase.database().ref('classroom/'+classroom).once('value', snap => {
+                                        $("#th_"+idx).text(snap.val().name);
+                                    });
+                                    idx++
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         },
 
         loadEventShowcase : function () {
