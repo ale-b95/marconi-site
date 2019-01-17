@@ -48,8 +48,22 @@ class ShowcaseElement {
     }
 }
 
+class Announcement {
+    constructor (title, description, id, type) {
+        this.title = title;
+        this.description = description;
+        this.id = id;
+        this.type = type;
+    }
+}
+
 $(function() {
     var Showcase = {
+        init : function () {
+            this.announcementList = [];
+            this.eventList = [];
+        },
+
         showDate : function (date = new Date()) {
             $('#bacheca_date').text(date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
         },
@@ -135,10 +149,12 @@ $(function() {
         updateShowcase : function (date = new Date()) {
             firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value',() => {
                 this.reloadShowcase(date);
+                
             });
 
             firebase.database().ref('date/'+date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate()+'-').on('value',() => {
                 this.reloadShowcase(date); 
+                this.loadEventShowcase(date);
             });
         },
 
@@ -241,12 +257,12 @@ $(function() {
             var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
             var last_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
             firebase.database().ref('announcement/').on('value', snap => {
-                $('.announcement-show').remove();
                 snap.forEach(childSnap => {
+                    $('#ann_'+childSnap.key).remove();
+                    console.log('#ann_'+childSnap.key);
+                    this.announcementList.splice(this.announcementList.map(function(e) { return e.id; }).indexOf(childSnap.key), 1);
                     if (childSnap.val().startDate <= last_hour.getTime() && childSnap.val().startDate >= first_hour.getTime()) {
-                        $('#showcase').append('<div class="jumbotron announcement-show">'+
-                            '<h1 class="h3 mb-3 font-weight-normal">Avviso: '+ childSnap.val().title +'</h1>'+
-                            '<p>'+ childSnap.val().description + '</p></div>');
+                        this.addAnnouncement(childSnap.val().title, childSnap.val().description, childSnap.key, 'ANNOUNCEMENT');
                     }
                 });
             });
@@ -254,18 +270,65 @@ $(function() {
             firebase.database().ref('date/'+dateString+'/').once('value', d => {
                 d.forEach(event_key => {
                     firebase.database().ref('event/'+event_key.key).on('value', event => {
-                        $('#sc_'+event_key.key).remove();
-                        if (event.val().onShowcase) {
-                            $('#showcase').append('<div id="sc_'+event_key.key+'" class="jumbotron event-show">'+
-                            '<h1 class="h3 mb-3 font-weight-normal">Evento: '+ event.val().title +'</h1>'+
-                            '<p>'+ event.val().description + '</p></div>');
+                        $('#ann_'+event.key).remove();
+                        this.announcementList.splice(this.announcementList.map(function(e) { return e.id; }).indexOf(event.key), 1);
+                        if (event.val() != null) {
+                            if (event.val().onShowcase) {
+                                this.addAnnouncement(event.val().title, event.val().description, event_key.key, 'EVENT');
+                            }
                         }
                     });
                 });
             });
+        },
+
+        addAnnouncement(title, description, id, type) {
+            if (type == 'ANNOUNCEMENT') {
+                this.announcementList.push(new Announcement(title, description, id, type));
+            } else if (type == 'EVENT') {
+                this.eventList.push(new Announcement(title, description, id, type));
+            }
+            
+            this.updateAnnouncementOnDashboard(type);
+        },
+
+        updateAnnouncementOnDashboard(type) {
+            var list;
+            if (type == 'ANNOUNCEMENT') {
+                this.announcementList.push(new Announcement(title, description, id, type));
+            } else if (type == 'EVENT') {
+                this.eventList.push(new Announcement(title, description, id, type));
+            }
+            this.announcementList.forEach((announcement, i) => {
+                $('#ann_'+announcement.id).remove();
+
+                var type = '';
+
+                if (announcement.type == 'ANNOUNCEMENT') {
+                    type = 'Annuncio: ';
+                } else if (announcement.type == 'EVENT') {
+                    type = 'Evento: ';
+                }
+
+                var row = 'null';
+
+                if (i < 4) {
+                    row = 'first_row';
+                } else if (i >= 4 && i < 8) {
+                    row = 'second_row';
+                }
+
+                $('#'+row).append('<div class="col-3" id="ann_'+announcement.id+'">'+
+                    '<div class="jumbotron">'+
+                        '<h1 class="h4 mb-4 font-weight-normal">'+type+announcement.title+'</h1>'+
+                        '<p">'+announcement.description+'</p>'+
+                    '</div>'+
+                '</div>');
+            });
         }
     }
-    
+
+    Showcase.init();
     Showcase.updateShowcase();
     Showcase.showDate();
     Showcase.showcaseAutoScroll();
