@@ -1,13 +1,61 @@
+class ShowcaseElement {
+    constructor(idx, element_id, type) {
+        this.idx = idx;
+        this.type = type
+        this.element_id = element_id;
+    }
+
+    showElement(date) {
+        if (this.type == 'CLASSROOM') {
+            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/'+this.element_id+'/').once('value', snap => {
+                snap.forEach(childSnap => {
+                    var hour = childSnap.key;
+                    var event_title = childSnap.val().event;
+                    var text;
+                    if (event_title) {
+                        text = event_title;
+                    } else {
+                        text = childSnap.val().class_name + ' ' + childSnap.val().teacher;
+                    }
+                    $("#th_"+this.idx).text(childSnap.val().classroom);
+                    $("#cll_"+hour+"_"+this.idx).text(text);
+                    if (event_title) {
+                        $("#cll_"+hour+"_"+this.idx).addClass('reserved_event'); 
+                        $("#cll_"+hour+"_"+this.idx).removeClass('reserved_lesson');          
+                    } else {
+                        $("#cll_"+hour+"_"+this.idx).addClass('reserved_lesson');
+                        $("#cll_"+hour+"_"+this.idx).removeClass('reserved_event'); 
+                    }
+                });
+            });
+        } else if (this.type == 'EVENT'){
+            var dateString = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
+
+            firebase.database().ref('event/'+this.element_id).once('value', event=> {
+                $("#th_"+(this.idx)).text(event.child('/date/'+dateString+'/place/name').val());
+                event.child('/date/'+dateString+'/hour').val().forEach(hour => {
+                    $("#cll_"+hour+"_"+this.idx).text(event.val().title);
+                    $("#cll_"+hour+"_"+this.idx).addClass('reserved_event');
+                });
+            });
+        }
+    }
+
+    setTableHeader() {
+        firebase.database().ref('classroom/'+this.element_id).once('value', classroom => {
+            $("#th_"+this.idx).text(classroom.val().name);
+        })
+    }
+}
+
 $(function() {
     var Showcase = {
-        showDate : function () {
-            var date = new Date();
+        showDate : function (date = new Date()) {
             $('#bacheca_date').text(date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
         },
 
-        showcaseAutoScroll : function () {
+        showcaseAutoScroll : function (date = new Date()) {
             var STATE = {MORNING : 0, AFTERNOON : 1, SHOWCASE : 2}
-            var date = new Date();
             var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13','bt_hid_14'];
             var afternoon_hours = ['bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19','bt_hid_20','bt_hid_21'];
             //prepare elements to show first
@@ -20,7 +68,8 @@ $(function() {
                 }
             }, 500);
 
-            var SHOW = STATE.MORNING;
+            
+            /*var SHOW = STATE.MORNING;
             //start cycling the elements
             INTERVAL = setInterval(function () {
                 date = new Date();
@@ -58,7 +107,15 @@ $(function() {
                         SHOW = STATE.MORNING;
                     default:
                 }
-            }, 10000);
+            }, 2000);*/
+
+            $('#big-table').fadeOut();
+            for (id in afternoon_hours) {
+                $('#'+afternoon_hours[id]).fadeOut();
+            }
+            setTimeout(() => {
+                $('#showcase').fadeIn();
+            }, 500);
         },
 
         clearShowcase : function () {
@@ -76,57 +133,49 @@ $(function() {
         },
 
         updateShowcase : function (date = new Date()) {
-            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').onUpdate(() => {
-                clearShowcase();
-                loadShowcase(date);
+            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value',() => {
+                this.reloadShowcase(date);
             });
 
-            firebase.database().ref('date/').onUpdate(() => {
-                clearShowcase();
-                loadShowcase(date);
-                loadShowcase(date);
-            })
+            firebase.database().ref('date/'+date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate()+'-').on('value',() => {
+                this.reloadShowcase(date); 
+            });
+        },
+
+        reloadShowcase : function (date = new Date()) {
+            Showcase.clearShowcase();
+            Showcase.loadShowcase(date);
         },
 
         loadShowcase : function (date = new Date()) {
-            var selected_croom = [];
-            var croom_w_prenotation = [];
-            var other_croom = [];
+            console.log('load showcase');
+            var favourite_classrooms = [];
+            var other_classrooms = [];
+            var prenotated_classrooms = [];
 
             var external_events = [];
 
-            var bacheca_croom = [];
-
             var promises = [];
-
             var dateString = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
             var myProm_00 = firebase.database().ref('date/'+dateString+'/').once('value', eventDate => {
                 //if place is external
                 eventDate.forEach(e => {
                     if (!e.val()) {
-                        firebase.database().ref('event/'+e.key+'/').once('value', event=> {
-                            external_event = {
-                                title : event.val().title,
-                                hour : event.child('/date/'+dateString+'/hour').val(),
-                                place : event.child('/date/'+dateString+'/place/name').val()
-                            };
-                            external_events.push(external_event);
-                        });
+                        external_events.push(e.key);
                     }
                 })
-                
             });
 
             // first select all favourite classrooms
             var myProm_01 = firebase.database().ref('classroom/').once('value', snap => {
                 snap.forEach(childSnap => {
                     if (childSnap.val().isFavourite) {
-                        if (!selected_croom.includes(childSnap.key)) {
-                            selected_croom.push(childSnap.key);
+                        if (!favourite_classrooms.includes(childSnap.key)) {
+                            favourite_classrooms.push(childSnap.key);
                         }
                     } else {
-                        if (!other_croom.includes(childSnap.key)) {
-                            other_croom.push(childSnap.key);
+                        if (!other_classrooms.includes(childSnap.key)) {
+                            other_classrooms.push(childSnap.key);
                         }
                     }
                 });
@@ -135,8 +184,9 @@ $(function() {
             // then the once where there is a prenotation for the selected day
             var myProm_02 = firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').once('value', snap => {
                 snap.forEach(childSnap => {
-                    if (!croom_w_prenotation.includes(childSnap.key)) {
-                        croom_w_prenotation.push(childSnap.key);
+                    var classroom_id = childSnap.key;
+                    if (!prenotated_classrooms.includes(classroom_id)) {
+                        prenotated_classrooms.push(classroom_id);
                     }
                 });
             });
@@ -146,102 +196,50 @@ $(function() {
             promises.push(myProm_02);
 
             Promise.all(promises).then(() => {
-                //first add the favourite classrooms which have prenotations
-                for (i in selected_croom) {
-                    if (croom_w_prenotation.includes(selected_croom[i])) {
-                        bacheca_croom.push(selected_croom[i]);
-                    }
-                }
+                var classrooms = favourite_classrooms;
+                classrooms = classrooms.concat(other_classrooms);
 
-                //then add other classrooms with prenotations
-                for (i in croom_w_prenotation) {
-                    if (!bacheca_croom.includes(croom_w_prenotation[i])) {
-                        bacheca_croom.push(croom_w_prenotation[i]);
+                prenotated_classrooms.forEach(e => {
+                    if (classrooms.includes(e)) {
+                        var idx = classrooms.indexOf(e);
+                        classrooms.splice(idx, 1);
                     }
-                }
+                });
 
-                //then add all remaining selected classrooms
-                for (i in selected_croom) {
-                    if (!bacheca_croom.includes(selected_croom[i])) {
-                        bacheca_croom.push(selected_croom[i]);
-                    }
-                }
+                var showcaseElements = [];
 
-                for (i in other_croom) {
-                    if (!bacheca_croom.includes(other_croom[i])) {
-                        bacheca_croom.push(other_croom[i]);
+                var i = 0;
+                prenotated_classrooms.forEach(e => {
+                    showcaseElements.push(new ShowcaseElement(i, e, 'CLASSROOM'));
+                    i++;
+                });
+
+                external_events.forEach((e) => {
+                    showcaseElements.push(new ShowcaseElement(i, e, 'EVENT'));
+                    i++
+                });
+
+                classrooms.forEach((e) => {
+                    if (i < 10) {
+                        var header = new ShowcaseElement(i, e, 'CLASSROOM');
+                        header.setTableHeader();
+                        i++
                     }
-                }
+                });
                 
-                for (i in bacheca_croom) {
-                    var idx = parseInt(i) + 1;
-                    this.fillShowcase(croom_w_prenotation, bacheca_croom[i], idx, date);
-                }
-
-                for (var idx = 1; idx < 11; idx++) {
-                    croom_w_prenotation.forEach(classroom => {
-                        if (idx < 11) {
-                            //for each selected classroom prints on the big table the corresponding schedule
-                            firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/'+classroom+'/').once('value', snap => {
-                                snap.forEach(childSnap => {
-                                    var hour = childSnap.key;
-                                    var event_title = childSnap.val().event;
-                                    var text;
-
-                                    if (event_title) {
-                                        text = event_title;
-                                    } else {
-                                        text = childSnap.val().class_name + ' ' + childSnap.val().teacher;
-                                    }
-
-                                    $("#th_"+idx).text(childSnap.val().classroom);
-                                    $("#bt_hid_"+hour+" td:nth-child("+idx+")").text(text);
-                                    if (event_title) {
-                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").addClass('reserved_event'); 
-                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").removeClass('reserved_lesson');          
-                                    } else {
-                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").addClass('reserved_lesson');
-                                        $("#bt_hid_"+hour+" td:nth-child("+idx+")").removeClass('reserved_event'); 
-                                    }
-                                });
-                            });
-                            idx++;
-                        }
-                    });
-
-                    if (idx < 11) {
-                        external_events.forEach(exEvent => {
-                            if (idx < 11) {
-                                $("#th_"+idx).text(exEvent.place);
-                                exEvent.hour.forEach(h => {
-                                    $("#bt_hid_"+h+" td:nth-child("+idx+")").text(exEvent.title);
-                                    $("#bt_hid_"+h+" td:nth-child("+idx+")").addClass('reserved_event');  
-                                });
-                                idx++;
-                            }
-                        });
+                showcaseElements.forEach(e => {
+                    if (e.idx < 11) {
+                        e.showElement(date);
                     }
-
-                    if (idx < 11) {
-                        bacheca_croom.forEach(classroom => {
-                            if (idx < 11) {
-                                if (!croom_w_prenotation.contains(classroom)) {
-                                    firebase.database().ref('classroom/'+classroom).once('value', snap => {
-                                        $("#th_"+idx).text(snap.val().name);
-                                    });
-                                    idx++
-                                }
-                            }
-                        });
-                    }
-                }
+                });
             });
         },
 
-        loadEventShowcase : function () {
-            var now = new Date();
-            var first_hour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-            var last_hour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        loadEventShowcase : function (date = new Date()) {
+            var date = new Date();
+            var dateString =  date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
+            var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+            var last_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
             firebase.database().ref('announcement/').on('value', snap => {
                 $('.announcement-show').remove();
                 snap.forEach(childSnap => {
@@ -253,20 +251,31 @@ $(function() {
                 });
             });
 
-            firebase.database().ref('event/').orderByChild("date").startAt(first_hour.getTime()).endAt(last_hour.getTime()).on("value", snap => {
-                $('.event-show').remove();
-                snap.forEach(childSnap => {
-                    $('#showcase').append('<div class="jumbotron event-show">'+
-                        '<h1 class="h3 mb-3 font-weight-normal">Evento: '+ childSnap.val().title +'</h1>'+
-                        '<p>'+ childSnap.val().description + '</p></div>');
+            firebase.database().ref('date/'+dateString+'/').once('value', d => {
+                d.forEach(event_key => {
+                    firebase.database().ref('event/'+event_key.key).on('value', event => {
+                        $('#sc_'+event_key.key).remove();
+                        if (event.val().onShowcase) {
+                            $('#showcase').append('<div id="sc_'+event_key.key+'" class="jumbotron event-show">'+
+                            '<h1 class="h3 mb-3 font-weight-normal">Evento: '+ event.val().title +'</h1>'+
+                            '<p>'+ event.val().description + '</p></div>');
+                        }
+                    });
                 });
             });
         }
     }
-
-    Showcase.loadShowcase();
+    
+    Showcase.updateShowcase();
     Showcase.showDate();
-    //Showcase.showcaseAutoScroll();
+    Showcase.showcaseAutoScroll();
     Showcase.loadEventShowcase();
+    
+    $('#datetimepicker').on('change', () => {
+        var date = $('#datetimepicker').datetimepicker('getValue');
+        Showcase.updateShowcase(date);
+        Showcase.showDate(date);
+        Showcase.loadEventShowcase(date);
+    });
 });
 

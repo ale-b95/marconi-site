@@ -20,3 +20,19 @@
     height: 10%;
     font-size: medium;
 }
+
+.reserved_lesson {
+    background-color: lightblue;
+}
+
+.reserved_event {
+    background-color: lightgreen;
+}
+
+#datetimepicker {
+    width: 25%
+}
+
+#bacheca_date {
+    display:inline-block;
+}

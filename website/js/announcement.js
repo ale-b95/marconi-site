@@ -13,20 +13,20 @@ var Announcement = {
         });
     
         $('#select_announcement_action').on('change', () => {
-            $('#announcement_datepicker').slideDown();
-    
             if ($('#select_announcement_action').val() == 0) {
                 $('#create_announcement').slideDown();
                 $('#remove_announcement').slideUp();
+                $('#announcement_datepicker').slideDown();
             } else {
                 $('#remove_announcement').slideDown();
                 $('#create_announcement').slideUp();
-                this.fillAnnouncementSelectList();
+                $('#announcement_datepicker').slideUp();
+                this.fillAnnouncementSelectList(true);
             }
         });
     
         $('#datetimepicker7, #datetimepicker8').on('change', () => {
-            this.fillAnnouncementSelectList();
+            this.fillAnnouncementSelectList(false);
         });
     
         $('#send_announcement').on('click', () => {
@@ -34,40 +34,62 @@ var Announcement = {
             
         });
     
-        $('#delete_announcement').on('click', snap => {
+        $('#delete_announcement').on('click', () => {
             this.deleteAnnouncement();
         });
+
+        $('#announcement_select').on('change', () => {
+            var announcement_key = $('#announcement_select').val();
+            firebase.database().ref('announcement/'+announcement_key).once('value', ann => {
+                $('#ann_title').text(ann.val().title);
+                $('#ann_desc').text(ann.val().description);
+                $('#ann_details').show();
+            }) 
+        })
+
+        $('#ann_done').on('click', () => {
+            this.announcement_done();
+        })
     },
 
-    fillAnnouncementSelectList : function () {
+    fillAnnouncementSelectList : function (all) {
         $('#announcement_select').empty();
         $('#announcement_select').append('<option value="" disabled selected>Seleziona avviso</option>');
-        var startDate = $("#datetimepicker7").datetimepicker('getValue');
-        var endDate = $("#datetimepicker8").datetimepicker('getValue');
-        var today = new Date();
-        var yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        if (startDate == null) {
-            startDate = today;
-        }
-
-        if (endDate == null) {
-            endDate = today;
-        }
-
-        firebase.database().ref('announcement/').once('value', snap => {
-            snap.forEach(childSnap => {
-                if (childSnap.val().endDate >= startDate.getTime() && childSnap.val().startDate <= endDate.getTime()) {
+        if (all) {
+            firebase.database().ref('announcement/').once('value', snap => {
+                snap.forEach(childSnap => {
                     $('#announcement_select').append('<option value="'+childSnap.key+'">'+childSnap.val().title+'</option>')
-                }
+                });
             });
-        });
+        } else {
+            var startDate = $("#datetimepicker7").datetimepicker('getValue');
+            var endDate = $("#datetimepicker8").datetimepicker('getValue');
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+    
+            if (startDate == null) {
+                startDate = today;
+            }
+    
+            if (endDate == null) {
+                endDate = today;
+            }
+    
+            firebase.database().ref('announcement/').once('value', snap => {
+                snap.forEach(childSnap => {
+                    if (childSnap.val().endDate >= startDate.getTime() && childSnap.val().startDate <= endDate.getTime()) {
+                        $('#announcement_select').append('<option value="'+childSnap.key+'">'+childSnap.val().title+'</option>')
+                    }
+                });
+            });
+        }
     },
 
     writeAnnouncement : function () {
         var announcement_title = $('#announcement_title').val();
         var announcement_desc = $('#announcement_desc').val();
+
         var today = new Date();
         var yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -83,7 +105,7 @@ var Announcement = {
             endDate = today;
         }
     
-        if (announcement_title != '' && announcement_desc != '' && startDate.getTime() > yesterday.getTime() && endDate.getTime() > startDate.getTime()) {
+        if (announcement_title != '' && announcement_desc != '' && startDate.getTime() >= yesterday.getTime() && endDate.getTime() >= startDate.getTime()) {
             firebase.database().ref('announcement/').push().set({
                 title : announcement_title,
                 description : announcement_desc,
@@ -94,8 +116,8 @@ var Announcement = {
             });
         } else {
             var error_msg = '';
-            if ($('#announcement_title').val() != '') error_msg += 'Inserisci un titolo per l\'avviso\n';
-            if ($('#announcement_desc').val() != '') error_msg += 'Inserisci una descrizione per l\'avviso\n';
+            if (announcement_title == '') error_msg += 'Inserisci un titolo per l\'avviso\n';
+            if (announcement_desc == '') error_msg += 'Inserisci una descrizione per l\'avviso\n';
             if (startDate.getTime() < yesterday.getTime() || endDate.getTime() < startDate.getTime()) error_msg += 'Periodo inserito non valido\n';
             alert(error_msg);
         }
@@ -112,11 +134,13 @@ var Announcement = {
     },
     
     announcement_done : function() {
+        $('#ann_title').text('');
+        $('#ann_desc').text('');
         $('#create_announcement').hide();
         $('#remove_announcement').hide();
         $('#announcement_datepicker').hide();
         Admin.resetForms();
-        showPage($("#administration_page"));
+        //showPage($("#administration_page"));
     }
 }
 

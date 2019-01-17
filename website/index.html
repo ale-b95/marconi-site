@@ -88,26 +88,31 @@
                             <option value="0">Scrivi avviso</option>
                             <option value="1">Rimuovi avviso</option>
                         </select>
-
+                        <hr>
                         <div id="announcement_datepicker" class="collapse">
                             <input class="datepicker form-control" id="datetimepicker7" type="text" readonly="true" placeholder="Dal giorno" autocomplete="off">
                             <input class="datepicker form-control" id="datetimepicker8" type="text" readonly="true" placeholder="Al giorno" autocomplete="off">
                         </div>
-                        <hr>
+                        
                         <div id="remove_announcement" class="collapse">
                             <select id="announcement_select" class="form-control" autocomplete="off">
                             </select>
-                            <br/>
-                            <button id="delete_announcement" class="btn long-btn btn-primary btn-lg" type="button">Elimina Annuncio</button>
+                            <div class="collapse" id="ann_details">
+                                <span id="ann_title" ></span><br><br>
+                                <span id="ann_desc"></span>
+                            </div>
+                            
+                            <hr/>
+                            <button id="delete_announcement" class="btn long-btn btn-primary btn-lg" type="button">Elimina Avviso</button>
                         </div>
 
                         <div id="create_announcement" class="collapse">
                             <input id="announcement_title" class="form-control" type="text" placeholder="Titolo" autocomplete="off">
                             <textarea  id="announcement_desc" class="form-control" rows="3" placeholder="Descrizione" autocomplete="off"></textarea>
-                            <button id="send_announcement" class="btn long-btn btn-primary btn-lg" type="button">Invia Annuncio</button>
+                            <hr>
+                            <button id="send_announcement" class="btn long-btn btn-primary btn-lg" type="button">Invia Avviso</button>
                         </div>
-                        <hr>
-                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
+                        <button id="ann_done" class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button>
                 </div>
                 <div class="col-md-4 col-lg-5"></div>
             </div>
