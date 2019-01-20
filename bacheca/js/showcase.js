@@ -148,13 +148,8 @@ $(function() {
 
         updateShowcase : function (date = new Date()) {
             firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value',() => {
+                if (date == null) date = new Date();
                 this.reloadShowcase(date);
-                
-            });
-
-            firebase.database().ref('date/'+date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate()+'-').on('value',() => {
-                this.reloadShowcase(date); 
-                this.loadEventShowcase(date);
             });
         },
 
@@ -251,81 +246,100 @@ $(function() {
             });
         },
 
-        loadEventShowcase : function (date = new Date()) {
-            var date = new Date();
-            var dateString =  date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
-            var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-            var last_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+        loadEventShowcase : function (date = new Date()) {            
             firebase.database().ref('announcement/').on('value', snap => {
                 snap.forEach(childSnap => {
-                    $('#ann_'+childSnap.key).remove();
-                    console.log('#ann_'+childSnap.key);
-                    this.announcementList.splice(this.announcementList.map(function(e) { return e.id; }).indexOf(childSnap.key), 1);
-                    if (childSnap.val().startDate <= last_hour.getTime() && childSnap.val().startDate >= first_hour.getTime()) {
-                        this.addAnnouncement(childSnap.val().title, childSnap.val().description, childSnap.key, 'ANNOUNCEMENT');
-                    }
+                    firebase.database().ref('announcement/'+childSnap.key).on('value', () => {
+                        this.updateList('ANNOUNCEMENT', date);
+                    });                    
                 });
             });
 
+            var dateString = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
+
             firebase.database().ref('date/'+dateString+'/').once('value', d => {
                 d.forEach(event_key => {
-                    firebase.database().ref('event/'+event_key.key).on('value', event => {
-                        $('#ann_'+event.key).remove();
-                        this.announcementList.splice(this.announcementList.map(function(e) { return e.id; }).indexOf(event.key), 1);
-                        if (event.val() != null) {
-                            if (event.val().onShowcase) {
-                                this.addAnnouncement(event.val().title, event.val().description, event_key.key, 'EVENT');
-                            }
-                        }
+                    firebase.database().ref('event/'+event_key.key).on('value', () => {
+                        this.updateList('EVENT', date);
                     });
                 });
             });
         },
 
-        addAnnouncement(title, description, id, type) {
+        updateAnnouncementOnDashboard(type) {
             if (type == 'ANNOUNCEMENT') {
-                this.announcementList.push(new Announcement(title, description, id, type));
+                $('.ann').remove();
+                this.announcementList.forEach((announcement, i) => {
+                    var row = 'null';
+
+                    if (i < 4) {
+                        row = 'first_row';
+                    } else if (i >= 4 && i < 8) {
+                        row = 'second_row';
+                    }
+
+                    $('#'+row).append('<div class="col-3 ann" id="ann_'+announcement.id+'">'+
+                        '<div class="jumbotron">'+
+                            '<h1 class="h4 mb-4 font-weight-normal">Avviso: '+announcement.title+'</h1>'+
+                            '<p">'+announcement.description+'</p>'+
+                        '</div>'+
+                    '</div>');
+                });
             } else if (type == 'EVENT') {
-                this.eventList.push(new Announcement(title, description, id, type));
+                $('.ev').remove();
+                this.eventList.forEach((event, i) => {
+                    var row = 'null';
+    
+                    if (i < 4) {
+                        row = 'first_row';
+                    } else if (i >= 4 && i < 8) {
+                        row = 'second_row';
+                    }
+
+                    $('#'+row).append('<div class="col-3 ev" id="ann_'+event.id+'">'+
+                        '<div class="jumbotron">'+
+                            '<h1 class="h4 mb-4 font-weight-normal">Evento: '+event.title+'</h1>'+
+                            '<p">'+event.description+'</p>'+
+                        '</div>'+
+                    '</div>');
+                });
             }
-            
-            this.updateAnnouncementOnDashboard(type);
         },
 
-        updateAnnouncementOnDashboard(type) {
-            var list;
+        updateList(type, date) {
+            var stringDate = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
+            var promises = [];
             if (type == 'ANNOUNCEMENT') {
-                this.announcementList.push(new Announcement(title, description, id, type));
+                this.announcementList = [];
+                var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+                var last_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+                var myprom = firebase.database().ref('announcement/').once('value', announcements => {
+                    announcements.forEach(announcement => {
+                        if (announcement.val().startDate <= last_hour.getTime() && announcement.val().startDate >= first_hour.getTime()) {
+                            this.announcementList.push(new Announcement(announcement.val().title, announcement.val().description, announcement.key, announcement.val().type));
+                        }
+                    });
+                });
             } else if (type == 'EVENT') {
-                this.eventList.push(new Announcement(title, description, id, type));
+                this.eventList = [];
+                var myprom = firebase.database().ref('date/'+stringDate).once('value', events => {
+                    events.forEach(event => {
+                        firebase.database().ref('event/'+event.key).once('value', e => {
+                            if (e.val().onShowcase) {
+                                this.eventList.push(new Announcement(e.val().title, e.val().description, e.key, type));
+                            }
+                        });                        
+                    });
+                });
             }
-            this.announcementList.forEach((announcement, i) => {
-                $('#ann_'+announcement.id).remove();
+            promises.push(myprom);
 
-                var type = '';
-
-                if (announcement.type == 'ANNOUNCEMENT') {
-                    type = 'Annuncio: ';
-                } else if (announcement.type == 'EVENT') {
-                    type = 'Evento: ';
+            Promise.all(promises).then(() => {
+                if (type == 'EVENT') {
                 }
-
-                var row = 'null';
-
-                if (i < 4) {
-                    row = 'first_row';
-                } else if (i >= 4 && i < 8) {
-                    row = 'second_row';
-                }
-
-                $('#'+row).append('<div class="col-3" id="ann_'+announcement.id+'">'+
-                    '<div class="jumbotron">'+
-                        '<h1 class="h4 mb-4 font-weight-normal">'+type+announcement.title+'</h1>'+
-                        '<p">'+announcement.description+'</p>'+
-                    '</div>'+
-                '</div>');
+                this.updateAnnouncementOnDashboard(type);
             });
-        }
+        } 
     }
 
     Showcase.init();
