@@ -80,10 +80,10 @@ $(function() {
                 for (id in morning_hours) {
                     $('#'+morning_hours[id]).fadeIn();
                 }
-            }, 500);
+            }, 300);
 
             
-            /*var SHOW = STATE.MORNING;
+            var SHOW = STATE.MORNING;
             //start cycling the elements
             INTERVAL = setInterval(function () {
                 date = new Date();
@@ -96,7 +96,7 @@ $(function() {
                             for (id in morning_hours) {
                                 $('#'+morning_hours[id]).fadeIn();
                             }
-                        }, 500);
+                        }, 300);
                         SHOW = STATE.AFTERNOON;
                     break;
                     case STATE.AFTERNOON:
@@ -107,7 +107,7 @@ $(function() {
                             for (id in afternoon_hours) {
                                 $('#'+afternoon_hours[id]).fadeIn();
                             }
-                        }, 500);
+                        }, 300);
                         SHOW = STATE.SHOWCASE;
                     break;
                     case STATE.SHOWCASE:
@@ -117,19 +117,11 @@ $(function() {
                         }
                         setTimeout(() => {
                             $('#showcase').fadeIn();
-                        }, 500);
+                        }, 300);
                         SHOW = STATE.MORNING;
                     default:
                 }
-            }, 2000);*/
-
-            $('#big-table').fadeOut();
-            for (id in afternoon_hours) {
-                $('#'+afternoon_hours[id]).fadeOut();
-            }
-            setTimeout(() => {
-                $('#showcase').fadeIn();
-            }, 500);
+            }, 7000);
         },
 
         clearShowcase : function () {
