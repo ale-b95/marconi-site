@@ -2,7 +2,6 @@ var EventsManagement = {
     newEventClassSelection : new CheckboxClassSelectDropdown("new_event_dropdown"),
 
     init : function () {
-        this.user = firebase.auth().currentUser;
         this.selectedHours = [];
         this.nSelectedRows = 0;
 
@@ -45,6 +44,9 @@ var EventsManagement = {
         // 1) get reference of the events with dates on the selected period
         firebase.database().ref('event/').once('value', snap => {
             snap.forEach(eventsSnap => {
+                teacher_key = eventsSnap.child('organizer').val().id;
+                console.log(eventsSnap.child('organizer').val().id == Marconi.user.uid);
+
                 eventId = eventsSnap.key;
                 if (eventsSnap.child('day').exists()) {
                     eventsSnap.child('day').forEach(d => {
@@ -55,7 +57,7 @@ var EventsManagement = {
                             }
                         }
                     });
-                } else if (!eventsSnap.child('day').exists() && Marconi.admin == 1) {
+                } else if (!eventsSnap.child('day').exists() && (Marconi.admin == 1) || (Marconi.user.uid == teacher_key)) {
                     if (!events_ref.includes(eventId)){
                         events_ref.push(eventId);
                     }
@@ -115,7 +117,7 @@ var EventsManagement = {
             Promise.all(promises).then(() => {
                 dbEvents.forEach(e => {
                     //3.1 create the list element with the delete button
-                    if (Marconi.admin == '1' || e.getOrganizer().id == user.uid) {
+                    if (Marconi.admin == '1' || e.getOrganizer().id == Marconi.user.uid) {
                         $('#event_list').append('<div class="list-group-item event_list">'
                         +'<div id="ed_'+ e.id +'">'
                         + e.title +'</div><button id="del_btn_'+ e.id +'" value="'+ e.id +'" type="button" class="btn btn-primary">Elimina</button></div>');
@@ -151,7 +153,7 @@ var EventsManagement = {
 
                         showPage($('#event_details_page'));
 
-                        if (Marconi.admin == 1 || Marconi.user.uid == teacher_key) {
+                        if (Marconi.admin == 1 || Marconi.user.uid == e.getOrganizer().id) {
                             $("#safe_delete_event_btn").show();
                             $("#save_event").hide();
                             $("#delete_event").off();
@@ -400,9 +402,7 @@ var EventsManagement = {
                             $("#ev_hid_"+hour).addClass('event_prenotation');
                             $("#ev_hid_"+hour).val(childSnap.val().event_key);              
                         } else {
-                            this.user = firebase.auth().currentUser;
-
-                            if (this.user.uid == childSnap.val().teacher_key){
+                            if (Marconi.user.uid == childSnap.val().teacher_key){
                                 $("#ev_hid_"+hour).addClass('mybook');
                             } else {
                                 $("#ev_hid_"+hour).addClass('booked');
@@ -435,7 +435,7 @@ var EventsManagement = {
         this.newEvent.setTitle($('#event_title')[0].value);
         this.newEvent.setDescription($('#event_description')[0].value);
         this.newEvent.setOnShowcase($('#check_event_creation').is(":checked"));
-        this.newEvent.setOrganizer(new Teacher(this.user.uid, this.user.displayName));
+        this.newEvent.setOrganizer(new Teacher(Marconi.user.uid, Marconi.user.displayName));
         var dates = [];
 
         this.newEvent.date.forEach(d => {

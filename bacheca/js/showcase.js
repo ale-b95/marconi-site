@@ -58,6 +58,7 @@ class Announcement {
 }
 
 $(function() {
+    var numberOfElements = 0;
     var Showcase = {
         init : function () {
             this.announcementList = [];
@@ -91,6 +92,9 @@ $(function() {
                 switch (SHOW) {
                     case STATE.MORNING:
                         $('#showcase').fadeOut();
+                        for (id in afternoon_hours) {
+                            $('#'+afternoon_hours[id]).fadeOut();
+                        }
                         setTimeout(() => {
                             $('#big-table').fadeIn();
                             for (id in morning_hours) {
@@ -100,6 +104,7 @@ $(function() {
                         SHOW = STATE.AFTERNOON;
                     break;
                     case STATE.AFTERNOON:
+                        $('#showcase').fadeOut();
                         for (id in morning_hours) {
                             $('#'+morning_hours[id]).fadeOut();
                         }
@@ -108,12 +113,21 @@ $(function() {
                                 $('#'+afternoon_hours[id]).fadeIn();
                             }
                         }, 300);
-                        SHOW = STATE.SHOWCASE;
+                        console.log(numberOfElements);
+                        if (numberOfElements > 0) {
+                            SHOW = STATE.SHOWCASE;
+                        } else {
+                            SHOW = STATE.MORNING;;
+                        }
+                        
                     break;
                     case STATE.SHOWCASE:
                         $('#big-table').fadeOut();
                         for (id in afternoon_hours) {
                             $('#'+afternoon_hours[id]).fadeOut();
+                        }
+                        for (id in morning_hours) {
+                            $('#'+morning_hours[id]).fadeOut();
                         }
                         setTimeout(() => {
                             $('#showcase').fadeIn();
@@ -301,6 +315,7 @@ $(function() {
         updateList(type, date) {
             var stringDate = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
             var promises = [];
+            numberOfElements = 0;
             if (type == 'ANNOUNCEMENT') {
                 this.announcementList = [];
                 var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
@@ -309,6 +324,8 @@ $(function() {
                     announcements.forEach(announcement => {
                         if (announcement.val().startDate <= last_hour.getTime() && announcement.val().startDate >= first_hour.getTime()) {
                             this.announcementList.push(new Announcement(announcement.val().title, announcement.val().description, announcement.key, announcement.val().type));
+                            numberOfElements += 1;
+                            console.log(numberOfElements);
                         }
                     });
                 });
@@ -319,6 +336,8 @@ $(function() {
                         firebase.database().ref('event/'+event.key).once('value', e => {
                             if (e.val().onShowcase) {
                                 this.eventList.push(new Announcement(e.val().title, e.val().description, e.key, type));
+                                numberOfElements += 1;
+                                console.log(numberOfElements);
                             }
                         });                        
                     });
