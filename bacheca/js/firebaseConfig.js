@@ -22,7 +22,7 @@ $(function() {
     projectId: "marconi-release",
     storageBucket: "",
     messagingSenderId: "916037440328"
-  };*/
-  
+  };
+  */
   firebase.initializeApp(config);
 });

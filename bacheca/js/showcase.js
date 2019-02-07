@@ -135,7 +135,7 @@ $(function() {
                         SHOW = STATE.MORNING;
                     default:
                 }
-            }, 7000);
+            }, 10000);
         },
 
         clearShowcase : function () {

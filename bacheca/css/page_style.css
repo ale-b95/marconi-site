@@ -37,6 +37,11 @@
     display:inline-block;
 }
 
+#logo {
+    max-width: 100%;
+}
+
+
 /*.ann div {
     background: red;
 }
