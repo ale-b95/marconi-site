@@ -119,10 +119,10 @@ $(function() {
                         }, 300);
 
                         announcementsToShow = Showcase.announcementList.length;
-                        eventsToShow = Showcase.eventList.length;
+                        eventsToShow = $('.ev').length;
                         console.log("events: " + eventsToShow);
                         console.log("announcements: " + announcementsToShow);
-                        if (eventsToShow > 0 || announcements > 0) {
+                        if (eventsToShow > 0 || announcementsToShow > 0) {
                             SHOW = STATE.SHOWCASE;
                         } else {
                             SHOW = STATE.MORNING;;
@@ -143,7 +143,7 @@ $(function() {
                         SHOW = STATE.MORNING;
                     default:
                 }
-            }, 8000);
+            }, 2000);
         },
 
         clearShowcase : function () {
@@ -260,105 +260,97 @@ $(function() {
             });
         },
 
-        loadEventShowcase : function (date = Showcase.globalDate) {            
-            firebase.database().ref('announcement/').on('value', snap => {
-                snap.forEach(childSnap => {
-                    firebase.database().ref('announcement/'+childSnap.key).on('value', () => {
-                        this.updateList('ANNOUNCEMENT', date);
-                    });                    
-                });
+        loadEventShowcase : function () {            
+            firebase.database().ref('announcement/').on('value', () => {
+                this.updateAnnouncementList();
             });
+            
+            var dateString = Showcase.globalDate.getFullYear()+'-'+(Showcase.globalDate.getMonth() + 1)+'-'+Showcase.globalDate.getDate();
 
-            var dateString = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
-
-            firebase.database().ref('date/'+dateString+'/').once('value', d => {
-                d.forEach(event_key => {
-                    firebase.database().ref('event/'+event_key.key).on('value', () => {
-                        this.updateList('EVENT', date);
-                    });
-                });
-            });
-        },
-
-        updateAnnouncementOnDashboard(type) {
-            if (type == 'ANNOUNCEMENT') {
-                $('.ann').remove();
-                this.announcementList.forEach((announcement, i) => {
-                    var row = 'null';
-
-                    if (i < 4) {
-                        row = 'first_row';
-                    } else if (i >= 4 && i < 8) {
-                        row = 'second_row';
-                    }
-
-                    $('#'+row).append('<div class="col-3 ann" id="ann_'+announcement.id+'">'+
-                        '<div class="jumbotron">'+
-                            '<h1 class="h4 mb-4 font-weight-normal">Avviso: '+announcement.title+'</h1>'+
-                            '<p">'+announcement.description+'</p>'+
-                        '</div>'+
-                    '</div>');
-                });
-            } else if (type == 'EVENT') {
-                $('.ev').remove();
-                this.eventList.forEach((event, i) => {
-                    var row = 'null';
-    
-                    if (i < 4) {
-                        row = 'first_row';
-                    } else if (i >= 4 && i < 8) {
-                        row = 'second_row';
-                    }
-
-                    $('#'+row).append('<div class="col-3 ev" id="ann_'+event.id+'">'+
-                        '<div class="jumbotron">'+
-                            '<h1 class="h4 mb-4 font-weight-normal">Evento: '+event.title+'</h1>'+
-                            '<p">'+event.description+'</p>'+
-                        '</div>'+
-                    '</div>');
-                });
-            }
-        },
-
-        updateList(type, date) {
-            var stringDate = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
-            var promises = [];
-            if (type == 'ANNOUNCEMENT') {
-                this.announcementList = [];
-                var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-                var last_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-                var myprom = firebase.database().ref('announcement/').once('value', announcements => {
-                    announcements.forEach(announcement => {
-                        if (announcement.val().startDate <= last_hour.getTime() && announcement.val().startDate >= first_hour.getTime()) {
-                            this.announcementList.push(new Announcement(announcement.val().title, announcement.val().description, announcement.key, announcement.val().type));
-                        }
-                    });
-                });
-            } else if (type == 'EVENT') {
+            firebase.database().ref('date/'+dateString+'/').on('value', (date) => {
+                console.log("date modificato");
                 this.eventList = [];
-                var myprom = firebase.database().ref('date/'+stringDate).once('value', events => {
-                    events.forEach(event => {
-                        firebase.database().ref('event/'+event.key).once('value', e => {
-                            if (e.val().onShowcase) {
-                                this.eventList.push(new Announcement(e.val().title, e.val().description, e.key, type));
-                            }
-                        });                        
-                    });
+                $('.ev').remove();
+                date.forEach(event => {
+                    this.updateEventList(event.key);
                 });
-            }
-            promises.push(myprom);
-
-            Promise.all(promises).then(() => {
-                this.updateAnnouncementOnDashboard(type);
             });
-        } 
+        },
+
+        updateAnnouncementOnDashboard() {
+            $('.ann').remove();
+            this.announcementList.forEach((announcement, i) => {
+                var row = 'null';
+
+                if (i < 4) {
+                    row = 'first_row';
+                } else if (i >= 4 && i < 8) {
+                    row = 'second_row';
+                }
+
+                $('#'+row).append('<div class="col-3 ann" id="ann_'+announcement.id+'">'+
+                    '<div class="jumbotron">'+
+                        '<h1 class="h4 mb-4 font-weight-normal">Avviso: '+announcement.title+'</h1>'+
+                        '<p">'+announcement.description+'</p>'+
+                    '</div>'+
+                '</div>');
+            });
+        },
+
+        updateEventList(eventKey) {
+            firebase.database().ref('event/'+eventKey+'/').on('value', event => {
+                $("#ann_"+eventKey).remove();
+                if (event.val().onShowcase) {
+                    var i = $('.ev').length;
+
+                    if (i < 4) {
+                        row = 'first_row';
+                    } else if (i >= 4 && i < 8) {
+                        row = 'second_row';
+                    }
+    
+                    $('#'+row).append('<div class="col-3 ev" id="ann_'+eventKey+'">'+
+                        '<div class="jumbotron">'+
+                            '<h1 class="h4 mb-4 font-weight-normal">Evento: '+event.val().title+'</h1>'+
+                            '<p">'+event.val().description+'</p>'+
+                        '</div>'+
+                    '</div>');
+                }
+            });
+        }, 
+
+        updateAnnouncementList(date = Showcase.globalDate) {
+            this.announcementList = [];
+            var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+            var last_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+            var myprom = firebase.database().ref('announcement/').once('value', announcements => {
+                announcements.forEach(announcement => {
+                    if (announcement.val().startDate <= last_hour.getTime() && announcement.val().startDate >= first_hour.getTime()) {
+                        this.announcementList.push(new Announcement(announcement.val().title, announcement.val().description, announcement.key, announcement.val().type));
+                    }
+                });
+            });
+
+            myprom.then(() => {
+                this.updateAnnouncementOnDashboard();
+            });
+        }
     }
 
     Showcase.init();
     Showcase.updateShowcase();
     Showcase.showDate();
     Showcase.showcaseAutoScroll();
+
     Showcase.loadEventShowcase();
+
+    //ottieni eventi
+
+    //ottieni avvisi
+
+    //aggiorna eventi
+
+    //aggiorna avvisi
     
     $('#datetimepicker').on('change', () => {
         Showcase.globalDate = $('#datetimepicker').datetimepicker('getValue');
