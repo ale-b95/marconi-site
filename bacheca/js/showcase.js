@@ -58,21 +58,25 @@ class Announcement {
 }
 
 $(function() {
-    var numberOfElements = 0;
+    var eventsToShow = 0;
+    var announcementsToShow = 0;
+
     var Showcase = {
+        globalDate : new Date(),
+
         init : function () {
             this.announcementList = [];
             this.eventList = [];
         },
 
-        showDate : function (date = new Date()) {
+        showDate : function (date = Showcase.globalDate) {
             $('#bacheca_date').text(date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
         },
 
-        showcaseAutoScroll : function (date = new Date()) {
+        showcaseAutoScroll : function (date = Showcase.globalDate) {
             var STATE = {MORNING : 0, AFTERNOON : 1, SHOWCASE : 2}
-            var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13','bt_hid_14'];
-            var afternoon_hours = ['bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19','bt_hid_20','bt_hid_21'];
+            var morning_hours = ['bt_hid_8', 'bt_hid_9','bt_hid_10','bt_hid_11','bt_hid_12','bt_hid_13'];
+            var afternoon_hours = ['bt_hid_14','bt_hid_15','bt_hid_16','bt_hid_17','bt_hid_18','bt_hid_19','bt_hid_20','bt_hid_21'];
             //prepare elements to show first
             for (id in afternoon_hours) {
                 $('#'+afternoon_hours[id]).fadeOut();
@@ -87,7 +91,7 @@ $(function() {
             var SHOW = STATE.MORNING;
             //start cycling the elements
             INTERVAL = setInterval(function () {
-                date = new Date();
+                date = Showcase.globalDate;
                 $('#bacheca_date').text(date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear());
                 switch (SHOW) {
                     case STATE.MORNING:
@@ -113,8 +117,12 @@ $(function() {
                                 $('#'+afternoon_hours[id]).fadeIn();
                             }
                         }, 300);
-                        console.log(numberOfElements);
-                        if (numberOfElements > 0) {
+
+                        announcementsToShow = Showcase.announcementList.length;
+                        eventsToShow = Showcase.eventList.length;
+                        console.log("events: " + eventsToShow);
+                        console.log("announcements: " + announcementsToShow);
+                        if (eventsToShow > 0 || announcements > 0) {
                             SHOW = STATE.SHOWCASE;
                         } else {
                             SHOW = STATE.MORNING;;
@@ -135,7 +143,7 @@ $(function() {
                         SHOW = STATE.MORNING;
                     default:
                 }
-            }, 10000);
+            }, 8000);
         },
 
         clearShowcase : function () {
@@ -152,19 +160,19 @@ $(function() {
             }
         },
 
-        updateShowcase : function (date = new Date()) {
+        updateShowcase : function (date = Showcase.globalDate) {
             firebase.database().ref('prenotation/'+date.getFullYear()+'/'+(date.getMonth() + 1)+'/'+date.getDate()+'/').on('value',() => {
-                if (date == null) date = new Date();
+                if (date == null) date = Showcase.globalDate;
                 this.reloadShowcase(date);
             });
         },
 
-        reloadShowcase : function (date = new Date()) {
+        reloadShowcase : function (date = Showcase.globalDate) {
             Showcase.clearShowcase();
             Showcase.loadShowcase(date);
         },
 
-        loadShowcase : function (date = new Date()) {
+        loadShowcase : function (date = Showcase.globalDate) {
             console.log('load showcase');
             var favourite_classrooms = [];
             var other_classrooms = [];
@@ -252,7 +260,7 @@ $(function() {
             });
         },
 
-        loadEventShowcase : function (date = new Date()) {            
+        loadEventShowcase : function (date = Showcase.globalDate) {            
             firebase.database().ref('announcement/').on('value', snap => {
                 snap.forEach(childSnap => {
                     firebase.database().ref('announcement/'+childSnap.key).on('value', () => {
@@ -315,7 +323,6 @@ $(function() {
         updateList(type, date) {
             var stringDate = date.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate();
             var promises = [];
-            numberOfElements = 0;
             if (type == 'ANNOUNCEMENT') {
                 this.announcementList = [];
                 var first_hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
@@ -324,8 +331,6 @@ $(function() {
                     announcements.forEach(announcement => {
                         if (announcement.val().startDate <= last_hour.getTime() && announcement.val().startDate >= first_hour.getTime()) {
                             this.announcementList.push(new Announcement(announcement.val().title, announcement.val().description, announcement.key, announcement.val().type));
-                            numberOfElements += 1;
-                            console.log(numberOfElements);
                         }
                     });
                 });
@@ -336,8 +341,6 @@ $(function() {
                         firebase.database().ref('event/'+event.key).once('value', e => {
                             if (e.val().onShowcase) {
                                 this.eventList.push(new Announcement(e.val().title, e.val().description, e.key, type));
-                                numberOfElements += 1;
-                                console.log(numberOfElements);
                             }
                         });                        
                     });
@@ -346,8 +349,6 @@ $(function() {
             promises.push(myprom);
 
             Promise.all(promises).then(() => {
-                if (type == 'EVENT') {
-                }
                 this.updateAnnouncementOnDashboard(type);
             });
         } 
@@ -360,10 +361,10 @@ $(function() {
     Showcase.loadEventShowcase();
     
     $('#datetimepicker').on('change', () => {
-        var date = $('#datetimepicker').datetimepicker('getValue');
-        Showcase.updateShowcase(date);
-        Showcase.showDate(date);
-        Showcase.loadEventShowcase(date);
+        Showcase.globalDate = $('#datetimepicker').datetimepicker('getValue');
+        Showcase.updateShowcase(Showcase.globalDate);
+        Showcase.showDate(Showcase.globalDate);
+        Showcase.loadEventShowcase(Showcase.globalDate);
     });
 });
 

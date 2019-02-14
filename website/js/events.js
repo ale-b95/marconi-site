@@ -459,6 +459,7 @@ var EventsManagement = {
                 EventsManagement.loadEventDateList(this.newEvent, ['event_date_list']);
                 EventsManagement.loadEventList();
                 backPage();
+                EventsManagement.resetForms();
             });
         }
     },
@@ -595,26 +596,43 @@ $(function () {
 
     /*New event date*/
     $('#new_event_date_btn').on('click', () => {
-        EventsManagement.selectedEvent = EventsManagement.newEvent;
-        EventsManagement.eventDateInit();
-        showPage($('#new_event_date_page'));
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            EventsManagement.selectedEvent = EventsManagement.newEvent;
+            EventsManagement.eventDateInit();
+            showPage($('#new_event_date_page'));
+        }
     });
 
     $('#add_event_date_btn').on('click', () => {
-        EventsManagement.addDate = true;
-        EventsManagement.eventDateInit();
-        showPage($('#new_event_date_page'));
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            EventsManagement.addDate = true;
+            EventsManagement.eventDateInit();
+            showPage($('#new_event_date_page'));
+        }
     });
 
     $('#create_event_date_btn').on('click', () => {
-        var newDate = EventsManagement.createEventDate();
-        if (newDate != null) { 
-            if (EventsManagement.addDate) {
-                EventsManagement.addDateToDbEvent(EventsManagement.selectedEvent, newDate);
-                EventsManagement.addDate = false;
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            $('#select_event_classroom option').prop('selected', function() {
+                return this.defaultSelected;
+            });
+            var newDate = EventsManagement.createEventDate();
+            if (newDate != null) { 
+                if (EventsManagement.addDate) {
+                    EventsManagement.addDateToDbEvent(EventsManagement.selectedEvent, newDate);
+                    EventsManagement.addDate = false;
+                }
+                EventsManagement.selectedEvent.addDate(newDate);
+                EventsManagement.loadEventDateList(EventsManagement.selectedEvent, ['event_date_details_list', 'event_date_list']);
             }
-            EventsManagement.selectedEvent.addDate(newDate);
-            EventsManagement.loadEventDateList(EventsManagement.selectedEvent, ['event_date_details_list', 'event_date_list']);
+        }
+    });
+
+    $("#ed_back").on("click", () => {
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            $('#select_event_classroom option').prop('selected', function() {
+                return this.defaultSelected;
+            });
         }
     });
     
@@ -625,7 +643,9 @@ $(function () {
     });
 
     $('#select_event_classroom, #datetimepicker3').on('change', () => {
-        EventsManagement.updateEventPageData();
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            EventsManagement.updateEventPageData();
+        }
     });
 
     $('#select_event_classroom').on('change', () => {
@@ -638,9 +658,11 @@ $(function () {
     });
     
     $('#new_event_btn').on('click', () => {
-        EventsManagement.newEvent = new InstituteEvent();
-        $('.date_list').empty();
-        showPage($('#new_event_page'));
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            EventsManagement.newEvent = new InstituteEvent();
+            $('.date_list').empty();
+            showPage($('#new_event_page'));
+        }
     });
     
     $('#schedule_event_table').on('click', '.clickable-row', function(event) {
@@ -659,11 +681,12 @@ $(function () {
     
     //save the event on database
     $('#create_event_btn').on('click', () => {
-        if (EventsManagement.newEvent.date.length == 0) {
-            alert('L\'evento non ha date. Crea almeno una data per l\'evento');
-        } else {
-            EventsManagement.createEvent();
-            EventsManagement.resetForms();
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            if (EventsManagement.newEvent.date.length == 0) {
+                alert('L\'evento non ha date. Crea almeno una data per l\'evento');
+            } else {
+                EventsManagement.createEvent();
+            }
         }
     });
 
@@ -676,6 +699,14 @@ $(function () {
     });
 });
 
+$("#ev_back").on("click", () => {
+    if (Marconi.admin == 1 || Marconi.admin == 0) {
+        EventsManagement.resetForms();
+    }
+});
+
 function onClickHandler(cb) {
-    EventsManagement.loadClassroomSchedule();
+    if (Marconi.admin == 1 || Marconi.admin == 0) {
+        EventsManagement.loadClassroomSchedule();
+    }
 }

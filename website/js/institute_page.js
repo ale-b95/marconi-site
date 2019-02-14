@@ -107,10 +107,14 @@ $(function () {
         relative data loaded.
     */
     $("#croom_prenotation_btn").on('click', () => {
-        $("#schedule_table_body").empty();
-        DataFormFillUtility.loadClassroomSelectList("select_classroom");
-        DataFormFillUtility.loadClassSelectList("select_class");
-        showPage($("#schedule_page"));
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
+            $("#schedule_table_body").empty();
+            DataFormFillUtility.loadClassroomSelectList("select_classroom");
+            DataFormFillUtility.loadClassSelectList("select_class");
+            showPage($("#schedule_page"));
+        } else {
+            console.log("no auth");
+        }
     });
 
     /*$(".back_btn").on('click', () => {
@@ -125,6 +129,7 @@ $(function () {
     })
     
     $("#events_btn").on('click', () => {
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
         DataFormFillUtility.loadClassroomSelectList("select_event_classroom", null, "Inserisci nuovo luogo");
         DataFormFillUtility.loadClassSelectList("event_class");
         EventsManagement.init();
@@ -132,6 +137,9 @@ $(function () {
         showPage($("#events_page"));
         $("#schedule_event_table_body").empty();
         $("#event_place").hide();
+        } else {
+            console.log("no auth");
+        }
     });
     
     $("#search_class_btn").on('click', () => {

@@ -13,7 +13,7 @@
         <title>Marconi</title>
         
     </head>
-
+    
     <body>
         <!-- LOGIN -->
         <div>
@@ -27,6 +27,7 @@
                     <input id="lInPwd" class="form-control" type="password" placeholder="password">
                     <hr>
                     <button class="btn long-btn btn-primary btn-lg" id="login_button" type="button">Accedi</button>
+                    <button class="btn long-btn btn-primary btn-lg" id="guest_button" type="button">Ospite</button>
                     <a class="btn long-btn btn-link btn-lg" id="signup_link">Registrati</a>   
                 </div>
                 <div class="col-md-4 col-lg-5"></div>
@@ -300,7 +301,7 @@
                     <!--<button id="bacheca_btn" class="btn long-btn btn-outline-primary btn-lg" type="button">Bacheca</button>-->
                     <button id="admin_btn" class="btn long-btn btn-outline-primary btn-lg collapse" type="button">Amministrazione</button> 
                     <hr>
-                    <button id="logout_button" class="btn long-btn btn-primary btn-lg back_btn" type="button">Indietro</button> 
+                    <button id="logout_button" class="btn long-btn btn-primary btn-lg back_btn" type="button">Logout</button> 
                 </div>
                 <div class="col-md-4 col-lg-5"></div>
             </div>
@@ -385,7 +386,7 @@
                         <button id="new_event_date_btn" class="btn long-btn btn-lg btn-outline-primary" type="button">Aggiungi Data</button>
                         <div id="event_date_list" class="list-group center-std-element date_list" autocomplete="off"></div>
                         <button id="create_event_btn" class="btn long-btn btn-lg btn-primary" type="button">Crea Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
+                        <button id="ev_back" class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
                     </div>
                 </div>
                 <div class="col-md-4 col-lg-5"></div>
@@ -416,7 +417,7 @@
                         </div>
                         <hr>            
                         <button id="create_event_date_btn" class="btn long-btn btn-primary btn-lg" type="button">Crea Data Evento</button>
-                        <button class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
+                        <button id="ed_back" class="btn long-btn btn-primary btn-lg back_btn" type="button">Annulla</button>
                     </div>
                 </div>
                 <div class="col-md-4 col-lg-5"></div>

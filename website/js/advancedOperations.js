@@ -15,21 +15,25 @@ var AdvancedOperations = {
         
         DataFormFillUtility.createDayScheduleTable('advanced_schedule_table_body', this.proto_week_selection);
         $('#adv_prenotation_btn').on('click', () => {
-            this.setupAdvancedOperations();
+            if (Marconi.admin == 1) {
+                this.setupAdvancedOperations();
+            }
         });
         $("#advanced_schedule_table_body").on('click', '.clickable-row', function(event) {
-            var day = $('#adv_select_day').val();
-            if ($(this).hasClass('d-'+day)) {
-                var s_hour = parseInt($(this).attr('value'));
-                if ($(this).hasClass('selected_row')) {
-                    $(this).removeClass('selected_row');
-                    AdvancedOperations.proto_week_selection.selected_rows--;
-                    var idx = AdvancedOperations.proto_week_selection.selected_hours[day].indexOf(s_hour);
-                    if (idx >= 0) AdvancedOperations.proto_week_selection.selected_hours[day].splice(idx, 1);
-                } else {
-                    $(this).addClass('selected_row');
-                    AdvancedOperations.proto_week_selection.selected_hours[day].push(s_hour);
-                    AdvancedOperations.proto_week_selection.selected_rows++;
+            if (Marconi.admin == 1) {
+                var day = $('#adv_select_day').val();
+                if ($(this).hasClass('d-'+day)) {
+                    var s_hour = parseInt($(this).attr('value'));
+                    if ($(this).hasClass('selected_row')) {
+                        $(this).removeClass('selected_row');
+                        AdvancedOperations.proto_week_selection.selected_rows--;
+                        var idx = AdvancedOperations.proto_week_selection.selected_hours[day].indexOf(s_hour);
+                        if (idx >= 0) AdvancedOperations.proto_week_selection.selected_hours[day].splice(idx, 1);
+                    } else {
+                        $(this).addClass('selected_row');
+                        AdvancedOperations.proto_week_selection.selected_hours[day].push(s_hour);
+                        AdvancedOperations.proto_week_selection.selected_rows++;
+                    }
                 }
             }
         });
@@ -173,11 +177,15 @@ var AdvancedOperations = {
                 $('#prenotationOverrideAlertModal').modal('show');
                 
                 $('#abort_override_btn').on('click',() => {
-                    this.advancedOperationDone();
+                    if (Marconi.admin == 1) {
+                        this.advancedOperationDone();
+                    }
                 });
                 
                 $('#prenotation_override_btn').on('click', () => {
-                    this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
+                    if (Marconi.admin == 1) {
+                        this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
+                    }
                 });
             } else {
                 this.makePrenotation(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);

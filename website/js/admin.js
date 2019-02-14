@@ -32,80 +32,106 @@ $(function () {
 
     //----------------------------------------------------------------------------------- Navigation buttons   
     $("#admin_btn").on('click', () => {
-        showPage($("#administration_page"));
+        if (Marconi.admin == 1) {
+            showPage($("#administration_page"));
+        } else {
+            console.log("no auth");
+        }
     });
 
     $("#roles_and_permission_btn").on('click', () => {
-        loadUsersList();
-        showPage($("#roles_and_permission_page"));
+        if (Marconi.admin == 1) {
+            loadUsersList();
+            showPage($("#roles_and_permission_page"));
+        }
     });
 
     $("#admin_classrooms_btn").on('click', () => {
-        loadClassroomList();
-        showPage($("#admin_classrooms_page"));
+        if (Marconi.admin == 1) {
+            loadClassroomList();
+            showPage($("#admin_classrooms_page"));
+        }
     });
 
     $("#admin_classes_btn").on('click', () => {
-        loadClassList();
-        showPage($("#admin_classes_page"));
+        if (Marconi.admin == 1) {
+            loadClassList();
+            showPage($("#admin_classes_page"));
+        }
     });
 
     $("#advanced_prenotations_btn").on('click', () => {
-        showPage($("#admin_prenotation_page"));
-        DataFormFillUtility.loadClassroomSelectList('adv_croom_select');
-        DataFormFillUtility.loadClassSelectList('adv_class_select');
-        DataFormFillUtility.loadUserSelectList('adv_user_select');
+        if (Marconi.admin == 1) {
+            showPage($("#admin_prenotation_page"));
+            DataFormFillUtility.loadClassroomSelectList('adv_croom_select');
+            DataFormFillUtility.loadClassSelectList('adv_class_select');
+            DataFormFillUtility.loadUserSelectList('adv_user_select');
+        }
     });
 
     $("#access_code_btn").on('click', () => {
-        showPage($("#access_code_page"));
+        if (Marconi.admin == 1) {
+            showPage($("#access_code_page"));
+        }
     });
 
     $("#announcement_btn").on('click', () => {
-        showPage($("#announcement_page"));
+        if (Marconi.admin == 1) {
+            showPage($("#announcement_page"));
+        }
     });
 
     //----------------------------------------------------------------------------------- Behaviour buttons
     $("#add_classroom_btn").on('click', () => {
-        addClassroom();
+        if (Marconi.admin == 1) {
+            addClassroom();
+        }
     });
 
     $("#add_class_btn").on('click', () => {
-        addClassToDb();
+        if (Marconi.admin == 1) {
+            addClassToDb();
+        }
     });
 
     $("#get_code_btn").on('click', () => {
-        var code;
-        do {
-            code = SecurityCodeUtility.generateCode();
-        } while (!SecurityCodeUtility.readCode(code));
-        $("#show_code").text(code);
+        if (Marconi.admin == 1) {
+            var code;
+            do {
+                code = SecurityCodeUtility.generateCode();
+            } while (!SecurityCodeUtility.readCode(code));
+            $("#show_code").text(code);
+        }
     });
 
     $("#download_code_btn").on('click', () => {
-        var code = [];
-        for (var i = 0 ; i < 100; i++) {
-            code[i] = SecurityCodeUtility.generateCode() + "\n";
-        }
+        if (Marconi.admin == 1) {
+            var code = [];
+            for (var i = 0 ; i < 100; i++) {
+                code[i] = SecurityCodeUtility.generateCode() + "\n";
+            }
 
-        var blob = new Blob(code, {type: "text/plain",endings:'native'});
-        const object_URL = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.setAttribute("type", "hidden");
-        a.href = object_URL;
-        a.download = "codiciAccesso";
-        document.body.appendChild(a);
-        a.click();
+            var blob = new Blob(code, {type: "text/plain",endings:'native'});
+            const object_URL = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.setAttribute("type", "hidden");
+            a.href = object_URL;
+            a.download = "codiciAccesso";
+            document.body.appendChild(a);
+            a.click();
+        }
     });
 
     $('#user_dell_btn').on('click', () => {
-        firebase.database().ref('user/'+Admin.selected_user).update({
-            priviledges : "-1"
-        });
+        if (Marconi.admin == 1) {
+            firebase.database().ref('user/'+Admin.selected_user).update({
+                priviledges : "-1"
+            });
 
-        $('#user_dell_btn').slideUp();
+            $('#user_dell_btn').slideUp();
 
-        loadUsersList();
+            loadUsersList();
+        }
     });
     
     //-----------------------------------------------------------------------------------
@@ -164,7 +190,6 @@ $(function () {
 
                     $('#dell-btn-'+childSnap.key).on('click', () => {
                         Admin.selected_user = childSnap.key;
-                        user_dell_btn
                         $('#user_dell_btn').slideDown();
                     });
 
@@ -256,9 +281,11 @@ $(function () {
                 });
 
                 $("#"+key).on('click', () => {
-                    $("#admin_classroom_table_body").empty();
-                    firebase.database().ref('classroom/'+key).remove();
-                    loadClassroomList();
+                    if (Marconi.admin == 1) {
+                        $("#admin_classroom_table_body").empty();
+                        firebase.database().ref('classroom/'+key).remove();
+                        loadClassroomList();
+                    }
                 });
             });
         });
@@ -311,9 +338,11 @@ $(function () {
                 $("#admin_classes_table_body").append(tableRow);
                 
                 $("#"+classKey).on('click', () => {
-                    $("#admin_class_table_body").empty();
-                    firebase.database().ref('class/'+classKey).remove();
-                    loadClassList();
+                    if (Marconi.admin == 1) {
+                        $("#admin_class_table_body").empty();
+                        firebase.database().ref('class/'+classKey).remove();
+                        loadClassList();
+                    }
                 });
             })
         });

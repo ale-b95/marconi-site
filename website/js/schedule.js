@@ -95,86 +95,88 @@ $(function () {
         Create a prenotation for each selected row
     */
     $('#book_prenotation_btn').on('click', () => {
-        /*
-            Check whether the day of the selected has already passed, in wich
-            case no prenotations are allowed.
-        */
-        var today = Date.now() - (24*3600*1000);
-        var user = firebase.auth().currentUser;
-        
-        /*
-            If the class, the day, the classroom and the hour/s have been selected
-            save the prenotation on the database.
-        */
-        if (class_name && class_name != 'Seleziona classe' && cs_selected_rows > 0 && sc_date >= today && classroom_name != "Seleziona aula") {
-            
-            for (var i = 0; i < selected_hours.length; i++) {
-                var hour = selected_hours[i];
-                firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+hour+'/').set({
-                class_key : class_key,
-                class_name : class_name,
-                classroom : classroom_name,
-                teacher : user.displayName,
-                teacher_key : user.uid
-                });
-
-                firebase.database().ref('class/'+class_key+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/').update({
-                    [hour] : classroom_name
-                });
-            }
-            selected_hours = [];
-            loadClassroomSchedule();
-            cs_selected_rows = 0;
-            mb_selected_rows = 0;
-            $('#book_prenotation_btn').text('Prenota');
-        } else if (class_name == 'Seleziona classe' && cs_selected_rows > 0){
-            alert ('Seleziona una classe');
-        } else if (classroom_name == 'Seleziona aula') {
-            alert ("Seleziona un'aula");
-        } else if (mb_selected_rows > 0) {
+        if (Marconi.admin == 1 || Marconi.admin == 0) {
             /*
-                If the selected rows already have a prenotation the button will remove
-                the previous prenotation.
-            */  
-            var class_hour = {};
-            var promises = [];
-            for (i in selected_hours) {
-                var hour = selected_hours[i];
-                var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', function(snap) {
-                    if (class_hour.hasOwnProperty(snap.val().class_key+"")) {
-                        var arr = class_hour[snap.val().class_key];
-                        arr.push(this.h);
-                        class_hour[snap.val().class_key] = arr;
-                    } else {
-                        var arr = [];
-                        arr.push(this.h);
-                        class_hour[snap.val().class_key] = arr;
+                Check whether the day of the selected has already passed, in wich
+                case no prenotations are allowed.
+            */
+            var today = Date.now() - (24*3600*1000);
+            var user = firebase.auth().currentUser;
+            
+            /*
+                If the class, the day, the classroom and the hour/s have been selected
+                save the prenotation on the database.
+            */
+            if (class_name && class_name != 'Seleziona classe' && cs_selected_rows > 0 && sc_date >= today && classroom_name != "Seleziona aula") {
+                
+                for (var i = 0; i < selected_hours.length; i++) {
+                    var hour = selected_hours[i];
+                    firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+hour+'/').set({
+                    class_key : class_key,
+                    class_name : class_name,
+                    classroom : classroom_name,
+                    teacher : user.displayName,
+                    teacher_key : user.uid
+                    });
+
+                    firebase.database().ref('class/'+class_key+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/').update({
+                        [hour] : classroom_name
+                    });
+                }
+                selected_hours = [];
+                loadClassroomSchedule();
+                cs_selected_rows = 0;
+                mb_selected_rows = 0;
+                $('#book_prenotation_btn').text('Prenota');
+            } else if (class_name == 'Seleziona classe' && cs_selected_rows > 0){
+                alert ('Seleziona una classe');
+            } else if (classroom_name == 'Seleziona aula') {
+                alert ("Seleziona un'aula");
+            } else if (mb_selected_rows > 0) {
+                /*
+                    If the selected rows already have a prenotation the button will remove
+                    the previous prenotation.
+                */  
+                var class_hour = {};
+                var promises = [];
+                for (i in selected_hours) {
+                    var hour = selected_hours[i];
+                    var my_prom = firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+selected_hours[i]).once('value', function(snap) {
+                        if (class_hour.hasOwnProperty(snap.val().class_key+"")) {
+                            var arr = class_hour[snap.val().class_key];
+                            arr.push(this.h);
+                            class_hour[snap.val().class_key] = arr;
+                        } else {
+                            var arr = [];
+                            arr.push(this.h);
+                            class_hour[snap.val().class_key] = arr;
+                        }
+                    }.bind({h : hour}));
+                    promises.push(my_prom);
+                }
+
+                Promise.all(promises).then(() => {
+                    var classes = Object.keys(class_hour);
+                    for (x in classes) {
+                        var arr = class_hour[classes[x]];
+                        for (y in arr) {
+                            firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/'+arr[y]).remove();
+                            firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+arr[y]).remove();
+                        }
                     }
-                }.bind({h : hour}));
-                promises.push(my_prom);
+                });
+                
+                loadClassroomSchedule();
+                selected_hours = [];
+                cs_selected_rows = 0;
+                mb_selected_rows = 0;
+                $('#book_prenotation_btn').text('Prenota');
+            } else if (sc_date < today) {
+                alert('ERRORE: Non possono essere effettuate modifiche per la data selezionata.');
             }
 
-            Promise.all(promises).then(() => {
-                var classes = Object.keys(class_hour);
-                for (x in classes) {
-                    var arr = class_hour[classes[x]];
-                    for (y in arr) {
-                        firebase.database().ref('class/'+classes[x]+'/prenotation/'+sc_date.getFullYear()+'-'+(sc_date.getMonth() + 1)+'-'+sc_date.getDate()+'/'+arr[y]).remove();
-                        firebase.database().ref('prenotation/'+sc_date.getFullYear()+'/'+(sc_date.getMonth() + 1)+'/'+sc_date.getDate()+'/'+classroom_id+'/'+arr[y]).remove();
-                    }
-                }
-            });
-            
-            loadClassroomSchedule();
-            selected_hours = [];
-            cs_selected_rows = 0;
-            mb_selected_rows = 0;
-            $('#book_prenotation_btn').text('Prenota');
-        } else if (sc_date < today) {
-            alert('ERRORE: Non possono essere effettuate modifiche per la data selezionata.');
+            update_class_references();
         }
-
-        update_class_references();
     });
 
     /*$('.back_btn').on('click', () => {

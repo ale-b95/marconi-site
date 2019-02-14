@@ -30,12 +30,15 @@ var Announcement = {
         });
     
         $('#send_announcement').on('click', () => {
-            this.writeAnnouncement();
-            
+            if (Marconi.admin == 1) {
+                this.writeAnnouncement();
+            }
         });
     
         $('#delete_announcement').on('click', () => {
-            this.deleteAnnouncement();
+            if (Marconi.admin == 1) {
+                this.deleteAnnouncement();
+            }
         });
 
         $('#announcement_select').on('change', () => {
@@ -48,7 +51,9 @@ var Announcement = {
         })
 
         $('#ann_done').on('click', () => {
-            this.announcement_done();
+            if (Marconi.admin == 1) {
+                this.announcement_done();
+            }
         })
     },
 

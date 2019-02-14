@@ -169,6 +169,7 @@ $(function () {
   }
 
   function logAsGuest() {
+    Marconi.admin = -1;
     $("#admin_btn").hide();
     $("#croom_prenotation_btn").hide();
     $("#search_class_btn").show();
